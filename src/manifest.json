@@ -1,0 +1,291 @@
+{
+    "name" : "环浙步道",
+    "appid" : "__UNI__8C7D00B",
+    "description" : "环浙步道赛事管理系统",
+    "versionName" : "1.0.0",
+    "versionCode" : 100,
+    "transformPx" : false,
+    /* 5+App特有相关 */
+    "app-plus" : {
+        "safearea" : {
+            "bottom" : {
+                // 底部安全区域配置
+                "offset" : "none" // 底部安全区域偏移，"none"表示不空出安全区域，"auto"自动计算空出安全区域，默认值为"none"
+            },
+            "left" : {
+                // 左侧安全区域配置（横屏显示时有效）
+                "offset" : "none"
+            },
+            "right" : {
+                // 右侧安全区域配置（横屏显示时有效）
+                "offset" : "none"
+            }
+        },
+        "kernel" : {
+            "ios" : "WKWebview"
+        },
+        "usingComponents" : true,
+        "nvueStyleCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : true,
+            "waiting" : true,
+            "autoclose" : true,
+            "delay" : 2000
+        },
+        "privacy" : {
+            "prompt" : "template",
+            "template" : {
+                "title" : "服务协议和隐私政策",
+                "message" : "　　请你务必审慎阅读、充分理解“服务协议”和“隐私政策”各条款，包括但不限于：为了更好的向你提供服务，我们需要收集你的设备标识、操作日志等信息用于分析、优化应用性能。<br/>　　你可阅读<a href=\"https://zts.5618.co/repo/about/protocal_run.html\">《服务协议》</a>和<a href=\"https://zts.5618.co/repo/about/privacy_run.html\">《隐私政策》</a>了解详细信息。如果你同意，请点击下面按钮开始接受我们的服务。",
+                "buttonAccept" : "同意",
+                "buttonRefuse" : "暂不同意",
+                "second" : {
+                    "title" : "温馨提示",
+                    "message" : "　　进入应用前，你需先同意<a href=\"https://zts.5618.co/repo/about/protocal_run.html\">《服务协议》</a>和<a href=\"https://zts.5618.co/repo/about/privacy_run.html\">《隐私政策》</a>，否则将退出应用。",
+                    "buttonAccept" : "同意并继续",
+                    "buttonRefuse" : "退出应用"
+                }
+            }
+        },
+        /* 模块配置 */
+        "modules" : {
+            "Maps" : {},
+            "VideoPlayer" : {},
+            "Statistic" : {},
+            "Geolocation" : {},
+            "Share" : {},
+            "Push" : {}
+        },
+        /* 应用发布信息 */
+        "distribute" : {
+            /* android打包配置 */
+            "android" : {
+                "permissions" : [
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_LOCATION_EXTRA_COMMANDS\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_MOCK_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.CAPTURE_AUDIO_OUTPUT\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.MEDIA_CONTENT_CONTROL\"/>",
+                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
+                    "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.RECEIVE_BOOT_COMPLETED\"/>",
+                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+                    "<uses-permission android:name=\"android.permission.USE_FINGERPRINT\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>",
+                    "<uses-permission android:name=\"android.permission.RECEIVE_USER_PRESENT\"/>",
+                    "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>"
+                ],
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ]
+            },
+            /* ios打包配置 */
+            "ios" : {
+                "idfa" : false,
+                "privacyDescription" : {
+                    "NSPhotoLibraryUsageDescription" : "用于照片上传",
+                    "NSPhotoLibraryAddUsageDescription" : "用于记录采集照片",
+                    "NSCameraUsageDescription" : "扫码或记录沿途照片",
+                    "NSLocationWhenInUseUsageDescription" : "请打开定位服务展示附近的路线和坐标",
+                    "NSLocationAlwaysUsageDescription" : "记录运动轨迹",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "记录运动轨迹",
+                    "NSAppleMusicUsageDescription" : "下载照片或视频",
+                    "NSLocalNetworkUsageDescription" : "获取线路数据"
+                },
+                "UIBackgroundModes" : "location",
+                "capabilities" : {
+                    "entitlements" : {
+                        "com.apple.developer.associated-domains" : [ "t4.tianditu.gov.cn", "zts.5618.co", "z.szs.run" ]
+                    }
+                },
+                /*应用支持的方向，portrait-primary：竖屏正方向；portrait-secondary：竖屏反方向；landscape-primary：横屏正方向；landscape-secondary：横屏反方向*/
+                "orientation" : [ "portrait-primary", "landscape-primary" ],
+                "dSYMs" : false
+            },
+            /* SDK配置 */
+            "sdkConfigs" : {
+                "geolocation" : {
+                    "amap" : {
+                        "__platform__" : [ "ios", "android" ],
+                        "appkey_ios" : "480a8d963a6445a369c24a178da96376",
+                        "appkey_android" : "aabea8b5a59280989a8daecd30266181"
+                    },
+                    "system" : {
+                        "__platform__" : [ "ios", "android" ]
+                    }
+                },
+                "maps" : {
+                    "amap" : {
+                        "__platform__" : [ "ios", "android" ],
+                        "appkey_ios" : "480a8d963a6445a369c24a178da96376",
+                        "appkey_android" : "aabea8b5a59280989a8daecd30266181"
+                    }
+                },
+                "push" : {
+                    "unipush" : {
+                        "version" : "2",
+                        "offline" : false,
+                        "icons" : {
+                            "small" : {
+                                "xxhdpi" : "unpackage/res/icons/72x72.png",
+                                "xhdpi" : "unpackage/res/icons/48x48.png",
+                                "hdpi" : "unpackage/res/icons/36x36.png",
+                                "mdpi" : "unpackage/res/icons/24x24.png",
+                                "ldpi" : "unpackage/res/icons/18x18.png"
+                            }
+                        }
+                    }
+                },
+                "statics" : {},
+                "ad" : {},
+                "speech" : {
+                    "ifly" : {}
+                },
+                "share" : {}
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+                },
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            },
+            "splashscreen" : {
+                "useOriginalMsgbox" : true,
+                "iosStyle" : "storyboard",
+                "ios" : {
+                    "storyboard" : "D:/_/appuploader_win/my/Collect_splashscreen.zip"
+                },
+                "androidStyle" : "common",
+                "android" : {
+                    "xxhdpi" : "",
+                    "xhdpi" : "",
+                    "hdpi" : ""
+                }
+            }
+        },
+        "nativePlugins" : {
+            "XM_Alive_Location" : {
+                "__plugin_info__" : {
+                    "name" : "保活定位插件",
+                    "description" : "后台保活，使用高德地图进行定位和定位上传",
+                    "platforms" : "Android,iOS",
+                    "url" : "",
+                    "android_package_name" : "",
+                    "ios_bundle_id" : "",
+                    "isCloud" : false,
+                    "bought" : -1,
+                    "pid" : "",
+                    "parameters" : {}
+                }
+            },
+            "nrb-tts-plugin" : {
+                "__plugin_info__" : {
+                    "name" : "语音合成TTS",
+                    "description" : "原生语音合成TTS",
+                    "platforms" : "Android,iOS",
+                    "url" : "https://ext.dcloud.net.cn/plugin?id=4133",
+                    "android_package_name" : "uni.UNI210B33A",
+                    "ios_bundle_id" : "szs.run",
+                    "isCloud" : true,
+                    "bought" : 1,
+                    "pid" : "4133",
+                    "parameters" : {}
+                }
+            }
+        }
+    },
+    /* 快应用特有相关 */
+    "quickapp" : {},
+    /* 小程序特有相关 */
+    "mp-weixin" : {
+        "appid" : "wx8243aa2843282582",
+        "setting" : {
+            "urlCheck" : true,
+            "postcss" : true,
+            "minified" : true
+        },
+        "usingComponents" : true,
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "用于地图或线路的定位辅助"
+            }
+        }
+    },
+    "mp-alipay" : {
+        "usingComponents" : true
+    },
+    "mp-baidu" : {
+        "usingComponents" : true
+    },
+    "mp-toutiao" : {
+        "usingComponents" : true
+    },
+    "uniStatistics" : {
+        "enable" : false
+    },
+    "vueVersion" : "2",
+    "h5" : {
+        "title" : "环浙步道",
+        "appkey" : "065wqkqc+2001832114+rswca",
+        "router" : {
+            "base" : "/szs/",
+            "mode" : "hash"
+        },
+        "sdkConfigs" : {
+            "maps" : {
+                "qqmap" : {
+                    "key" : "CCJBZ-R2ZRJ-RIBFM-KSU34-D6D6E-ZPBNQ"
+                }
+            }
+        },
+        "optimization" : {
+            "treeShaking" : {
+                "enable" : true
+            }
+        }
+    },
+    "locale" : "zh-Hans",
+    "fallbackLocale" : "zh-Hans"
+}

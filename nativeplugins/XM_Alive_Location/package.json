@@ -1,0 +1,52 @@
+{
+	"name": "保活定位插件",
+	"id": "XM_Alive_Location",
+	"version": "v1.0.2020.07.14",
+	"description": "后台保活，使用高德地图进行定位和定位上传",
+	"_dp_type": "nativeplugin",
+	"_dp_nativeplugin": {
+		"android": {
+			"plugins": [{
+				"type": "module",
+				"name": "XM_Alive_Location",
+				"class": "com.xiaoming.plugin.obtain_location.LocationModule"
+			}],
+			"integrateType": "aar",
+			"dependencies": [
+
+			],
+			"permissions": [
+				"android.permission.ACCESS_COARSE_LOCATION",
+				"android.permission.ACCESS_NETWORK_STATE",
+				"android.permission.ACCESS_FINE_LOCATION",
+				"android.permission.READ_PHONE_STATE",
+				"android.permission.CHANGE_WIFI_STATE",
+				"android.permission.ACCESS_WIFI_STATE",
+				"android.permission.WAKE_LOCK",
+				"android.permission.WRITE_EXTERNAL_STORAGE",
+				"android.permission.READ_EXTERNAL_STORAGE",
+				"android.permission.INTERNET"
+			],
+			"minSdkVersion": "19"
+		},
+		"ios": {
+			"hooksClass": "DownloaderProxy",
+			"plugins": [{
+				"type": "module",
+				"name": "XM_Alive_Location",
+				"class": "XmGaodeLocation"
+			}],
+			"frameworks": [
+				"MAMapKit.framework"
+			],
+			"embedFrameworks": [
+
+			],
+			"validArchitectures": [
+				"arm64", "armv7"
+			],
+			"deploymentTarget": "9.0",
+			"integrateType": "library"
+		}
+	}
+}

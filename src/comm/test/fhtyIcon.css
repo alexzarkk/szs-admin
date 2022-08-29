@@ -1,0 +1,380 @@
+@font-face {
+  font-family: 'cuIcon';  /* Project id 2352814 */
+  src: url('//at.alicdn.com/t/font_2352814_qkmwnpu8rr.woff2?t=1625647251716') format('woff2'),
+       url('//at.alicdn.com/t/font_2352814_qkmwnpu8rr.woff?t=1625647251716') format('woff'),
+       url('//at.alicdn.com/t/font_2352814_qkmwnpu8rr.ttf?t=1625647251716') format('truetype');
+}
+
+.cuIcon {
+  font-family: "cuIcon" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.cuIcon-xin:before {
+  content: "\e64c";
+}
+.cuIcon-search:before {
+  content: "\e607";
+}
+
+.cuIcon-night:before {
+  content: "\e6a1";
+}
+
+.cuIcon-sun:before {
+  content: "\e633";
+}
+
+.cuIcon-SOS:before {
+  content: "\e89f";
+}
+
+.cuIcon-card:before {
+  content: "\e64b";
+}
+
+.cuIcon-formfill:before {
+  content: "\e655";
+}
+
+.cuIcon-medalfill:before {
+  content: "\e65f";
+}
+
+.cuIcon-redpacket_fill:before {
+  content: "\e66d";
+}
+
+.cuIcon-calendar:before {
+  content: "\e647";
+}
+
+.cuIcon-like:before {
+  content: "\e65c";
+}
+
+.cuIcon-notice:before {
+  content: "\e664";
+}
+
+.cuIcon-peoplelist:before {
+  content: "\e666";
+}
+
+.cuIcon-selection:before {
+  content: "\e673";
+}
+
+.cuIcon-upstage:before {
+  content: "\e67d";
+}
+
+.cuIcon-edit:before {
+  content: "\e650";
+}
+
+.cuIcon-evaluate:before {
+  content: "\e651";
+}
+
+.cuIcon-dingdan:before {
+  content: "\e663";
+}
+
+.cuIcon-paobu:before {
+  content: "\e602";
+}
+
+.cuIcon-youyongcaise:before {
+  content: "\e626";
+}
+
+.cuIcon-shuben:before {
+  content: "\e80b";
+}
+
+.cuIcon-xiuxiqu:before {
+  content: "\e60e";
+}
+
+.cuIcon-peixunzhongxin:before {
+  content: "\e62c";
+}
+
+.cuIcon-tingchewei:before {
+  content: "\e7c3";
+}
+
+.cuIcon-xiangyoudan:before {
+  content: "\e618";
+}
+
+.cuIcon-linyu:before {
+  content: "\e637";
+}
+
+.cuIcon-dianhua:before {
+  content: "\e60a";
+}
+
+.cuIcon-sanjiao-copy:before {
+  content: "\f156";
+}
+
+.cuIcon-sanjiao:before {
+  content: "\e629";
+}
+
+.cuIcon-didian:before {
+  content: "\e686";
+}
+
+.cuIcon-yichayue:before {
+  content: "\e649";
+}
+
+.cuIcon-yuedu:before {
+  content: "\e6b6";
+}
+
+.cuIcon-zhengjian:before {
+  content: "\e749";
+}
+
+.cuIcon-idcard:before {
+  content: "\e625";
+}
+
+.cuIcon-distfill:before {
+  content: "\e874";
+}
+
+.cuIcon-dist:before {
+  content: "\e64a";
+}
+
+.cuIcon-ticai:before {
+  content: "\e680";
+}
+
+.cuIcon-app:before {
+  content: "\e621";
+}
+
+.cuIcon-signup:before {
+  content: "\e687";
+}
+
+.cuIcon-confirm:before {
+  content: "\e691";
+}
+
+.cuIcon-shoudong:before {
+  content: "\e729";
+}
+
+.cuIcon-love:before {
+  content: "\e697";
+}
+
+.cuIcon-onservice:before {
+  content: "\e63c";
+}
+
+.cuIcon-rankstar:before {
+  content: "\e661";
+}
+
+.cuIcon-123:before {
+  content: "\e99d";
+}
+
+.cuIcon-reward:before {
+  content: "\e64e";
+}
+
+.cuIcon-finished:before {
+  content: "\f151";
+}
+
+.cuIcon-swimming:before {
+  content: "\f154";
+}
+
+.cuIcon-taiji:before {
+  content: "\f124";
+}
+
+.cuIcon-playfootball:before {
+  content: "\f137";
+}
+
+.cuIcon-training:before {
+  content: "\f140";
+}
+
+.cuIcon-maploc:before {
+  content: "\e648";
+}
+
+.cuIcon-appointment:before {
+  content: "\e60d";
+}
+
+.cuIcon-running:before {
+  content: "\e8ca";
+}
+
+.cuIcon-map2:before {
+  content: "\ef3d";
+}
+
+.cuIcon-peak2:before {
+  content: "\ef3e";
+}
+
+.cuIcon-route:before {
+  content: "\ef40";
+}
+
+.cuIcon-tabletennis:before {
+  content: "\f0e3";
+}
+
+.cuIcon-badminton:before {
+  content: "\f0e5";
+}
+
+.cuIcon-targetcircle:before {
+  content: "\f0e7";
+}
+
+.cuIcon-running_:before {
+  content: "\f12b";
+}
+
+.cuIcon-signin:before {
+  content: "\e604";
+}
+
+.cuIcon-tutor2:before {
+  content: "\e660";
+}
+
+.cuIcon-newspaper:before {
+  content: "\e8a7";
+}
+
+.cuIcon-climbing:before {
+  content: "\e608";
+}
+
+.cuIcon-tutor:before {
+  content: "\e623";
+}
+
+.cuIcon-volunteer:before {
+  content: "\e654";
+}
+
+.cuIcon-runway:before {
+  content: "\e6c1";
+}
+
+.cuIcon-map:before {
+  content: "\e620";
+}
+
+.cuIcon-weight:before {
+  content: "\e6b1";
+}
+
+.cuIcon-hike:before {
+  content: "\f0f7";
+}
+
+.cuIcon-bycle:before {
+  content: "\f103";
+}
+
+.cuIcon-1th:before {
+  content: "\f108";
+}
+
+.cuIcon-weightlift:before {
+  content: "\f111";
+}
+
+.cuIcon-cup:before {
+  content: "\f114";
+}
+
+.cuIcon-finish:before {
+  content: "\f11a";
+}
+
+.cuIcon-basketballfeild:before {
+  content: "\f11b";
+}
+
+.cuIcon-softball:before {
+  content: "\f120";
+}
+
+.cuIcon-target:before {
+  content: "\f128";
+}
+
+.cuIcon-football:before {
+  content: "\f12c";
+}
+
+.cuIcon-target_:before {
+  content: "\f12f";
+}
+
+.cuIcon-gym_:before {
+  content: "\f134";
+}
+
+.cuIcon-peak:before {
+  content: "\f138";
+}
+
+.cuIcon-swimingpool:before {
+  content: "\f13a";
+}
+
+.cuIcon-rush:before {
+  content: "\f147";
+}
+
+.cuIcon-scoreboard:before {
+  content: "\f149";
+}
+
+.cuIcon-skee:before {
+  content: "\f14a";
+}
+
+.cuIcon-medicpack:before {
+  content: "\f150";
+}
+
+.cuIcon-org:before {
+  content: "\e653";
+}
+
+.cuIcon-arena:before {
+  content: "\e6ab";
+}
+
+.cuIcon-123_:before {
+  content: "\e6c6";
+}
+
+.cuIcon-basketballs:before {
+  content: "\e6c7";
+}

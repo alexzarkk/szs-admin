@@ -1,0 +1,111 @@
+@font-face {
+	font-family: "cl-iconfont"; /* project id 1413181 */
+	src: url("//at.alicdn.com/t/font_1413181_bwp86guyuu.eot");
+	src: url("//at.alicdn.com/t/font_1413181_bwp86guyuu.eot?#iefix") format("embedded-opentype"),
+		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.woff2") format("woff2"),
+		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.woff") format("woff"),
+		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.ttf") format("truetype"),
+		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.svg#iconfont") format("svg");
+}
+
+[class*="cl-icon"] {
+	font-family: "cl-iconfont";
+	font-size: inherit;
+	font-style: normal;
+}
+
+.cl-icon-friend:before {
+	content: "\e88e";
+}
+
+.cl-icon-clock:before {
+	content: "\e890";
+}
+
+.cl-icon-app:before {
+	content: "\e892";
+}
+
+.cl-icon-safe:before {
+	content: "\e895";
+}
+
+.cl-icon-hotel:before {
+	content: "\e89b";
+}
+
+.cl-icon-feedback:before {
+	content: "\e8a1";
+}
+
+.cl-icon-comment:before {
+	content: "\e8b4";
+}
+
+.cl-icon-community:before {
+	content: "\e8b8";
+}
+
+.cl-icon-order:before {
+	content: "\e8ae";
+}
+
+.cl-icon-2bei:before {
+	content: "\e8af";
+}
+
+.cl-icon-vip:before {
+	content: "\e8b1";
+}
+
+.cl-icon-trend:before {
+	content: "\e8b9";
+}
+
+.cl-icon-cycle:before {
+	content: "\e8bd";
+}
+
+.cl-icon-role:before {
+	content: "\e614";
+}
+
+.cl-icon-common:before {
+	content: "\e6bc";
+}
+
+.cl-icon-schedule:before {
+	content: "\e645";
+}
+
+.cl-icon-cpu:before {
+	content: "\e641";
+}
+
+.cl-icon-network:before {
+	content: "\e603";
+}
+
+.cl-icon-storage:before {
+	content: "\e653";
+}
+
+.cl-icon-system:before {
+	content: "\e67c";
+}
+
+.cl-icon-menu:before {
+	content: "\e62c";
+}
+
+.cl-icon-user:before {
+	content: "\e646";
+}
+
+.cl-icon-log:before {
+	content: "\e663";
+}
+
+.cl-icon-workbench:before {
+	content: "\e649";
+}

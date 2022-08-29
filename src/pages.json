@@ -1,0 +1,45 @@
+{
+	"pages": [
+		{ "path": "pages/index/index" },
+		{ "path": "pages/login/index" }
+	],
+	"subPackages": [
+		{
+			"root": "pages/system",
+			"pages": [ { "path": "menu" }, { "path": "user" }, { "path": "role" }, { "path": "log" }, { "path": "param" }
+			]
+		},
+		{
+			"root": "pages/error-page",
+			"pages": [ { "path": "403" }, { "path": "404" }, { "path": "500" }, { "path": "503" }
+			]
+		},
+		{
+			"root": "pages/demo",
+			"pages": [ { "path": "index" }, { "path": "crud" }
+			]
+		},
+		{
+			"root": "pages/url",
+			"pages": [ { "path": "index" }
+			]
+		},
+		{
+			"root": "pages/my",
+			"pages": [ { "path": "info" }
+			]
+		}
+	],
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"zz-(.*)": "@/components/zz/zz-$1.vue"
+		}
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8",
+		"navigationStyle": "custom"
+	}
+}

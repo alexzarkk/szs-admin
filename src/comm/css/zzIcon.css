@@ -1,0 +1,460 @@
+[class*="zzIcon-"] {
+	font-family: "zzIcon";
+	font-size: 16px;
+	font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+@font-face {
+  font-family: "zzIcon"; /* Project id 3351452 */
+  src: url('https://at.alicdn.com/t/font_3351452_aafu0mgp8w.woff2?t=1652872699467') format('woff2'),
+       url('https://at.alicdn.com/t/font_3351452_aafu0mgp8w.woff?t=1652872699467') format('woff'),
+       url('https://at.alicdn.com/t/font_3351452_aafu0mgp8w.ttf?t=1652872699467') format('truetype');
+}
+
+.zzIcon {
+  font-family: "zzIcon" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.zzIcon-safe-fill:before {
+  content: "\e77a";
+}
+.zzIcon-food-fill:before {
+  content: "\e835";
+}
+
+.zzIcon-shopping-fill:before {
+  content: "\e864";
+}
+
+.zzIcon-jiaoyu:before {
+  content: "\e65f";
+}
+
+.zzIcon-server-full:before {
+  content: "\e70f";
+}
+
+.zzIcon-reset-fill:before {
+  content: "\e661";
+}
+
+.zzIcon-news-fill:before {
+  content: "\e78d";
+}
+
+.zzIcon-zts:before {
+  content: "\e65e";
+}
+.zzIcon-bearing:before {
+  content: "\e65d";
+}
+
+
+.zzIcon-sport-110:before {
+  content: "\e65c";
+}
+
+.zzIcon-sport-610:before {
+  content: "\e603";
+}
+
+.zzIcon-a-26:before {
+  content: "\e604";
+}
+
+.zzIcon-a-13:before {
+  content: "\e606";
+}
+
+.zzIcon-a-15:before {
+  content: "\e607";
+}
+
+.zzIcon-a-16:before {
+  content: "\e608";
+}
+
+.zzIcon-a-11:before {
+  content: "\e609";
+}
+
+.zzIcon-a-17:before {
+  content: "\e60c";
+}
+
+.zzIcon-a-12:before {
+  content: "\e60e";
+}
+
+.zzIcon-a-19:before {
+  content: "\e60f";
+}
+
+.zzIcon-a-20:before {
+  content: "\e610";
+}
+
+.zzIcon-a-45:before {
+  content: "\e611";
+}
+
+.zzIcon-a-6:before {
+  content: "\e614";
+}
+
+.zzIcon-a-50:before {
+  content: "\e615";
+}
+
+.zzIcon-sport-313:before {
+  content: "\e617";
+}
+
+.zzIcon-a-44:before {
+  content: "\e618";
+}
+
+.zzIcon-a-39:before {
+  content: "\e619";
+}
+
+.zzIcon-a-27:before {
+  content: "\e61a";
+}
+
+.zzIcon-sport-118:before {
+  content: "\e61b";
+}
+
+.zzIcon-a-37:before {
+  content: "\e61c";
+}
+
+.zzIcon-a-14:before {
+  content: "\e61e";
+}
+
+.zzIcon-a-66:before {
+  content: "\e61f";
+}
+
+.zzIcon-a-54:before {
+  content: "\e621";
+}
+
+.zzIcon-sport-114:before {
+  content: "\e622";
+}
+
+.zzIcon-a-52:before {
+  content: "\e623";
+}
+
+.zzIcon-a-107:before {
+  content: "\e624";
+}
+
+.zzIcon-a-46:before {
+  content: "\e625";
+}
+
+.zzIcon-a-56:before {
+  content: "\e626";
+}
+
+.zzIcon-sport-116:before {
+  content: "\e627";
+}
+
+.zzIcon-a-28:before {
+  content: "\e628";
+}
+
+.zzIcon-a-40:before {
+  content: "\e629";
+}
+
+.zzIcon-a-24:before {
+  content: "\e62a";
+}
+
+.zzIcon-a-65:before {
+  content: "\e62b";
+}
+
+.zzIcon-a-53:before {
+  content: "\e62d";
+}
+
+.zzIcon-a-114:before {
+  content: "\e62e";
+}
+
+.zzIcon-sport-122:before {
+  content: "\e62f";
+}
+
+.zzIcon-a-38:before {
+  content: "\e630";
+}
+
+.zzIcon-a-58:before {
+  content: "\e631";
+}
+
+.zzIcon-a-69:before {
+  content: "\e632";
+}
+
+.zzIcon-a-140:before {
+  content: "\e634";
+}
+
+.zzIcon-a-55:before {
+  content: "\e635";
+}
+
+.zzIcon-a-70:before {
+  content: "\e636";
+}
+
+.zzIcon-a-137:before {
+  content: "\e637";
+}
+
+.zzIcon-a-109:before {
+  content: "\e638";
+}
+
+.zzIcon-a-116:before {
+  content: "\e639";
+}
+
+.zzIcon-a-61:before {
+  content: "\e63a";
+}
+
+.zzIcon-a-47:before {
+  content: "\e63b";
+}
+
+.zzIcon-a-51:before {
+  content: "\e63c";
+}
+
+.zzIcon-a-134:before {
+  content: "\e63d";
+}
+
+.zzIcon-a-133:before {
+  content: "\e63e";
+}
+
+.zzIcon-a-49:before {
+  content: "\e63f";
+}
+
+.zzIcon-a-57:before {
+  content: "\e640";
+}
+
+.zzIcon-a-64:before {
+  content: "\e641";
+}
+
+.zzIcon-a-105:before {
+  content: "\e642";
+}
+
+.zzIcon-a-144:before {
+  content: "\e643";
+}
+
+.zzIcon-a-68:before {
+  content: "\e644";
+}
+
+.zzIcon-sport-314:before {
+  content: "\e645";
+}
+
+.zzIcon-a-111:before {
+  content: "\e646";
+}
+
+.zzIcon-a-112:before {
+  content: "\e647";
+}
+
+.zzIcon-a-106:before {
+  content: "\e649";
+}
+
+.zzIcon-a-41:before {
+  content: "\e64b";
+}
+
+.zzIcon-a-136:before {
+  content: "\e64c";
+}
+
+.zzIcon-a-115:before {
+  content: "\e64d";
+}
+
+.zzIcon-a-138:before {
+  content: "\e650";
+}
+
+.zzIcon-a-120:before {
+  content: "\e651";
+}
+
+.zzIcon-a-108:before {
+  content: "\e652";
+}
+
+.zzIcon-sport-112:before {
+  content: "\e653";
+}
+
+.zzIcon-a-113:before {
+  content: "\e654";
+}
+
+.zzIcon-a-118:before {
+  content: "\e655";
+}
+
+.zzIcon-a-121:before {
+  content: "\e656";
+}
+
+.zzIcon-a-63:before {
+  content: "\e657";
+}
+
+.zzIcon-sport-310:before {
+  content: "\e658";
+}
+
+.zzIcon-a-59:before {
+  content: "\e659";
+}
+
+.zzIcon-a-67:before {
+  content: "\e65a";
+}
+
+.zzIcon-a-110:before {
+  content: "\e65b";
+}
+
+.zzIcon-a-9:before {
+  content: "\e601";
+}
+
+.zzIcon-a-2:before {
+  content: "\e602";
+}
+
+.zzIcon-jiangbei:before {
+  content: "\e616";
+}
+
+.zzIcon-zuji:before {
+  content: "\e613";
+}
+
+.zzIcon-hotfire:before {
+  content: "\e60b";
+}
+
+.zzIcon-upstage1:before {
+  content: "\e6bf";
+}
+
+.zzIcon-saishibangdan:before {
+  content: "\e600";
+}
+
+.zzIcon-tutor:before {
+  content: "\e660";
+}
+
+.zzIcon-around:before {
+  content: "\e620";
+}
+
+.zzIcon-reward:before {
+  content: "\e64e";
+}
+
+.zzIcon-knowledge:before {
+  content: "\e62c";
+}
+
+.zzIcon-runway:before {
+  content: "\e6c1";
+}
+
+.zzIcon-love:before {
+  content: "\e697";
+}
+
+.zzIcon-distfill:before {
+  content: "\e874";
+}
+
+.zzIcon-sun:before {
+  content: "\e633";
+}
+
+.zzIcon-night:before {
+  content: "\e6a1";
+}
+
+.zzIcon-cutdown:before {
+  content: "\e612";
+}
+
+.zzIcon-targetcircle:before {
+  content: "\f0e7";
+}
+
+.zzIcon-maploc:before {
+  content: "\e648";
+}
+
+.zzIcon-dianhua:before {
+  content: "\e60a";
+}
+
+.zzIcon-dist:before {
+  content: "\e64a";
+}
+
+.zzIcon-SOS:before {
+  content: "\e89f";
+}
+
+.zzIcon-senlin:before {
+  content: "\e61d";
+}
+
+.zzIcon-dengshan:before {
+  content: "\e64f";
+}
+
+.zzIcon-yizhan:before {
+  content: "\e605";
+}
+
+.zzIcon-aixinyizhan1-20:before {
+  content: "\e60d";
+}
