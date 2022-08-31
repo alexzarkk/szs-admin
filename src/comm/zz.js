@@ -364,16 +364,15 @@ async function req(params = {}, loading = false) {
 	// })
 	
 	return new Promise((resolve, reject) => {
-	    if (loadding) uni.showLoading({ mask: true });
+	    if (loading) uni.showLoading({ mask: true });
 		uni.request({
 			url: api[fn],
 			header: {
 				'content-type': 'application/json',
 				authorization: token
-				// platform: zz.platform()
 			},
 			data: params,
-			method,
+			method: 'POST',
 			success: function (res) {
 				const { code, data, message } = res.data;
 				switch (code) {
@@ -399,7 +398,7 @@ async function req(params = {}, loading = false) {
 				reject(res);
 			},
 			complete() {
-				if (loadding) uni.hideLoading();
+				if (loading) uni.hideLoading();
 			}
 		})
 	})
