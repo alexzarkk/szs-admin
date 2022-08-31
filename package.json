@@ -3,6 +3,8 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
+		"dev": "npm run dev:h5",
+		"build:dev": "npm run build:h5",
 		"serve": "npm run dev:custom h5-zlb",
 		"build": "cross-env UNI_OUTPUT_DIR='build' NODE_ENV=production uniapp-cli custom h5-zlb",
 		"build:h5": "cross-env NODE_ENV=production UNI_PLATFORM=h5 vue-cli-service uni-build",

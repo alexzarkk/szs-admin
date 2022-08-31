@@ -1,7 +1,10 @@
 <template>
-    <cl-layout>
-		<div>123</div>
-	</cl-layout>
+    <!-- 
+    name:
+ -->
+    <div>
+        <div>123</div>
+    </div>
 </template>
 
 <script>
@@ -10,7 +13,7 @@ export default {
     data() {
         return {};
     },
-    mounted() {},
+    mounted() { },
     methods: {}
 };
 </script>
