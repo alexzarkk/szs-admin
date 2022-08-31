@@ -39,9 +39,7 @@ const amapKey = 'daffb83c14428939221e09ebc785c89c',
 		})
 	},
 
-	checkNet = async () => {
-		return await comm.hadNet()
-	},
+	checkNet = () => { return comm.hadNet() },
 
 	uploadImg = async (f) => {
 		let imgs = []
@@ -325,42 +323,82 @@ async function req(params = {}, loading = false) {
 	let url = params.$url
 	delete params.$url
 	
+	// return new Promise((resolve, reject) => {
+	// 	uniCloud.callFunction({
+	// 		name: fn || 'app',
+	// 		data: {
+	// 			url,
+	// 			params,
+	// 			token
+	// 		},
+	// 		success(res) {
+	// 			const { code, data, message } = res.result
+	// 			switch (code) {
+	// 				// 成功
+	// 				case 1000:
+	// 					if(data) comm.setStorage(comm.key(fn+url+JSON.stringify(params)), data)
+	// 					resolve(data)
+	// 					break
+	// 				// 登录失效
+	// 				case 1002:
+	// 					uni.removeStorageSync('token')
+	// 					uni.removeStorageSync('acc');
+	// 					zz.toast('登录已失效')
+	// 					// reject()
+	// 					return toLogin()
+	// 					break
+	// 				// 失败
+	// 				default:
+	// 					reject(res.result);
+	// 					zz.toast(message)
+	// 			}
+	// 		},
+	// 		fail(res) {
+	// 			zz.toast("服务器错误，请稍后重试")
+	// 			reject(res)
+	// 		},
+	// 		complete() {
+	// 			if (loading) uni.hideLoading()
+	// 		}
+	// 	})
+	// })
+	
 	return new Promise((resolve, reject) => {
-		uniCloud.callFunction({
-			name: fn || 'app',
-			data: {
-				url,
-				params,
-				token
+	    if (loading) uni.showLoading({ mask: true });
+		uni.request({
+			url: api[fn],
+			header: {
+				'content-type': 'application/json',
+				authorization: token
 			},
-			success(res) {
-				const { code, data, message } = res.result
+			data: params,
+			method: 'POST',
+			success: function (res) {
+				const { code, data, message } = res.data;
 				switch (code) {
 					// 成功
 					case 1000:
-						if(data) comm.setStorage(comm.key(fn+url+JSON.stringify(params)), data)
-						resolve(data)
-						break
+						resolve(data);
+						break;
 					// 登录失效
 					case 1002:
-						uni.removeStorageSync('token')
-						uni.removeStorageSync('acc');
-						zz.toast('登录已失效')
+						uni.removeStorageSync('token');
+						zz.toast('登录已失效');
 						// reject()
-						// return toLogin()
-						break
+						return toLogin();
+						break;
 					// 失败
 					default:
-						reject(res.result);
-						zz.toast(message)
+						zz.toast('错误：' + message);
 				}
 			},
-			fail(res) {
-				zz.toast("服务器错误，请稍后重试")
-				reject(res)
+			fail: function (res) {
+				console.log('uni.request.fail！', res);
+				zz.toast(res.message);
+				reject(res);
 			},
 			complete() {
-				if (loading) uni.hideLoading()
+				if (loading) uni.hideLoading();
 			}
 		})
 	})

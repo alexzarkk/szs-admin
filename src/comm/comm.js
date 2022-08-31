@@ -73,7 +73,7 @@ const comm = {
 	
 	
 	//最近网格 coord
-	nearst(c,d=Number.MAX_SAFE_INTEGER){
+	nearst(c,d=100000){
 		let _
 		for (let c2 of grid[33]) {
 			let _d = dist(c, c2)
@@ -121,7 +121,7 @@ const comm = {
 	
 	// 初始化网格信息
 	async on(c){
-		let k = comm.nearst(c),
+		let k = comm.nearst(c,Number.MAX_SAFE_INTEGER),
 			z = comm.getStorage('cur_loc_poi'),
 			cps = comm.getStorage('szs_nav_cps')||{}
 		
