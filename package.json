@@ -64,7 +64,8 @@
 		"@dcloudio/uni-quickapp-native": "^2.0.1-34720220422002",
 		"@dcloudio/uni-quickapp-webview": "^2.0.1-34720220422002",
 		"@dcloudio/uni-stat": "^2.0.1-34720220422002",
-		"@jiaminghi/data-view": "^2.10.0",
+		"@jiaminghi/data-view": "^2.7.3",
+		"@types/echarts": "^4.4.3",
 		"@tinymce/tinymce-vue": "^3.2.2",
 		"@turf/helpers": "^6.5.0",
 		"@turf/turf": "^6.5.0",
@@ -73,12 +74,12 @@
 		"clipboard": "^2.0.6",
 		"core-js": "^3.16.0",
 		"echarts": "^4.8.0",
-		"element-ui": "^2.15.7",
+		"element-ui": "^2.15.9",
 		"flyio": "^0.6.14",
 		"mapbox-gl": "^2.8.2",
 		"node-sass": "^4.14.1",
 		"regenerator-runtime": "^0.12.1",
-		"sass": "^1.37.5",
+		"sass": "^1.32.13",
 		"tinymce": "^5.8.2",
 		"uni-read-pages": "^1.0.5",
 		"uni-simple-router": "^2.0.8-beta.4",
@@ -116,17 +117,7 @@
 	],
 	"uni-app": {
 		"scripts": {
-			"h5-zlb": {
-				"title": "浙里办",
-				"browser": "chrome",
-				"env": {
-					"UNI_PLATFORM": "h5"
-				},
-				"define": {
-					"H5-ZLB": true
-				}
-			},
-			"h5-dev": {
+			"h5-cus": {
 				"title": "h5调试数据",
 				"browser": "chrome",
 				"env": {
