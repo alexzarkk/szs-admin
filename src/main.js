@@ -20,7 +20,7 @@ import "@/static/css/colorui/main.scss"
 import "@/static/css/colorui/icon.scss"
 
 /* ==================
-        DataV
+		DataV
  ==================== */
 
 import dataV from '@jiaminghi/data-view';
@@ -40,13 +40,14 @@ import echarts from 'echarts'
 //希望使用5.x版本的话,需要在package.json中更新版本号,并切换引用方式
 //import * as echarts from 'echarts'
 Vue.prototype.$echarts = echarts
-Vue.component('icon', Icon);
-Vue.use(dataV);
+
+
 
 
 LoadService({ store })
-
+Vue.component('VueIcon', Icon);
 Vue.component("cl-layout", Layout)
+Vue.use(dataV);
 Vue.use(ElementUI)
 Vue.use(Crud, {
 	crud: {
