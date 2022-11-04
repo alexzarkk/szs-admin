@@ -17,7 +17,7 @@
 /*通用 */
 
 /* view{
-	font-size:28rpx;
+	font-size:1.4rem;
 	line-height:1.8;
 } */
 progress, checkbox-group{
@@ -41,7 +41,7 @@ form {
 }
 .uni-link{
 	color:#576B95;
-	font-size:26rpx;
+	font-size:1.3rem;
 }
 .uni-center{
 	text-align:center;
@@ -67,7 +67,7 @@ form {
 .uni-page-head-title {
 	display: inline-block;
 	padding: 0 40rpx;
-	font-size: 30rpx;
+	font-size: 1.5rem;
 	height: 88rpx;
 	line-height: 88rpx;
 	color: #BEBEBE;
@@ -95,10 +95,10 @@ form {
 	line-height:1.5;
 }
 .uni-text{
-	font-size:28rpx;
+	font-size:1.4rem;
 }
 .uni-title text{
-	font-size:24rpx;
+	font-size:1.2rem;
 	color:#888;
 }
 
@@ -106,7 +106,7 @@ form {
 	color: #ccc;
 }
 .uni-text-small {
-	font-size:24rpx;
+	font-size:1.2rem;
 }
 .uni-common-mb{
 	margin-bottom:30rpx;
@@ -133,10 +133,10 @@ form {
 /* 标题 */
 .uni-h1 {font-size: 80rpx; font-weight:700;}
 .uni-h2 {font-size: 60rpx; font-weight:700;}
-.uni-h3 {font-size: 48rpx; font-weight:700;}
-.uni-h4 {font-size: 36rpx; font-weight:700;}
-.uni-h5 {font-size: 28rpx; color: #8f8f94;}
-.uni-h6 {font-size: 24rpx; color: #8f8f94;}
+.uni-h3 {font-size: 2.4rem; font-weight:700;}
+.uni-h4 {font-size: 1.8rem; font-weight:700;}
+.uni-h5 {font-size: 1.4rem; color: #8f8f94;}
+.uni-h6 {font-size: 1.2rem; color: #8f8f94;}
 .uni-bold{font-weight:bold;}
 
 /* 文本溢出隐藏 */
@@ -167,7 +167,7 @@ form {
 	height: 50rpx;
 	padding: 15rpx 25rpx;
 	line-height:50rpx;
-	font-size:28rpx;
+	font-size:1.4rem;
 	background:#FFF;
 	flex: 1;
 }
@@ -282,7 +282,7 @@ radio-group label, checkbox-group label{
 	box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, .3);
 }
 .uni-card-content {
-	font-size: 30rpx;
+	font-size: 1.5rem;
 }
 .uni-card-content.image-view{
     width: 100%;
@@ -302,7 +302,7 @@ radio-group label, checkbox-group label{
 	align-items: center;
 }
 .uni-card-header {
-	font-size: 36rpx;
+	font-size: 1.8rem;
 }
 .uni-card-footer {
 	color: #6d6d72;
@@ -340,11 +340,11 @@ radio-group label, checkbox-group label{
 }
 .uni-card-media-text-top {
 	line-height: 36rpx;
-	font-size: 34rpx;
+	font-size: 1.7rem;
 }
 .uni-card-media-text-bottom {
 	line-height: 30rpx;
-	font-size: 28rpx;
+	font-size: 1.4rem;
 	color: #8f8f94;
 }
 .uni-card-link {
@@ -398,7 +398,7 @@ radio-group label, checkbox-group label{
 }
 .uni-list-cell-left {
     white-space: nowrap;
-	font-size:28rpx;
+	font-size:1.4rem;
 	padding: 0 30rpx;
 }
 .uni-list-cell-db,
@@ -586,12 +586,12 @@ radio-group label, checkbox-group label{
 .uni-media-list-text-top {
 	width: 100%;
 	line-height: 36rpx;
-	font-size: 30rpx;
+	font-size: 1.5rem;
 }
 .uni-media-list-text-bottom {
 	width: 100%;
 	line-height: 30rpx;
-	font-size: 26rpx;
+	font-size: 1.3rem;
 	color: #8f8f94;
 }
 
@@ -628,7 +628,7 @@ radio-group label, checkbox-group label{
 	line-height: 4rpx;
 	height: 40rpx;
 	text-align: center;
-	font-size: 30rpx;
+	font-size: 1.5rem;
 }
 .uni-grid-9-item-hover {
 	background: rgba(0, 0, 0, 0.1);
@@ -715,7 +715,7 @@ radio-group label, checkbox-group label{
 	align-items: center;
 	padding: 20rpx;
 	color: #8f8f94;
-	font-size: 28rpx;
+	font-size: 1.4rem;
 }
 .feedback-star-view.feedback-title {
 	justify-content: flex-start;
@@ -727,7 +727,7 @@ radio-group label, checkbox-group label{
 }
 .feedback-quick:after {
 	font-family: uniicons;
-	font-size: 40rpx;
+	font-size: 2rem;
 	content: '\e581';
 	position: absolute;
 	right: 0;
@@ -741,14 +741,14 @@ radio-group label, checkbox-group label{
 }
 .feedback-textare {
 	height: 200rpx;
-	font-size: 34rpx;
+	font-size: 1.7rem;
 	line-height: 50rpx;
 	width: 100%;
 	box-sizing: border-box;
 	padding: 20rpx 30rpx 0;
 }
 .feedback-input {
-	font-size: 34rpx;
+	font-size: 1.7rem;
 	height: 50rpx;
 	min-height: 50rpx;
 	padding: 15rpx 20rpx;
@@ -759,7 +759,7 @@ radio-group label, checkbox-group label{
 }
 .feedback-star {
 	font-family: uniicons;
-	font-size: 40rpx;
+	font-size: 2rem;
 	margin-left: 6rpx;
 }
 .feedback-star-view {
@@ -814,7 +814,7 @@ radio-group label, checkbox-group label{
 	position: relative;
 	display: flex;
 	flex-direction: row;
-	font-size:28rpx;
+	font-size:1.4rem;
 	padding: 22rpx 30rpx;
 	justify-content: space-between;
 }
@@ -843,7 +843,7 @@ radio-group label, checkbox-group label{
 	width:96%;
 	padding:18rpx 2%;
 	line-height:1.6;
-	font-size:28rpx;
+	font-size:1.4rem;
 	height:150rpx;
 }
 
@@ -870,7 +870,7 @@ radio-group label, checkbox-group label{
 }
 
 .swiper-tab-list {
-	font-size: 30rpx;
+	font-size: 1.5rem;
 	width: 150rpx;
 	display: inline-block;
 	text-align: center;
@@ -898,11 +898,11 @@ radio-group label, checkbox-group label{
 .uni-comment-face image{width:100%; border-radius:100%;}
 .uni-comment-body{width:100%;}
 .uni-comment-top{line-height:1.5em; justify-content:space-between;}
-.uni-comment-top text{color:#0A98D5; font-size:24rpx;}
+.uni-comment-top text{color:#0A98D5; font-size:1.2rem;}
 .uni-comment-date{line-height:38rpx; flex-direction:row; justify-content:space-between; display:flex !important; flex-grow:1;}
-.uni-comment-date view{color:#666666; font-size:24rpx; line-height:38rpx;}
-.uni-comment-content{line-height:1.6em; font-size:28rpx; padding:8rpx 0;}
-.uni-comment-replay-btn{background:#FFF; font-size:24rpx; line-height:28rpx; padding:5rpx 20rpx; border-radius:30rpx; color:#333 !important; margin:0 10rpx;}
+.uni-comment-date view{color:#666666; font-size:1.2rem; line-height:38rpx;}
+.uni-comment-content{line-height:1.6em; font-size:1.4rem; padding:8rpx 0;}
+.uni-comment-replay-btn{background:#FFF; font-size:1.2rem; line-height:28rpx; padding:5rpx 20rpx; border-radius:30rpx; color:#333 !important; margin:0 10rpx;}
 
 /* swiper msg */
 .uni-swiper-msg{width:100%; padding:12rpx 0; flex-wrap:nowrap; display:flex;}
@@ -949,7 +949,7 @@ radio-group label, checkbox-group label{
 
 .uni-product-price {
 	margin-top:10rpx;
-    font-size: 28rpx;
+    font-size: 1.4rem;
 	line-height:1.5;
     position: relative;
 }
@@ -1440,7 +1440,7 @@ radio-group label, checkbox-group label{
     position: relative;
 }
 .uni-divider__content{
-    font-size: 28rpx;
+    font-size: 1.4rem;
     color: #999;
     padding: 0 20rpx;
     position: relative;

@@ -3,7 +3,7 @@
 /*
 page {
 	background-color: #fafafa;
-	font-size: 32rpx;
+	font-size: 1.6rem;
 }
 */
 
@@ -18,7 +18,7 @@ button::after {
 }
 
 .container {
-	font-size: 32rpx;
+	font-size: 1.6rem;
 	display: flex;
 	box-sizing: border-box;
 	flex-direction: column;
@@ -26,7 +26,7 @@ button::after {
 
 .tui-phcolor {
 	color: #ccc;
-	font-size: 32rpx;
+	font-size: 1.6rem;
 	overflow: visible;
 }
 
@@ -77,7 +77,7 @@ button::after {
 	background: linear-gradient(-90deg, #5677fc, #5c8dff);
 	border-radius: 45rpx;
 	color: #fff;
-	font-size: 36rpx;
+	font-size: 1.8rem;
 }
 
 .tui-button-hover {

@@ -54,7 +54,7 @@ export default class InspectControl extends Base {
         this.mapContainer.appendChild(this.popupNode);
         this.updatePosition();
         if (this.console) {
-            console.log(features);
+            // console.log(features);
         }
     }
     removePopup() {

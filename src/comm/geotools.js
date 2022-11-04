@@ -214,7 +214,10 @@ const
 				break;
 		}
 		console.error(m);
-		// alert(m)
+		uni.showToast({
+			icon:"error",
+			title:m
+		})
 	},
 
 	getLocation = async (type = 'wgs84') => {
@@ -239,25 +242,51 @@ const
 			// #endif
 
 			// #ifndef APP-PLUS
-			uni.getLocation({
-				type,
-				success: (e) => {
+			
+			
+			// e = {
+			// 	"status":0,
+			// 	"code":0,
+			// 	"info":"SUCCESS",
+			// 	"position":[121.426994,29.675487],
+			// 	"location_type":"html5",
+			// 	"message":"Get geolocation success .Convert Success.",
+			// 	"accuracy":38.09866002522623,
+			// 	"isConverted":false,
+			// 	"altitude":6.052378177642822,
+			// 	"altitudeAccuracy":5.624858856201172,
+			// 	"heading":null,
+			// 	"speed":null
+			// }
+			window.amapGeo.getCurrentPosition((_,e)=>{
+				if(e.status==0) {
 					loc.p = e
-					loc.coord = [fixNum(e.longitude), fixNum(e.latitude), ~~(e.altitude || 0)]
+					loc.coord = trans([e.position.getLng(), e.position.getLat(), ~~(e.altitude || 0)],'gcj02towgs84')
 					res(loc)
-				},
-				fail: (e) => {
-					console.error('位置获取失败.fail', e)
-					geoErr(e)
-					rej(e)
+				}else{
+					rej(e.message)
 				}
 			})
+			
+			// uni.getLocation({
+			// 	type,
+			// 	success: (e) => {
+			// 		loc.p = e
+			// 		loc.coord = [fixNum(e.longitude), fixNum(e.latitude), ~~(e.altitude || 0)]
+			// 		res(loc)
+			// 	},
+			// 	fail: (e) => {
+			// 		console.error('位置获取失败.fail', e)
+			// 		geoErr(e)
+			// 		rej(e)
+			// 	}
+			// })
 			// #endif
 		})
 	},
 	
 	trans = (cds, type = 'wgs84togcj02') => {
-		if (!cds || !cds.length) return
+		if (!cds || !cds.length) return null
 		let cc = [],
 			_pi = 3.14159265358979324 * 3000.0 / 180.0,
 			pi = 3.1415926535897932384626,
@@ -357,7 +386,6 @@ const
 		}
 		return cc
 	}
-	
 	
 
 const geotools = {

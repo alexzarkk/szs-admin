@@ -1,12 +1,64 @@
 import { async } from 'regenerator-runtime'
-
+import { dist, isSame, getLocation } from '@/comm/geotools'
 import grid from '@/comm/libs/grid'
-import { dist, getLocation } from '@/comm/geotools'
+
+// #ifndef APP-PLUS
+import { req } from '@/comm/zz'
+// #endif
+
+// #ifdef APP-PLUS
+import { api, isDev } from '@/comm/bd'
+// #endif
 
 const comm = {
-	key(k){return k? JSON.stringify(k).replace(/[`~!@#$^&*()=|{}':;',\\\[\]\.<>\/?~！@#￥……&*（）——|{}【】'；：""'。，、？\s]/g, '') : ''},
-	isSame(a,b){ return (a&&b)&&(JSON.stringify(a)==JSON.stringify(b)) },
-	compare(k, n=1, t=0){
+	// #ifndef APP-PLUS
+	req,
+	// #endif
+	
+	// #ifdef APP-PLUS
+	async req(q, cache=true) {
+		let key=(k)=>{return k? JSON.stringify(k).replace(/[`~!@#$^&*()=|{}':;',\\\[\]\.<>\/?~！@#￥……&*（）——|{}【】'；：""'。，、？\s]/g,''):''},
+			fn = q.$fn,
+			param = JSON.stringify(q)
+		
+		if(!comm.hadNet()&&cache) return comm.getStorage(key(fn+param))
+		return new Promise((resolve, reject) => {
+			let t, x = new plus.net.XMLHttpRequest()
+			
+			x.open('POST', api[isDev]+(fn||'app'), true)
+			x.setRequestHeader("Content-type","application/json")
+			x.setRequestHeader("authorization", comm.getStorage('210B33A_token'))
+			x.setRequestHeader("clientInfo", JSON.stringify(comm.getStorage('clientInfo')))
+			x.send(param)
+			
+			console.log('Ajax ------------------->', q)
+			
+			x.onreadystatechange = ()=>{
+				if (x.readyState === 4) {
+					let e = JSON.parse(x.responseText)
+					if (x.status >= 200 && x.status < 300 || x.status == 304) {
+						if(e.code==1000) {
+							clearTimeout(t)
+							if(e.data&&cache) {comm.setStorage(key(fn+param), e.data)}
+							resolve(e.data)
+						} else{
+							reject(e.message)
+						}
+					}else{
+						reject(e.error.message)
+					}
+				}
+			}
+			//超时
+			t = setTimeout(()=>{
+				x.abort()
+				reject('timedout')
+			},9999)
+		})
+	},
+	// #endif
+	
+	compare(k, n=1, t=0) {
 		return function (a, b) {
 			if (typeof a == 'object') {
 				if (n) {
@@ -19,61 +71,37 @@ const comm = {
 			}
 		}
 	},
-	stopWatch(){ clearTimeout(window.wid) },
-	setStorage:(k,v)=> { window.uni.setStorageSync(k, v) },
-	getStorage:(k)=>{ return window.uni.getStorageSync(k) },
+	// #ifdef APP-PLUS
+	setStorage:(k,v)=> {
+		plus.storage.setItem(k, typeof v=='object'? JSON.stringify(v):v)
+	},
+	getStorage:(k)=>{
+		let v = plus.storage.getItem(k)
+		try{ v = JSON.parse(v) }catch(e){}
+		return v
+	},
+	hadNet(){ return plus.networkinfo.getCurrentType()>1 },
+	// #endif
 	
-	async Ajax({u = 'app', data = {}, t = 9999 }) {
-		let cloud = 'https://699d1eb1-ee53-4c66-bddd-06cda80d1231.bspapp.com/',
-			api = { app: cloud + 'app', zz: cloud + 'http/zz' }
-			
-		console.log('ajax ------------',JSON.stringify(data))
-		return new Promise((resolve, reject) => {
-			let m,x
-			// #ifdef APP-PLUS
-			x = new plus.net.XMLHttpRequest()
-			// #endif
-			// #ifndef APP-PLUS
-			x = window.XMLHttpRequest? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP")
-			// #endif
-				
-			x.open('POST',api[u],true)
-			x.setRequestHeader("Content-type","application/x-www-form-urlencoded")
-			x.setRequestHeader("appid", '__UNI__210B33A')
-			x.send(JSON.stringify(data))
-			x.onreadystatechange = ()=>{
-				clearInterval(m)
-				if (x.readyState === 4) {
-					let e = JSON.parse(x.responseText)
-					if (x.status >= 200 && x.status < 300 || x.status == 304) {
-						if(e.code==1000) {
-							// console.log('success ------------',e.data);
-							if(e.data) comm.setStorage(comm.key(u+JSON.stringify(data)), e.data)
-							resolve(e.data)
-						} else{
-							console.log('错误：', e.message);
-							reject(e.message)
-						}
-					}else{
-						console.log('request error',e.error);
-						reject(e.error.message)
-					}
-				}
-			}
-			//超时
-			if(t){
-				m = setInterval(()=>{
-					console.log('timedout!')
-					x.abort()
-					clearInterval(m)
-				},t)
-			}
-		})
+	// #ifndef APP-PLUS
+	setStorage:(k,v)=> { uni.setStorageSync(k,v) },
+	getStorage:(k)=>{ return uni.getStorageSync(k) },
+	setNet:(e)=>{ window.hadNet = e },
+	hadNet(){ return window.hadNet },
+	// #endif
+	
+	getGrid(){
+		let nav = comm.getStorage('sys_nav')
+		if(!nav) {
+			nav = {}
+			for (let s of grid[33]) nav[s] = {}
+			comm.setStorage('sys_nav', nav)
+		}
+		return nav
 	},
 	
-	
 	//最近网格 coord
-	nearst(c,d=100000){
+	nearst(c,d=Number.MAX_SAFE_INTEGER){
 		let _
 		for (let c2 of grid[33]) {
 			let _d = dist(c, c2)
@@ -88,22 +116,30 @@ const comm = {
 	
 	//路网 {time,line,point}
 	async gridNet(k,xy,zoom){
-		let nav = comm.getStorage('szs_nav')
-		if (!nav[k][xy+zoom] || !nav[k][xy+zoom].time || (Date.now() - nav[k][xy+zoom].time) > (1000*60*60*24 * 5)) {
-			nav[k][xy+zoom] = await comm.Ajax({ u:'zz', data:{ url: 'on', center: k, zoom, xy }}) || {line:[],point:[]}
-			comm.setStorage('szs_nav', nav)
+		let nav = comm.getGrid(),
+			p = xy+zoom
+		
+		if (!nav[k][p] || !nav[k][p].time || (Date.now() - nav[k][p].time) > (1000*60*60*24 * 7)) {
+			nav[k][p] = await comm.req({$url: 'on', $fn:'zz', center: k, zoom, xy }) || {line:[],point:[]}
+			comm.setStorage('sys_nav', nav)
 		}
-		return nav[k][xy+zoom]
+		return nav[k][p]
 	},
 	
-	//附近柱子 arr
+	
+	/*
+	 附近柱子 根据坐标距离排序后 arr
+	 c coord
+	 d 距离范围
+	*/
 	async around(c,d=12000) {
 		if(!c) {
 			let { coord } = await getLocation()
 			c = coord
 		}
 		let arr = [],
-			cps = comm.getStorage('szs_nav_cps')
+			cps = comm.getStorage('sys_nav_cps')
+			
 		for (let k in cps) {
 			let s = dist(c, cps[k].coord)
 			if(s < d) {
@@ -116,38 +152,45 @@ const comm = {
 				})
 			}
 		}
+		// console.log('comm.around ..............', c)
 		return arr.sort(comm.compare('dist'))
 	},
 	
-	// 初始化网格信息
+	/*
+	 初始化网格附近柱子
+	 sys_nav_cps  = {
+		 W0000:{ t2: s[1], coord: s[2] }
+		 ...
+	 }
+	 */
 	async on(c){
+		if(!c) {
+			let { coord } = await getLocation()
+			c = coord
+		}
 		let k = comm.nearst(c,Number.MAX_SAFE_INTEGER),
 			z = comm.getStorage('cur_loc_poi'),
-			cps = comm.getStorage('szs_nav_cps')||{}
+			cps = comm.getStorage('sys_nav_cps')||{}
 		
-		if(!comm.isSame(k,z)) {
+		if(comm.hadNet() && !isSame(k,z)) {
 			comm.setStorage('cur_loc_poi',k)
-			let nav = comm.getStorage('szs_nav')
-			if(!nav) {
-				nav = {}
-				for (let s of grid[33]) nav[s] = {}
-				comm.setStorage('szs_nav', nav)
-			}
-			console.log(nav);
+			let nav = comm.getGrid()
 			
 			if (!nav[k].cp || (Date.now() - nav[k].cp) > (1000*60*60*24 * 7)) {
-				let {time, list} = await comm.Ajax({ u:'zz', data:{ url: 'cps', coord: k, d: 12000 }})
-
-				nav[k].cp = time
-				for (let s of list) {
-					cps[s[0]] = { t2: s[1], coord: s[2] }
+				let {time, list} = await comm.req({ $url:'cps', $fn:'zz', coord: k, d: 12000 })
+				if(time) {
+					nav[k].cp = time
+					for (let s of list) {
+						cps[s[0]] = { t2: s[1], coord: s[2] }
+					}
+					comm.setStorage('sys_nav', nav)
+					comm.setStorage('sys_nav_cps', cps)
 				}
-				comm.setStorage('szs_nav', nav)
-				comm.setStorage('szs_nav_cps', cps)
 			}
 		}
-		return {k}
+		return {k,c}
 	}
 }
 
-export default comm
+module.exports = comm
+// export default comm

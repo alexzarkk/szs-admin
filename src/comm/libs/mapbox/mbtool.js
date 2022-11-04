@@ -2,8 +2,9 @@ import { async } from 'regenerator-runtime'
 import { Marker, Popup } from 'mapbox-gl/dist/mapbox-gl'
 var helpers = require('@turf/helpers')
 import { along, bbox, bearing, bezierSpline, destination, distance, length } from '@turf/turf'
-import { uniqId, dist, clone, trans, getLocation, geoErr, calData, fixNum, math, reArr } from '@/comm/geotools.js'
+import { uniqId, isSame, dist, clone, trans, getLocation, geoErr, calData, fixNum, math, reArr } from '@/comm/geotools.js'
 
+// import { req } from '@/comm/zz'
 import comm from '@/comm/comm'
 import icon from '@/comm/libs/icon'
 import prop from '@/comm/libs/prop'
@@ -53,41 +54,6 @@ fixAdd = (coord, dist = 12.2) =>{
 	return c
 },
 
-watchLoc = (map, cur, id)=>{
-	// #ifdef APP-PLUS
-		if(plus.wid) plus.geolocation.clearWatch(plus.wid)
-		plus.wid = plus.geolocation.watchPosition(p=>{
-			if(cur) {
-				cur.features[0].geometry.coordinates = [p.coords.longitude, p.coords.latitude]
-				let src = map.getSource(id)
-				if(src) src.setData(cur)
-			}
-			console.log(plus.wid, 'plus.wid ----------- ', p);
-		}, e =>{
-			geoErr(e)
-		},{
-			provider: 'system',
-			geocode: false,
-			maximumAge: 5000,
-			enableHighAccuracy: true,
-			coordsType: map.sid=='amap'? 'gcj02':'wgs84'
-		})
-	// #endif
-	// #ifndef APP-PLUS
-		clearInterval(window.wid)
-		const position = async() => {
-			let { coord } = await getLocation()
-			cur.features[0].geometry.coordinates = coord
-			let src = map.getSource(id)
-			if(src) src.setData(cur)
-			
-			window.wid = setTimeout(()=> { position() }, 6000)
-			
-			console.log(window.wid, 'window.wid ----------- ', coord)
-		}
-		position()
-	// #endif
-},
 removeObj = (map, id, _) =>{
 	if(map.getLayer(id)){
 		map.removeLayer(id)
@@ -187,7 +153,6 @@ setActive = (map, pm, opt = {}) => {
 	if(!pm||!pm.coord) return
 	
 	if(map.run) clearTimeout(map.run)
-	// let cds = trans(pm.coord)
 	let cds = map.sid=='amap'? trans(pm.coord) : clone(pm.coord)
 	if(pm.t1==2) {
 		let t2 = [pm]
@@ -199,7 +164,7 @@ setActive = (map, pm, opt = {}) => {
 			}
 		}
 		setPoint(map, t2)
-		return map.flyTo({center:cds, zoom:16, bearing: pm.curDrect||0})
+		return map.flyTo({center:[cds[0],cds[1]], zoom:16, bearing: pm.curDrect||0})
 	} 
 	
 	map.curLine = pm
@@ -399,8 +364,7 @@ getElevation = async(coord, partial=false) =>{
 	}
 	return new Promise((resolve, reject) => {
 		if(coord.length) {
-			comm.Ajax({data:{ $url: '/public/zz/elevation', coord: ele }}).then((e) => {
-				// console.log('elevation success ===========>',e);
+			comm.req({ $url: '/public/zz/elevation', coord: ele }).then((e) => {
 				if(partial) {
 					for (var i = 0; i < e.length; i++) {
 						coord[idx[i]] = e[i]
@@ -408,7 +372,6 @@ getElevation = async(coord, partial=false) =>{
 				}
 				resolve((partial? coord : e))
 			}).catch(e=>{
-				// console.log('elevation err ===========>', e)
 				// 重试1次
 				// if(!again) return getElevation(coord, partial, 1)
 				if(point){
@@ -433,6 +396,10 @@ setLine = (map, line, beforeId) => {
 				beforeId = map.pm[k]._id || map.pm[k].id
 				break
 			}
+		}
+		if(beforeId==1) {
+			let l = map.getStyle()
+			beforeId = l.layers[l.layers.length-1].id
 		}
 	}
 	for (let s of line) {
@@ -545,11 +512,15 @@ setPoint = (map, point)=> {
 				map.pop = true
 				try{
 					let t = map.pm[id],
-						imgs = ''
+						imgs = '',
+						video = ''
 					if(t.imgs){
 						for (var i = 0; i < t.imgs.length; i++) {
 							imgs += "<div><img data="+JSON.stringify({act:'viewImg', imgs:t.imgs,idx:i})+" onclick='window.mbAct(JSON.parse(this.getAttribute(\"data\")))' style='width:220px' src="+t.imgs[i]+"></img></div>"
 						}
+					}
+					if(t.video) {
+						video = "<div><video data="+JSON.stringify({act:'viewVideo', url:t.video.url})+" style='width:220px' onclick='window.mbAct(JSON.parse(this.getAttribute(\"data\")))'><source src="+t.video.url+" type='video/mp4'/></video></div>"
 					}
 					
 					let html = (t.name? `<p><b><font size="3" color="orange">${t.name}</font></b></p>`:'') +
@@ -557,8 +528,15 @@ setPoint = (map, point)=> {
 								(t.sn? `<p>编码：${t.sn}</p>`:'') +
 								(t.curTime? `<p>时间：${t.curTime}</p>`:'') +
 								`<p>类型：${prop[t.t2].text}</p>` + (imgs?`<div>照片：</div>${imgs}</div>`:'') +
+								video +
 								`<p>经纬度：<b>${t.coord[0]}, ${t.coord[1]}</b></p>` +
 								`<p>海拔： <b>${t.coord[2] || 0 }</b>m</p><p>`
+								
+					if(t.editble){
+						html +=	"<a class='map-href' data="+JSON.stringify({act:'edit', id})+" onclick='window.mbAct(JSON.parse(this.getAttribute(\"data\")))'>编辑</a>&nbsp;&nbsp;&nbsp;&nbsp;" +
+								"<a class='map-href' data="+JSON.stringify({act:'del', id})+" onclick='window.mbAct(JSON.parse(this.getAttribute(\"data\")))'>删除</a>"
+					}		
+								
 								// + `<p>地址：<span id="zddr"></span></p>`
 					
 					// window.Geocoder.getAddress(s.coord, (st, e)=>{
@@ -569,6 +547,8 @@ setPoint = (map, point)=> {
 					
 					let pop = new Popup({ maxWidth: '500px'	}).setLngLat(e.lngLat).setHTML(html).addTo(map)
 					map.pp = pop
+					
+					if(t.video) window.mbAct({act:'viewVideo', url:t.video.url})
 					pop.on('close', (e)=>{ map.pop = false })
 					
 				}catch(e){
@@ -614,12 +594,12 @@ getAround = async(map, loc, btn) =>{
 	})
 	
 	//2bl
-	let bl2 = await comm.Ajax({data:{ $url: '/public/zz/around2bl', size: 15, ...loc }})
+	let bl2 = await comm.req({ $url: '/public/zz/around2bl', size: 15, ...loc })
 	for (let s of bl2) {
 		let id = s.id.replace(/%/g, ''),
 			e = comm.getStorage('_2bl'+id)
 		if(!e) {
-			e = await comm.Ajax({data:{ $url: '/public/zz/pm2bl', _id: s.id }})
+			e = await comm.req({ $url: '/public/zz/pm2bl', _id: s.id })
 			for (let x of e.line) { x.name = s.name; x.pid = id }
 			
 			comm.setStorage('_2bl'+id, e)
@@ -636,7 +616,7 @@ getAround = async(map, loc, btn) =>{
 	//6ft
 	// let bounds = map.getBounds()
 	// const o2s = (o)=>{ return fixNum(o.lng)+','+fixNum(o.lat) }
-	// let ft6 = await comm.Ajax({data:{ $url: '/public/zz/around6ft', ne: o2s(bounds.getNorthEast()), sw: o2s(bounds.getSouthWest()), zoom: ~~map.getZoom() }})
+	// let ft6 = await comm.req({data:{ $url: '/public/zz/around6ft', ne: o2s(bounds.getNorthEast()), sw: o2s(bounds.getSouthWest()), zoom: ~~map.getZoom() }})
 	// console.log(ft6)
 	
 	map.busy = false
@@ -674,102 +654,6 @@ setKml = (m,pms,line,point,gon,act=1)=>{
 	}, 1200)
 },
 
-onLoc = (map)=>{
-	let id = '_curLoc',
-		size = 100,
-		pulsingDot = {
-			width: size,
-			height: size,
-			data: new Uint8Array(size * size * 4),
-			 
-			// When the layer is added to the map,
-			// get the rendering context for the map canvas.
-			onAdd: function () {
-				const canvas = document.createElement('canvas');
-				canvas.width = this.width;
-				canvas.height = this.height;
-				this.context = canvas.getContext('2d');
-			},
-			 
-			// Call once before every frame where the icon will be used.
-			render: function () {
-				const duration = 1800;
-				const t = (performance.now() % duration) / duration;
-				 
-				const radius = (size / 2) * 0.3;
-				const outerRadius = (size / 2) * 0.7 * t + radius;
-				const context = this.context;
-				 
-				// Draw the outer circle.
-				context.clearRect(0, 0, this.width, this.height);
-				context.beginPath();
-				context.arc(
-				this.width / 2,
-				this.height / 2,
-				outerRadius,
-				0,
-				Math.PI * 2
-				);
-				context.fillStyle = `rgba(0, 170, 255, ${1 - t})`;
-				context.fill();
-				 
-				// Draw the inner circle.
-				context.beginPath();
-				context.arc(
-				this.width / 2,
-				this.height / 2,
-				radius,
-				0,
-				Math.PI * 2
-				);
-				context.fillStyle = 'rgba(61, 122, 255, 1.0)';
-				context.strokeStyle = 'white';
-				context.lineWidth = 2 + 4 * (1 - t);
-				context.fill();
-				context.stroke();
-				 
-				// Update this image's data with data from the canvas.
-				this.data = context.getImageData(
-				0,
-				0,
-				this.width,
-				this.height
-				).data;
-				 
-				// Continuously repaint the map, resulting
-				// in the smooth animation of the dot.
-				map.triggerRepaint();
-				 
-				// Return `true` to let the map know that the image was updated.
-				return true;
-			}
-		},
-		curLoc = {
-			'type': 'FeatureCollection',
-			'features': [
-				{
-					'type': 'Feature',
-					'geometry': {
-						'type': 'Point',
-						'coordinates': [121,30]
-					}
-				}
-			]
-		}
-		
-	removeObj(map,id)
-	map.addImage(id, pulsingDot, { pixelRatio: 2 })
-	map.addSource(id, { 'type': 'geojson', 'data': curLoc })
-	map.addLayer({
-		'id': id,
-		'type': 'symbol',
-		'source': id,
-		'layout': { 'icon-image': id }
-	})
-	
-	watchLoc(map, curLoc, id)
-},
-
 on = async(map) => {
 	let center = map.getCenter(),
 		k = comm.nearst([center.lng,center.lat]),
@@ -781,7 +665,7 @@ on = async(map) => {
 		xy = ~~(math(~~(dist([ne.lng, ne.lat], [sw.lng, sw.lat])+(zoom>=15?8000:0))/10000,0) * 10000/0.5)||10000
 	
 	if (!nav[k]) nav[k] = {}
-	if (!k||comm.isSame(nav.x,[k,zoom,xy])||nav.busy) return
+	if (!k||isSame(nav.x,[k,zoom,xy])||nav.busy) return
 	nav.x = [k,zoom,xy]
 	nav.busy = true
 	if(zoom>19) zoom = 19
@@ -793,13 +677,12 @@ on = async(map) => {
 	for (let k in nav.r) {
 		map.setLayoutProperty(k, 'visibility', 'none')
 	}
-	
 	// console.log(k, zoom, xy,'req ----------', kml[k])
 	for (let s of kml.line) {
 		let id = s._id
 		nav.r[id] = 0
 		if(!map.getLayer(id)) {
-			setLine(map,[s])
+			setLine(map,[s],1)
 		} else {
 			map.setLayoutProperty(id, 'visibility', 'visible')
 		}
@@ -831,10 +714,11 @@ module.exports = {
 	
 	run,
 	setKml,
+	setLine,
+	setPoint,
 	setActive,
 	
 	getElevation,
 	getAround,
-	onLoc,
 	on
 }
