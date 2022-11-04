@@ -19,10 +19,10 @@
 			// uni.clearStorageSync()
 			
 			let dict = uni.getStorageSync('szs_dict')||{}
-			this.zz.req({ $url: 'public/zz/dict', obj: true, v: dict.v, tar: null }).then(e => {
+			this.zz.req({ $url: '/public/zz/dict', obj: true, v: dict.v||0 }).then(e => {
+				console.log('dict ===============', e)
 				Object.assign(dict,e)
 				uni.setStorageSync('szs_dict', dict)
-				console.log('dict ===============', dict)
 			})
 			comm.on([121,30])
 		},

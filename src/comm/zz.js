@@ -14,7 +14,7 @@ const amapKey = 'daffb83c14428939221e09ebc785c89c',
 	cloud = 'https://699d1eb1-ee53-4c66-bddd-06cda80d1231.bspapp.com/',
 	api = {
 		app: cloud + 'app',
-		zz: cloud + 'http/zz'
+		zz: cloud + 'zz'
 	},
 
 	toArr = (o) => {

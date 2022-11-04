@@ -62,6 +62,9 @@ export default {
 				case "exit":
 					this.$store.dispatch("userLogout").done(() => {
 						uni.clearStorageSync();
+						// uni.reLaunch({
+						// 	url: "#/pages/login/index"
+						// })
 						location.href = "#/pages/login/index";
 					});
 					break;

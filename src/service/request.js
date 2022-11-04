@@ -36,9 +36,9 @@ export default function (options) {
 						});
 
 						Store.dispatch("userRemove");
-						uni.navigateTo({
+						uni.redirectTo({
 							url: "/pages/login/index"
-						});
+						})
 
 						break;
 					// 失败
