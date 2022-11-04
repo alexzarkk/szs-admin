@@ -18,6 +18,7 @@ import iLoading from '../icons/loading';
 import { async } from 'regenerator-runtime';
 
 export default class TerrainControl extends Base {
+	
     constructor(full,sid,platform) {
         super()
 		this.setCtrl = (v='')=>{
@@ -50,7 +51,9 @@ export default class TerrainControl extends Base {
 			this.layer.setIcon(iLayer())
 			
 			if(this.full) {
+				// #ifndef H5-ZLB
 				this.around.node.style.display = ''
+				// #endif
 			}
 			
 			if(this.map.sid=='amap') {
@@ -71,7 +74,6 @@ export default class TerrainControl extends Base {
 			this.around.node.style.display = 'none'
 			this.ele.node.style.display = 'none'
 			this.terrain.node.style.display = 'none'
-			
 		}
 		
 		this.xDem = ()=>{
@@ -113,23 +115,10 @@ export default class TerrainControl extends Base {
 		}
     }
     insert() {
-		let title = {
-				layer: '切换地图类型',
-				terrain: '切换【平面/3D】地图',
-				ele: '加载/取消 等高线',
-				around: '加载/取消 轨迹路网',
-				run: '动态轨迹播放',
-				rotate: '切换视角',
-				zoomIn: '放大地图',
-				zoomOut: '缩小地图',
-				up: '提升倾角',
-				down: '降低倾角',
-			}
-		
+		// this.terrain.addClassName('square-btn')
 		for (let k in this) {
 			if(this[k].node) {
 				this[k].addClassName('rectangle-btn')
-				this[k].node.setAttribute("title",title[k])
 			}
 		}
 		this.around.node.style.display = 'none'
@@ -258,9 +247,9 @@ export default class TerrainControl extends Base {
 			let e = {self: this.around, iAround:iAround(), iHide: iHide(), iLoading:iLoading()}
 			if(this.map.onAround) {
 				e.x = 1
-				window.mbAct({act:'around', e})
+				window.mbAct({act:'getAround', e})
 			} else{
-				await window.mbAct({act:'around', e})
+				await window.mbAct({act:'getAround', e})
 			}
 		})
 		
@@ -353,7 +342,7 @@ export default class TerrainControl extends Base {
 			
 			if(this.st>3) this.st = 0
 			map.sid = lt[this.st].id
-			
+			map.nav = {r:{}}
 			this.xDem()
 			this.xEle()
 			this.load()

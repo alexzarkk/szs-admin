@@ -1,7 +1,7 @@
 import { async } from 'regenerator-runtime'
 import zz from '@/comm/zz'
 
-import { isSame, uniqId, eqCoord, bearing, getDist, dist, trans, calData, fixNum, math } from '@/comm/geotools'
+import { isSame, uniqId, eqCoord, bearing, getLocation, getDist, dist, trans, calData, fixNum, math } from '@/comm/geotools'
 
 import comm from '@/comm/comm'
 import icon from '@/comm/libs/icon'
@@ -48,7 +48,7 @@ createEle = (s,t,ip)=>{
 			wh = pngSize(iconPath),
 			coord = t?trans(s.coord):s.coord,
 			title = s.sn||s.name||s._id
-			
+	
 		return {
 			s,
 			id: s._id,
@@ -113,18 +113,18 @@ toDist = (cs, poi, cds) => {
 }
 
 
-async function scan(coord){
-	
-	let e = await zz.scan()
+async function scan(cd,e){
+	if(!e) e = await zz.scan()
 	if(e) {
-		if(e.result.startsWith('https://z.szs.run')) {
-			if(!coord) {
-				const [_,c] = await uni.getLocation({type:'wgs84'})
-				coord = [fixNum(c.longitude), fixNum(c.latitude), ~~c.altitude]
+		let res = e.result || e.text
+		if(res.startsWith('https://z.szs.run')) {
+			if(!cd) {
+				let { coord } = await getLocation()
+				cd = coord
 			}
 			
-			let sn = zz.getQueryParam(e.result, 'o'),
-				code = { sn, coord, tim: zz.time2Date() },
+			let sn = zz.getQueryParam(res, 'o'),
+				code = { sn, coord:cd, tim: zz.time2Date() },
 				log = uni.getStorageSync('user_scan_log')||{temp:[]},
 				cps = comm.getStorage('sys_nav_cps')||{}
 				
@@ -133,8 +133,9 @@ async function scan(coord){
 				if(!x) return zz.modal('无效二维码！')
 				if(x.status<40) return zz.modal('此柱尚未开启打卡功能！')
 				cps[sn] = {_id: sn, t2: x.t2, coord: x.coord}
+				comm.setStorage('sys_nav_cps', cps)
 			}
-			if(dist(cps[sn].coord, coord)>160) {
+			if(dist(cps[sn].coord, cd)>160) {
 				return zz.modal('错误：超出距离范围！（请确认手机定位功能已开启，并在【'+sn+'】柱子附近）')
 			}
 			
@@ -142,13 +143,15 @@ async function scan(coord){
 				log[sn] = []
 			} else {
 				if((zz.now() - log[sn][log[sn].length-1]) < 1000*60*60*24) {
-					return zz.modal('您已于 ' + zz.timeFrom(log[sn][log[sn].length-1]) + ' 打卡此码！\n（1天内只能进行一次足迹打卡）')
+					return zz.modal('您已 ' + zz.timeFrom(log[sn][log[sn].length-1]) + ' 打卡此码！\n（1天内只能进行一次足迹打卡）')
 				}
 			}
 			
-			if(await comm.hadNet() != 'none') {
+			if(comm.hadNet()) {
 				await zz.req({ $url: 'user/scan/add', ...code }, true).then(x=>{
 					zz.toast('足迹打卡成功！')
+				}).catch(e=>{
+					return
 				})
 			}else{
 				log.temp.push(code)
@@ -169,6 +172,8 @@ async function scan(coord){
 }
 
 async function on(){
+	// #ifdef APP-PLUS
+	
 	const getZoom = async()=>{
 		return new Promise((res) => {
 			this.amap.getScale({
@@ -199,10 +204,7 @@ async function on(){
 		sw = x.southwest,
 		ne = x.northeast,
 		xy = ~~(math(~~(getDist(ne.longitude, ne.latitude, sw.longitude, sw.latitude)+(zoom>=15?8000:0))/10000,0) * 10000/0.5)||10000
-	
 	if (!k||isSame(nav.k,[k,zoom,xy])||nav.busy) return
-	
-	// console.log('setnav ...............',k,zoom,xy);
 	
 	nav.busy = true
 	nav.k = [k,zoom,xy]
@@ -223,38 +225,26 @@ async function on(){
 	nav.point = point
 	
 	nav.busy = false
+	
+	// #endif
+}
+async function _2bl(){
+	// #ifdef APP-PLUS
+	let nav = this.nav,
+		k = comm.nearst(trans([ct.longitude, ct.latitude], 'gcj02towgs84'))
+		
+	if (!k||isSame(nav.k,k)) return
+	
+	
+	
+	// #endif
 }
 
-// async function around(c) {
-	
-// 	await comm.on(c)
-// 	return new Promise((res) => {
-// 		comm.on(c)
-// 	})
-	
-// 	let kml = comm.getStorage('sys_nav'),
-// 		k = comm.nearst(c)
-		
-// 	if (k&&!isSame(k,this.near)) {
-// 		this.near = k
-// 		if (!kml[k].tr) {
-// 			kml[k].tr = []
-// 			let nav50 = comm.getStorage('sys_nav50')||{}
-// 			for (let x in nav50) {
-// 				if(dist(c, nav50[x].coord) < 12000) {
-// 					kml[k].tr.push(x)
-// 				}
-// 			}
-// 			comm.setStorage('sys_nav', kml)
-// 		}
-// 		return kml[k].tr
-// 	}
-// 	return []
-// }
 
 module.exports = {
 	createEle,
 	toDist,
 	scan,
-	on
+	on,
+	_2bl
 }

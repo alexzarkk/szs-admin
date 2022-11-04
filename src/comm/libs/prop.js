@@ -1,4 +1,5 @@
 const prop = {
+	
 	1: 	{text: '轨迹', v:'LineString', width: 2,opacity: 0.7,color: "#880000"},
 	2: 	{text: '坐标', v:'Point'},
 	3: 	{text: '区域', v:'Polygon'},
@@ -17,6 +18,10 @@ const prop = {
 	110: {text: '绿道', width: 4,opacity: 0.7,color: "#55ff7f"},
 	120: {text: '水道', width: 4,opacity: 0.8,color: "#55aaff"},
 	
+	190: {text: '我的', width: 6,opacity: 0.8,color: "#0055ff"},
+	192: {text: '打卡点', width: 1.4,opacity: 0.8,color: "#ff0000", dasharray:[2,1]},
+	199: {text: '导航', width: 2,opacity: 0.7,color: "#ffff00", dasharray:[3,1]},
+	
 	20: {text: '兴趣点'},
 	21: {text: '入口牌'},
 	22: {text: '主信息牌'},
@@ -33,6 +38,7 @@ const prop = {
 	60: {text: '视频'},
 	90: {text: '检查点'},
 	200:{text: '地名'},
+	201:{text: '地名'},
 	grade: {
 		1: {
 			text:"省级",

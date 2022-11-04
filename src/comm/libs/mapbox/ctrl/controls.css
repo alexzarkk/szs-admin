@@ -127,7 +127,7 @@
   position: absolute;
   transform: translate(-50%, 0);
   margin-top: 24px;
-  font-size: 14px;
+  font-size: 1.4rem;
   white-space: nowrap;
   z-index: 3;
   /* show tooltip over controls buttons with z-index 2 */
