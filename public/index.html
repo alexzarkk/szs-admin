@@ -1,130 +1,83 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title>
-			环浙步道
-		</title>
-		<!-- Open Graph data -->
-		<!-- <meta property="og:title" content="Title Here" /> -->
-		<!-- <meta property="og:url" content="http://www.example.com/" /> -->
-		<!-- <meta property="og:image" content="http://example.com/image.jpg" /> -->
-		<!-- <meta property="og:description" content="Description Here" /> -->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>
+		<%= htmlWebpackPlugin.options.title %>
+	</title>
+	<% if (process.env.VUE_APP_ENV === 'zlb' ) { %>
+		<script type="text/javascript" src="//assets.zjzwfw.gov.cn/assets/ZWJSBridge/1.1.0/zwjsbridge.js"></script>
+	<% } %>
+	<script>
+		var coverSupport = 'CSS' in window && typeof CSS.supports === 'function' && (CSS.supports('top: env(a)') || CSS.supports('top: constant(a)'))
+		document.write('<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' + (coverSupport ? ', viewport-fit=cover' : '') + '" />')
+	</script>
+	
+	<link rel="stylesheet" href="<%= BASE_URL %>static/index.<%= VUE_APP_INDEX_CSS_HASH %>.css" />
+	<style>
+		#global-menu {
+			position: fixed;
+			right: 20px;
+			bottom: 100px;
+			display: flex;
+			flex-direction: column;
+		}
 
-		<!-- <script type="text/javascript" src="//assets.zjzwfw.gov.cn/assets/ZWJSBridge/1.0.1/zwjsbridge.js"></script> -->
-		<!-- #ifdef H5-ZLB -->
+		#global-menu img {
+			width: 60px;
+			height: 60px;
+			margin-bottom: 5px;
+		}
 
+		.drag-btn {
+			position: fixed;
+			z-index: 999;
+			top: 100px;
+			left: 100px;
+			width: 50px;
+			height: 50px;
+			background-color: aqua;
+		}
+	</style>
+</head>
+
+<body>
+	<noscript>
+		<strong>请开启Javascript</strong>
+	</noscript>
+	<div id="app"></div>
+	<div id="global-menu"></div>
+	<% if (process.env.VUE_APP_ENV === 'zlb' ) { %>
 		<script>
-			// var coverSupport = 'CSS' in window && typeof CSS.supports === 'function' && (CSS.supports('top: env(a)') || CSS
-			// 	.supports('top: constant(a)'))
-			// document.write(
-			// 	'<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
-			// 	(coverSupport ? ', viewport-fit=cover' : '') + '" />')
-				
-				
-			// 声明异步加载回调函数
-			// var url = 'https://webapi.amap.com/maps?v=2.0&key=daffb83c14428939221e09ebc785c89c';
-			// var jsapi = document.createElement('script');
-			// jsapi.charset = 'utf-8';
-			// jsapi.src = url;
-			// document.head.appendChild(jsapi);
-		</script>
-
-		<!-- <script type="text/javascript" src="//portal.zjzwfw.gov.cn/assets/jsbridge/1.0.0/jsbridge.js"></script> -->
-		<!-- <script type="text/javascript" src="//assets.zjzwfw.gov.cn/assets/ZWJSBridge/1.0.1/zwjsbridge.js"></script> -->
-		<!-- <script type="text/javascript" src="//assets.zjzwfw.gov.cn/assets/ZWJSBridge/1.0.1/zwjsbridge.js"></script> -->
-		<!-- <script type="text/javascript" src="//portal.zjzwfw.gov.cn/assets/jsbridge/1.0.0/jsbridge.js"></script> -->
-
-		<!-- #endif -->
-		
-		<!-- <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js"></script>
-		<link href="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css" rel="stylesheet"/> -->
-		
-		<!-- <link rel="stylesheet" href="<%= BASE_URL %>static/index.<%= VUE_APP_INDEX_CSS_HASH %>.css" /> -->
-		<style>
-			/* #global-menu {
-				position: fixed;
-				right: 20px;
-				bottom: 100px;
-				display: flex;
-				flex-direction: column;
-			}
-
-			#global-menu img {
-				width: 60px;
-				height: 60px;
-				margin-bottom: 5px;
-			}
-			
-			.drag-btn{
-				position:fixed;
-				z-index: 999;
-				top: 100px;
-				left:100px;
-				width:50px;
-				height:50px;
-				background-color: aqua;
-			} */
-		</style>
-	</head>
-
-	<body>
-		<noscript>
-			<strong>请开启Javascript</strong>
-		</noscript>
-		<div id="app">
-		</div>
-		<!-- <div class="drag-btn">123</div> -->
-		<div id="global-menu">
-			<!-- <img src="./static/global/back.png" id="onBack" alt=""> -->
-			<!-- <img src="./static/global/home.png" id="onHome" alt=""> -->
-		</div>
-		<!-- built files will be auto injected -->
-
-		<!-- #ifdef H5-ZLB -->
-
-		<script>
-			// (function(w, d, s, q, i) {
-			// 	w[q] = w[q] || [];
-			// 	var f = d.getElementsByTagName(s)[0],
-			// 		j = d.createElement(s);
-			// 	j.async = true;
-			// 	j.id = 'beacon-aplus';
-			// 	j.src = 'https://d.alicdn.com/alilog/mlog/aplus.js?id=202951085';
-			// 	f.parentNode.insertBefore(j, f);
-			// })(window, document, 'script', 'aplus_queue');
+				(function (w, d, s, q, i) {
+					w[q] = w[q] || [];
+					var f = d.getElementsByTagName(s)[0],
+						j = d.createElement(s);
+					j.async = true;
+					j.id = 'beacon-aplus';
+					j.src = 'https://d.alicdn.com/alilog/mlog/aplus.js?id=202951085';
+					f.parentNode.insertBefore(j, f);
+				})(window, document, 'script', 'aplus_queue');
 			// 添加埋点的js
 
+			aplus_queue.push({
+				action: 'aplus.setMetaInfo',
+				arguments: ['aplus-rhost-v', 'alog.zjzwfw.gov.cn']
+			});
+			aplus_queue.push({
+				action: 'aplus.setMetaInfo',
+				arguments: ['aplus-rhost-g', 'alog.zjzwfw.gov.cn']
+			});
 
-			// aplus_queue.push({
-			// 	action: 'aplus.setMetaInfo',
-			// 	arguments: ['aplus-rhost-v', 'alog.zjzwfw.gov.cn']
-			// });
-			// aplus_queue.push({
-			// 	action: 'aplus.setMetaInfo',
-			// 	arguments: ['aplus-rhost-g', 'alog.zjzwfw.gov.cn']
-			// });
-
-			// aplus_queue.push({
-			// 	action: 'aplus.setMetaInfo',
-			// 	arguments: ['appId', '60506758']
-			// });
-			
-			// const homeList = ['#/pages/index/index', '#/pages/index/news', '#/pages/index/around', '#/pages/index/calendar',
-			// 	'#/pages/my/my', '#/pages/my/telLogin'
-			// ];
-			
-			// document.getElementById('onBack').onclick = () => {
-			// 	window.history.go(-1);
-			// }
-			// document.getElementById('onHome').onclick = () => {
-			// 	location.href = "#/pages/index/index";
-			// }
+			aplus_queue.push({
+				action: 'aplus.setMetaInfo',
+				arguments: ['appId', '2002281722']  // 这里修改app id
+			});
+			const homeList = ['#/pages/index/index', '#/pages/index/planning', '#/pages/index/event', '#/pages/index/postStation', '#/pages/index/me']
 		</script>
-
-		<!-- #endif -->
-	</body>
+	<% } %>
+</body>
 
 </html>
