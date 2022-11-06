@@ -17,7 +17,7 @@ const comm = {
 	
 	// #ifdef APP-PLUS
 	async req(q, cache=true) {
-		let key=(k)=>{return k? JSON.stringify(k).replace(/[`~!@#$^&*()=|{}':;',\\\[\]\.<>\/?~！@#￥……&*（）——|{}【】'；：""'。，、？\s]/g,''):''},
+		let key=(k)=>{return k? JSON.stringify(k).replace(/[`~!@#$%^&*()=|{}':;',\\\[\]\.<>\/?~！@#￥……&*（）——|{}【】'；：""'。，、？\s]/g,''):''},
 			fn = q.$fn,
 			param = JSON.stringify(q)
 		
@@ -120,7 +120,7 @@ const comm = {
 			p = xy+zoom
 		
 		if (!nav[k][p] || !nav[k][p].time || (Date.now() - nav[k][p].time) > (1000*60*60*24 * 7)) {
-			nav[k][p] = await comm.req({$url: 'on', $fn:'zz', center: k, zoom, xy }) || {line:[],point:[]}
+			nav[k][p] = await comm.req({$url: 'on', $fn: 'zz', center: k, zoom, xy }) || {line:[],point:[]}
 			comm.setStorage('sys_nav', nav)
 		}
 		return nav[k][p]

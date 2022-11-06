@@ -2,7 +2,8 @@
 	"pages": [
 		{ "path": "pages/index/index" },
 		{ "path": "pages/login/index" },
-		{ "path": "pages/zts/article/list" }
+		{ "path": "pages/url/index" },
+		{ "path": "pages/my/info" }
 	],
 	"subPackages": [
 		{
@@ -20,14 +21,11 @@
 			"pages": [ { "path": "index" }, { "path": "crud" }
 			]
 		},
+		
 		{
-			"root": "pages/url",
-			"pages": [ { "path": "index" }
-			]
-		},
-		{
-			"root": "pages/my",
-			"pages": [ { "path": "info" }
+			"root": "pages/zts",
+			"pages": [ 
+				{ "path": "/article/list" }
 			]
 		}
 	],

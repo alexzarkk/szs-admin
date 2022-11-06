@@ -53,25 +53,28 @@ export default {
 			.map((e) => e.split(":"))
 			.forEach((arr) => {
 				const col = (i, d) => {
-					let key = arr[i];
-
-					let index = d.findIndex((e) => e.label == key);
-
-					if (index >= 0) {
-						col(i + 1, d[index].children);
-					} else {
-						let isLast = i == arr.length - 1;
-
-						d.push({
-							label: key,
-							value: key,
-							children: isLast ? null : []
-						});
-
-						if (!isLast) {
-							col(i + 1, d[d.length - 1].children || []);
+					if(d!=null) {
+						let key = arr[i];
+	// console.log(d)
+						let index = d.findIndex((e) => e.label == key);
+	
+						if (index >= 0) {
+							col(i + 1, d[index].children);
+						} else {
+							let isLast = i == arr.length - 1;
+	
+							d.push({
+								label: key,
+								value: key,
+								children: isLast ? null : []
+							});
+	
+							if (!isLast) {
+								col(i + 1, d[d.length - 1].children || []);
+							}
 						}
 					}
+					
 				};
 
 				col(0, options);

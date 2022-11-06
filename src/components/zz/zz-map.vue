@@ -1,15 +1,41 @@
 <script module="_mapbox" lang="renderjs">
+	import { mapGetters } from 'vuex';
 	import mapboxgl from '!mapbox-gl/dist/mapbox-gl'
 	import MapboxDraw from '@/comm/libs/mapbox/draw/mapbox-gl-draw'
 	import mbtool from '@/comm/libs/mapbox/mbtool.js'
 	import comm from '@/comm/comm'
 	import icon from '@/comm/libs/icon'
-	// import AMapLoader from '@amap/amap-jsapi-loader'
-	import { CompassControl, LocationControl, TerrainControl, FullscreenControl } from '@/comm/libs/mapbox/ctrl/index.js'
+	import { CompassControl, TerrainControl, FullscreenControl } from '@/comm/libs/mapbox/ctrl/index.js'
 	import { trans } from '@/comm/geotools.js'
+	import { amapKey } from '@/comm/bd'
 	
 	import '@/comm/libs/mapbox/mapbox.css'
 	// import '@/comm/libs/mapbox/draw/mapbox-gl-draw.css'
+	const geolocation = {
+		getCurrentPosition(_onSuccess){
+			uni.getLocation({
+				isHighAccuracy: true,
+				altitude: true,
+				success(c){
+					_onSuccess({coords:c})
+				}
+			})
+		},
+		watchPosition(_onSuccess){
+			uni.getLocation({
+				isHighAccuracy: true,
+				altitude: true,
+				success(c){
+					_onSuccess({coords:c})
+					window.wid = setTimeout(()=> { geolocation.watchPosition(_onSuccess) }, 3999)
+					return window.wid
+				}
+			})
+		},
+		clearWatch(wid){
+			clearTimeout(wid||window.wid)
+		}
+	}
 	
 export default {
 	data() {
@@ -20,7 +46,7 @@ export default {
 			key: {
 				mb: 'pk.eyJ1IjoiYWxleHphcmtrIiwiYSI6ImNrcWdzNXdrcjI3NmEyb3F0cmVzd291amcifQ.tPuMJfthzboYHg3MzbKtKw',
 				tdt: '70ede380913047ef13bc4dc92ff4f75b',
-				amap: 'daffb83c14428939221e09ebc785c89c'
+				amap: amapKey
 			},
 			
 			settings: {
@@ -28,10 +54,19 @@ export default {
 				container: 'mbContainer',
 				center: [121,29],
 				zoom: 15,
-				minZoom: 5,
+				minZoom: 3,
 				maxZoom: 20,
 				pitch: 0,
 				maxPitch: 0
+			}
+		}
+	},
+	...mapGetters(['lay']),
+	watch: {
+		lay: {
+			deep: true,
+			handler(v) {
+				this.resize()
 			}
 		}
 	},
@@ -39,47 +74,46 @@ export default {
 		mapboxgl.accessToken = this.key.mb
 		window.mbAct = this.mbAct
 		this.newMb()
-		
-		// window.addEventListener("popstate", (e)=> {
-		// 	console.log('popstate.back <<<<<<<<<<<')
-		// 	window.removeEventListener('resize', this.resize)
-		// 	this.stopLoc()
-		// }, false)
 	},
 	methods: {
-		
-		newMb(){
+		resize(e){
+			let ct = document.getElementById('mbContainer')
+			ct.style.width = this.lay.width-10+'px'
+			ct.style.height = this.lay.height-10+'px'
+			this.map.resize()
+		},
+		async newMb(){
 			let map = new mapboxgl.Map(this.settings)
 			
 			map.addControl(new CompassControl(), 'bottom-right')
-			map.addControl(new LocationControl(), 'bottom-left')
+			// map.addControl(new LocationControl(), 'bottom-left')
+			this.geolocate = new mapboxgl.GeolocateControl({
+				positionOptions: { enableHighAccuracy: true, timeout: 10000, geocode: false },
+				trackUserLocation: true,
+				showUserHeading: true,
+				
+				// #ifdef APP-PLUS
+				geolocation: plus.geolocation
+				// #endif
+				 
+				// #ifdef H5
+				geolocation
+				// #endif
+			})
+			
+			map.addControl(this.geolocate, 'bottom-left')
+			// this.geolocate.on('geolocate', _p => {
+			// 	console.log('A geolocate event has occurred.', _p.timestamp ,_p.coords.longitude, _p.coords.latitude, _p.coords.altitude)
+			// })
 			
 			map.sid = 'default'
 			map.pm = {}
 			map.nav = {r:{}}
 			map._2p = []
 			this.map = map
-			
-			// window.map = map
-			this.initAmap()
-		},
-		async initAmap(){
-			// if(!window.Geocoder) {
-			// 	await AMapLoader.load({
-			// 	    key: this.key.amap,
-			// 	    version: "2.0",
-			// 		plugins:['AMap.Geocoder']
-			// 	}).then((AMap)=>{
-			// 		window.Geocoder = new AMap.Geocoder({})
-			// 	}).catch((e)=>{
-			// 		console.error(e)
-			// 	})
-			// }
 		},
 		init(self,si,ct,isf,ctrl,t=1) {
-			
 			let map = this.map
-			
 			if(t==1) {
 				this.self = self
 				// this.isf = isf
@@ -87,23 +121,65 @@ export default {
 				
 				ctrl = new TerrainControl(isf, map.sid, si.platform)
 				map.addControl(ctrl, 'top-left')
-				// map.addControl(new FullscreenControl(isf), 'top-right')
 				map.addControl(new mapboxgl.FullscreenControl());
 			}
 			
+			// #ifdef APP-PLUS
+			if(isf) {
+				const setTop = (x) => { for (let s of x) { s.style.marginTop = (si.safeArea.top-6)+'px' } }
+				setTop(document.getElementsByClassName('mapboxgl-ctrl-top-right'))
+				setTop(document.getElementsByClassName('mapboxgl-ctrl-top-left'))
+				// plus.screen.lockOrientation('landscape-primary')
+				// this.resize(si.platform=='android'?1:0)
+				this.resize(0)
+				
+			}
+			//无网重试
+			if(plus.networkinfo.getCurrentType()<=1 && t>0) {
+				let style = comm.getStorage('mbStyle')
+				if(style) {
+					map.setStyle(style)
+					return this.init(self,si,ct,isf,ctrl,0)
+				}
+				
+				t++
+				if(t>20) {
+					// alert('网络连接失败，请稍后重试')
+					uni.showToast({
+						icon:"error",
+						title:'网络连接失败，请稍后重试'
+					})
+				} else {
+					console.info('超时重载！！！！')
+					setTimeout(()=>{
+						map.remove()
+						this.newMb()
+						this.init(self,si,ct,isf,ctrl,t)
+					}, 10000)
+				}
+				return
+			}
+			// #endif
 			
+			 
+			// #ifdef H5
+			map.resize()
+			if(isf) {
+				this.resize()
+				window.addEventListener('resize', this.resize)
+			}
+			// #endif
 			
-			
-			// const evt = (e) =>{
-			// 	let _c = (c)=>{return [mbtool.fixNum(c.lng), mbtool.fixNum(c.lat)]},
-			// 		center = _c(map.getCenter()),
-			// 		zoom = mbtool.fixNum(map.getZoom(), 0),
-			// 		bounds = map.getBounds(),
-			// 		_ne = _c(bounds.getNorthEast()),
-			// 		_sw = _c(bounds.getSouthWest())
+			const evt = (e) =>{
+				let _c = (c)=>{return [mbtool.fixNum(c.lng), mbtool.fixNum(c.lat)]},
+					center = _c(map.getCenter()),
+					zoom = mbtool.fixNum(map.getZoom(), 0),
+					bounds = map.getBounds(),
+					_ne = _c(bounds.getNorthEast()),
+					_sw = _c(bounds.getSouthWest())
 					
-			// 	return { event: e.type, center, zoom, _ne, _sw }
-			// }
+				return { event: e.type, center, zoom, _ne, _sw }
+			}
 			if(ct){
 				map.setZoom(14)
 				map.setCenter(map.sid=='amap'? trans([ct[0],ct[1]]): [ct[0],ct[1]])
@@ -134,20 +210,22 @@ export default {
 			for (let k in icon) {
 				map.loadImage(icon[k], (x,m)=>{ map.addImage(k, m) })
 			}
+			
 			map.on('load', (e) => {
 				ctrl.done()
 				map.init = true
 				self.callMethod('mapDone', true)
 				comm.setStorage('mbStyle', map.getStyle())
-				// this.onloc()
+				
+				// this.geolocate.trigger()
 			})
 			map.on('moveend', (e) => {
 				mbtool.on(map)
-				self.callMethod('mbEvent')
+				self.callMethod('mbEvent', evt(e))
 			});
 			map.on('zoomend', () => {
 				mbtool.on(map)
-			});
+			})
 		},
 		
 		async updateData({exec=null, sysInfo={}, center=null, pms=null, line=[], point=[], gon=[], isf=false}, ov, self) {
@@ -168,7 +246,7 @@ export default {
 		fit(e){ mbtool.setActive(this.map,e) },
 		setKml(e) { mbtool.setKml(this.map, null, e.line, e.point, e.gon, 0) },
 		runx(e){ mbtool.run(this.map,e) },
-		around(e){ mbtool.getAround(this.map,null,e) },
+		getAround(e){ mbtool.getAround(this.map,null,e) },
 		mbAct(e){
 			if(this[e.act]) {
 				this[e.act](e.e)
@@ -182,9 +260,17 @@ export default {
 
 <template>
     <view>
-        <view :style="{ height: (lay.height-220) + 'px', width: (lay.width-50) + 'px' }" :prop="mb" :change:prop="_mapbox.updateData">
-			<div id="mbContainer"></div>
-		</view>
+        <view id="mbContainer" :style="{ height: winH + 'px', width: '100%' }" :prop="mb" :change:prop="_mapbox.updateData"></view>
+        
+        <view class="cu-modal" :class="video ? 'show' : ''">
+            <view class="cu-dialog">
+                <view class="cu-bar bg-white justify-end">
+                    <view class="content">短视频</view>
+                    <view class="action" @tap="video=null"><text class="cuIcon-close text-red"></text></view>
+                </view>
+               <video v-if="video" id="myVideo" :src="video" controls></video>
+            </view>
+        </view>
     </view>
 </template>
 <script>
@@ -197,7 +283,8 @@ export default {
 			mb: {},
 			ver: 0,
 			sysInfo: {},
-			isFullscreen: true
+			isFullscreen: true,
+			video: null
         };
     },
     props: {
@@ -333,6 +420,9 @@ export default {
 					break;
 				case 'viewImg':
 					this.zz.viewIMG(e.imgs,e.idx)
+					break;
+				case 'viewVideo':
+					this.video = e.url
 					break;
 				case 'chgStyle':
 					this.zz.toast(e.e)

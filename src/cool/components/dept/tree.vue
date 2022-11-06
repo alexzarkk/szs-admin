@@ -1,322 +1,62 @@
 <template>
 	<div class="cl-dept-tree">
-		<div class="cl-dept-tree__header">
-			<div>组织架构</div>
-
-			<ul class="cl-dept-tree__op">
-				<li>
-					<el-tooltip content="刷新">
-						<i class="el-icon-refresh" @click="refresh()"></i>
-					</el-tooltip>
-				</li>
-
-				<li v-if="drag">
-					<el-tooltip content="拖动排序">
-						<i class="el-icon-s-operation" @click="isDrag = true"></i>
-					</el-tooltip>
-				</li>
-
-				<li class="no" v-show="isDrag">
-					<el-button type="text" size="mini" @click="treeOrder(true)">保存</el-button>
-					<el-button type="text" size="mini" @click="treeOrder(false)">取消</el-button>
-				</li>
-			</ul>
+		<div class="header">
+			<div class="text-black">区域部门</div>
 		</div>
-
-		<div class="cl-dept-tree__container" @contextmenu.prevent="openCM">
+		<div class="container scroller">
 			<el-tree
 				node-key="id"
 				highlight-current
-				default-expand-all
+				:default-expanded-keys="[deptId]"
 				:data="list"
-				:props="{
-					label: 'name'
-				}"
-				:draggable="isDrag"
-				:allow-drag="allowDrag"
-				:allow-drop="allowDrop"
+				:props="{ label: 'name' }"
 				:expand-on-click-node="false"
 				v-loading="loading"
-				@node-contextmenu="openCM"
 				@node-click="rowClick"
-			></el-tree>
+			>
+			</el-tree>
 		</div>
-
-		<!-- 部门编辑 -->
-		<cl-form ref="dept-upsert"> </cl-form>
-
-		<!-- 右键按钮 -->
-		<cl-context-menu ref="context-menu"> </cl-context-menu>
 	</div>
 </template>
 
 <script>
-import { deepTree, isArray, revDeepTree } from "../../utils";
+import { deepTree, revDeepTree } from "../../utils";
 
 export default {
 	name: "cl-dept-tree",
-
 	props: {
-		drag: {
-			type: Boolean,
-			default: true
-		},
-		level: {
+		deptId: {
 			type: Number,
-			default: 99
+			default: 330000
 		}
 	},
-
 	data() {
 		return {
 			list: [],
-			loading: false,
-			isDrag: false
+			loading: true
 		};
 	},
-
 	created() {
-		this.refresh();
+		this.refresh()
 	},
 
 	methods: {
-		openCM(e, d, n) {
-			let list = [
-				{
-					label: "新增",
-					"suffix-icon": "el-icon-plus",
-					hidden: n && n.level >= this.level,
-					callback: (item, done) => {
-						this.rowEdit({
-							name: "",
-							parentName: d.name,
-							parentId: d.id
-						});
-						done();
-					}
-				},
-				{
-					label: "编辑",
-					"suffix-icon": "el-icon-edit",
-					callback: (item, done) => {
-						this.rowEdit(d);
-						done();
-					}
-				}
-			];
-
-			if (!d) {
-				d = this.list[0];
-			}
-
-			if (d.parentId) {
-				list.push({
-					label: "删除",
-					"suffix-icon": "el-icon-delete",
-					callback: (item, done) => {
-						this.rowDel(d);
-						done();
-					}
-				});
-			}
-
-			list.push({
-				label: "新增成员",
-				"suffix-icon": "el-icon-user",
-				callback: (item, done) => {
-					this.$emit("user-add", d);
-					done();
-				}
-			});
-
-			this.$refs["context-menu"].open(e, {
-				list
-			});
-		},
-
-		allowDrag({ data }) {
-			return data.parentId;
-		},
-
-		allowDrop(draggingNode, dropNode) {
-			return dropNode.data.parentId;
-		},
-
 		refresh() {
-			this.isDrag = false;
 			this.loading = true;
-
 			this.$service.system.dept
-				.list()
+				.list({load:true})
 				.then((res) => {
 					this.list = deepTree(res);
-					this.$emit("list-change", this.list);
-				})
-				.done(() => {
+					if(this.list.length==1) this.rowClick(this.list[0])
+					this.$emit("loaded", this.list);
+				}).done(() => {
 					this.loading = false;
 				});
 		},
-
 		rowClick(e) {
-			this.$refs["context-menu"].close();
 			let ids = revDeepTree(e.children).map((e) => e.id);
-			ids.unshift(e.id);
-			this.$emit("row-click", { item: e, ids });
-		},
-
-		rowEdit(e) {
-			const method = e.id ? "update" : "add";
-
-			this.$refs["dept-upsert"].open({
-				props: {
-					title: "编辑部门",
-					width: "550px",
-					"label-width": "100px"
-				},
-				items: [
-					{
-						label: "部门名称",
-						prop: "name",
-						value: e.name,
-						component: {
-							name: "el-input",
-							attrs: {
-								placeholder: "请填写部门名称"
-							}
-						},
-						rules: {
-							required: true,
-							message: "部门名称不能为空"
-						}
-					},
-					{
-						label: "上级部门",
-						prop: "parentId",
-						value: e.parentName || "...",
-						component: {
-							name: "el-input",
-							attrs: {
-								disabled: true
-							}
-						}
-					},
-					{
-						label: "排序",
-						prop: "orderNum",
-						value: e.orderNum || 0,
-						component: {
-							name: "el-input-number",
-							props: {
-								"controls-position": "right",
-								min: 0,
-								max: 100
-							}
-						}
-					}
-				],
-				on: {
-					submit: (data, { done, close }) => {
-						this.$service.system.dept[method]({
-							id: e.id,
-							parentId: e.parentId,
-							name: data.name,
-							orderNum: data.orderNum
-						})
-							.then(() => {
-								this.$message.success(`新增部门${data.name}成功`);
-								close();
-								this.refresh();
-							})
-							.catch((err) => {
-								this.$message.error(err);
-								done();
-							});
-					}
-				}
-			});
-		},
-
-		rowDel(e) {
-			const del = (f) => {
-				this.$service.system.dept
-					.delete({
-						ids: e.id,
-						deleteUser: f
-					})
-					.then(() => {
-						if (f) {
-							this.$message.success("删除成功");
-						} else {
-							this.$confirm("该部门用户已移动到部门顶级", "删除成功");
-						}
-					})
-					.done(() => {
-						this.refresh();
-					});
-			};
-
-			this.$confirm("该操作会删除部门下的所有用户，是否确认？", "提示", {
-				type: "warning",
-				confirmButtonText: "直接删除",
-				cancelButtonText: "保留用户",
-				distinguishCancelAndClose: true
-			})
-				.then(() => {
-					del(true);
-				})
-				.catch((action) => {
-					if (action == "cancel") {
-						del(false);
-					}
-				});
-		},
-
-		treeOrder(f) {
-			if (f) {
-				this.$confirm("部门架构已发生改变，是否保存？", "提示", {
-					type: "warning"
-				})
-					.then(() => {
-						const deep = (list, pid) => {
-							list.forEach((e) => {
-								e.parentId = pid;
-								ids.push(e);
-
-								if (e.children && isArray(e.children)) {
-									deep(e.children, e.id);
-								}
-							});
-						};
-
-						let ids = [];
-
-						deep(this.list, null);
-
-						this.$service.system.dept
-							.order(
-								ids.map((e, i) => {
-									return {
-										id: e.id,
-										parentId: e.parentId,
-										orderNum: i
-									};
-								})
-							)
-							.then(() => {
-								this.$message.success("更新排序成功");
-							})
-							.catch((err) => {
-								this.$message.error(err);
-							})
-							.done(() => {
-								this.refresh();
-								this.isDrag = false;
-							});
-					})
-					.catch(() => {});
-			} else {
-				this.refresh();
-			}
+			ids.unshift(e.id)
+			this.$emit("check", ids)
 		}
 	}
 };
@@ -324,10 +64,16 @@ export default {
 
 <style lang="scss" scoped>
 .cl-dept-tree {
-	height: 100%;
-	width: 100%;
+	height: calc(100% - 4px);
+	width: 200px;
+	border: 1px solid #e9ecf1;
+	background-color: #eeeeee;
+	overflow-y: auto;
+	overflow-x: hidden;
+	transition: width 0.3s;
+	margin-right: 10px;
 
-	&__header {
+	.header {
 		display: flex;
 		align-items: center;
 		height: 40px;
@@ -335,47 +81,48 @@ export default {
 		background-color: #fff;
 		letter-spacing: 1px;
 		position: relative;
-
+	
 		div {
 			font-size: 14px;
-			color: $uni-color-primary;
 			flex: 1;
 			white-space: nowrap;
 		}
-
+	
 		i {
 			font-size: 18px;
-			color: $uni-color-primary;
 			cursor: pointer;
 		}
 	}
-
-	::v-deep .el-tree-node__content {
-		height: 36px;
-	}
-
-	&__op {
-		display: flex;
-
-		li {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			list-style: none;
-			margin-left: 5px;
-			padding: 5px;
-			cursor: pointer;
-
-			&:not(.no):hover {
-				background-color: #eee;
-			}
-		}
-	}
-
-	&__container {
-		height: calc(100% - 40px);
+	.container {
+		background-color: #ffffff;
 		overflow-y: auto;
 		overflow-x: hidden;
+	}
+	.scroller {
+		border-top: 1px solid #eaedf4;
+		height: calc(100% - 50px);
+		box-sizing: border-box;
+		overflow-x: hidden;
+	}
+	
+	::el-tree-node__content {
+		height: 36px;
+		span {
+			&:nth-child(2) {
+				display: flex;
+				align-items: center;
+				height: 100%;
+				width: 100%;
+	
+				div {
+					display: flex;
+					align-items: center;
+					height: 100%;
+					width: 100%;
+					font-size: 13px;
+				}
+			}
+		}
 	}
 }
 </style>

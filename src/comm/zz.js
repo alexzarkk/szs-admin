@@ -429,13 +429,13 @@ const
  */
 async function req(params = {}, loading = false, t = 9999) {
 	let tim,
-		fn = params.$fn || 'app',
+		fn = params.$fn || 'admin',
 		veri = params.$veri || false,
 		url = params.$url,
 		token = zz.getToken(),
 		net = zz.hadNet(),
 		toLogin = () => {
-			zz.href('/pages/comm/account/login', 0, { back: 1 })
+			uni.redirectTo({url: "/pages/index/index"})
 		}
 
 	delete params.$fn
@@ -466,8 +466,8 @@ async function req(params = {}, loading = false, t = 9999) {
 					case 1002:
 						zz.logOut()
 						zz.toast(message)
-						reject()
-						// return toLogin()
+						// reject()
+						return toLogin()
 						break
 					// 失败
 					default:
@@ -569,95 +569,6 @@ async function req(params = {}, loading = false, t = 9999) {
 // 未登录提示去登录
 
 
-
-function userEvent(t, tt, o, ref = '_id') {
-	let user = zz.getAcc()
-
-	if (!user && t !== 20) {  // 未登录
-		const toLogin = () => {
-			zz.href('/pages/comm/account/login', 0, { back: 1 })
-		}
-		zz.modal('您尚未登录，请登录后操作', (flag) => {
-			if (flag) {
-				return toLogin()
-			} else {
-				return;
-			}
-		}, true)
-		return new Promise((resolve, reject) => {
-			reject('未登录')
-		});
-	}
-	let e = {
-		$url: 'user/ue/action',
-		t,
-		tt,
-		tid: o[ref]
-	}
-	if (t == 20) {
-		if (!o.view) {
-			o.view = 1
-		} else {
-			o.view++
-		}
-	} else {
-		e.$veri = 1
-	}
-
-	if (t == 30) {  // 点赞
-		if (!o.like) o.like = 0
-		if (!o.isLike) {
-			o.like++
-			o.isLike = true
-			e.inc = 1
-		} else {
-			o.like--
-			o.isLike = false
-			e.inc = -1
-		}
-	}
-	if (t == 40) {  // 收藏
-		if (!o.favor) o.favor = 0
-		if (!o.isFavor) {
-			o.favor++
-			o.isFavor = true
-			e.inc = 1
-		} else {
-			o.favor--
-			o.isFavor = false
-			e.inc = -1
-		}
-	}
-	if (t == 50) {  // 分享
-		if (!o.share) o.share = 0
-		o.share++
-		e.inc = 1
-	}
-
-	if (t == 60) {  // 关注用户
-		if (o.isFollow) {  // 已经关注的取消关注
-			e.inc = -1
-		} else { // 没有关注的则添加关注
-			e.inc = 1
-		}
-		o.isFollow = !o.isFollow
-	}
-	// console.log("修改了状态",o)
-	return new Promise((resolve, rejected) => {
-		req(e).then(res => {
-			if (res && res.code !== 1000) {
-				console.error("userEvent  fail =========", res)
-				rejected(err)
-			} else {
-				resolve(res)
-			}
-		}).catch(err => {
-			console.error("userEvent  fail =========", err)
-			rejected(err)
-		})
-	})
-}
-
 const zz = {
 	rndInt,
 	math,
@@ -679,7 +590,6 @@ const zz = {
 
 
 	req,
-	userEvent,
 	reGeo,
 	weatherInfo,
 
@@ -696,21 +606,21 @@ const zz = {
 	// #endif
 
 	// #ifndef APP-PLUS
-	hadNet() { return window.hadNet },
+	hadNet() { return window.hadNet || true },
 	// #endif
 
 	now() { return Date.now() },
 	setAcc(u) {
-		uni.setStorageSync('210B33A_acc', u)
+		uni.setStorageSync('userInfo', u)
 	},
-	getAcc() { return uni.getStorageSync('210B33A_acc') },
-	setToken(token) {
-		uni.setStorageSync('210B33A_token', token)
+	getAcc() { return uni.getStorageSync('userInfo') },
+	setToken(tk) {
+		uni.setStorageSync('token', tk)
 	},
-	getToken() { return uni.getStorageSync('210B33A_token') },
+	getToken() { return uni.getStorageSync('token') },
 	logOut() {
-		uni.removeStorageSync('210B33A_acc')
-		uni.removeStorageSync('210B33A_token')
+		uni.removeStorageSync('userInfo')
+		uni.removeStorageSync('token')
 	},
 	async setDept() {
 		let { deptId, dept } = this.getDept()
@@ -826,12 +736,20 @@ const zz = {
 			})
 		}
 	},
-
+	openWin({url,id,w=1400,h=1000}) {
+		let _,dPR=window.devicePixelRatio;if(!dPR)dPR=1
+		window.open(url+(id?'?id='+id:''),"_blank","left="+((screen.width-w)/2)+",height="+h*dPR+",width="+w*dPR+",top=1,center=1,resizable=1,toolbar=no, location=no, directories=no, status=no, menubar=no,channelmode=no");
+	},
 	profile(id) {
 		let d = uni.getStorageSync('sys_dict')
 		this.href(`/pages/my/profile/${d.sysUser[id] ? 'sysProfile' : 'profile'}?id=${id}`)
 	},
-	getParam(v) { return JSON.parse(decodeURI(v)) }
+	getParam(v) { return JSON.parse(decodeURI(v)) },
+	toObj(a){
+		let o = {}
+		for (let s of a) { o[s.value] = s }
+		return o
+	}
 }
 
 module.exports = zz

@@ -3,7 +3,8 @@
 		<div class="page-login">
 			<div class="box">
 				<img class="logo" src="https://zts.5618.co/repo/login.png" alt="" />
-				<p class="desc">环浙步道赛事管理系统</p>
+				<p class="desc">{{sys.name}}</p>
+				<p class="desc">{{sys.copyright}}</p>
 
 				<el-form ref="form" class="form" size="medium" :disabled="saving">
 					<el-form-item label="用户名"><el-input placeholder="请输入用户名或手机" v-model="form.username" maxlength="20" auto-complete="off"></el-input></el-form-item>
@@ -27,19 +28,25 @@
 							<el-image style="width: 100px;" src="https://zts.5618.co/repo/qrcode_collect.png"></el-image>
 						</div>
 					</view> -->
-					
-					<view class="padding-top-sm text-sm text-gray">© 2022 ZTS 浙江省体育科学研究所</view>
-					<view class="padding-top text-sm text-gray">没有账号请先下载【环浙采集】APP注册新账号</view>
+					<view class="padding-top-sm text-sm text-gray">没有账号请先下载【环浙采集】APP注册新账号</view>
 				</block>
 				<view class="padding-top-sm text-sm text-blue" style="cursor: pointer;" @click="help">技术文档</view>
 			</div>
 		</div>
+		<view class="cu-bar foot flex justify-center">
+		    <text class="text-sm text-gray">技术支持：{{sys.admin}}</text>
+		    <text class="margin-left-sm sm text-sm text-gray">
+		    	咨询电话：
+		    	<text class="text-bold text-grey">{{sys.tel}}</text>
+		    </text>
+		</view>
 	</div>
 </template>
 
 <script>
-import { isPc, openWin } from "@/cool/utils"
+import { isPc } from "@/cool/utils"
 import Captcha from '@/components/common/captcha'
+import {sys} from '@/comm/bd'
 
 export default {
 	components: {
@@ -48,6 +55,7 @@ export default {
 
 	data() {
 		return {
+			sys,
 			tip:false,
 			qrcode: isPc(),
 			form: {
@@ -98,8 +106,7 @@ export default {
 					this.$message.error('该账号没有权限');
 					this.saving = false;
 				} else {
-					// location.href = '/szs';
-					uni.redirectTo({ url: '/pages/index/index' })
+					uni.redirectTo({url: "/pages/index/index"})
 				}
 			} catch (err) {
 				this.$refs.captcha.refresh();
@@ -114,7 +121,7 @@ export default {
 			}
 		},
 		help(){
-			openWin("https://zts.5618.co/repo/help.html")
+			this.zz.openWin({url:"https://zts.5618.co/repo/help.html"})
 		}
 	}
 };

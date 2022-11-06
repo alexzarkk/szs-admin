@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "npm run dev:h5",
 		"build:dev": "npm run build:h5",
-		"serve": "npm run dev:custom h5-zlb",
+		"serve": "npm run dev:custom h5-dev",
 		"build": "cross-env UNI_OUTPUT_DIR='build' NODE_ENV=production uniapp-cli custom h5-zlb",
 		"build:h5": "cross-env NODE_ENV=production UNI_PLATFORM=h5 vue-cli-service uni-build",
 		"zlb": "cross-env NODE_ENV=development uniapp-cli custom h5-zlb",
@@ -45,6 +45,7 @@
 		"test:mp-weixin": "cross-env UNI_PLATFORM=mp-weixin jest -i"
 	},
 	"dependencies": {
+		"@aligov/jssdk-mgop": "^3.1.9",
 		"@amap/amap-jsapi-loader": "^1.0.1",
 		"@dcloudio/uni-app-plus": "^2.0.1-36420220922003",
 		"@dcloudio/uni-h5": "^2.0.1-36420220922003",
@@ -80,6 +81,7 @@
 		"tinymce": "^5.8.2",
 		"uni-read-pages": "^1.0.5",
 		"uni-simple-router": "^2.0.8-beta.4",
+		"uqrcodejs": "^3.6.0",
 		"vue": "^2.6.14",
 		"vue-echarts": "6.2.3",
 		"vuex": "^3.6.2"

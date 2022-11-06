@@ -25,8 +25,7 @@ export default {
 				.captcha({
 					height: 36,
 					width: 110
-				})
-				.then(({ captchaId, data }) => {
+				}).then(({ captchaId, data }) => {
 					if (data.includes("data:image/png;base64,")) {
 						this.base64 = data;
 					} else {

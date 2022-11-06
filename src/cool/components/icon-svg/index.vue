@@ -19,11 +19,15 @@ export default {
 	name: "icon-svg",
 
 	props: {
-		name: {
+		name: { // 传进来的
 			type: String
 		},
 		className: {
 			type: String
+		},
+		type:{
+			type:String,
+			default:'cl-icon'  // cuIcon
 		},
 		size: {
 			type: [String, Number],
@@ -34,7 +38,15 @@ export default {
 
 	computed: {
 		iconName() {
-			return `cl-icon-${this.name}`;
+			let IconName = ''
+			if(this.name){
+				IconName = `${this.type}-${this.name}`
+			}else{
+				IconName = 'cuIcon-calendar'
+			}
+			
+			// console.log("展示的图标",IconName)
+			return IconName;
 		},
 		svgClass() {
 			return ["icon-svg", `icon-svg__${this.name}`, this.className];
@@ -42,6 +54,9 @@ export default {
 		size2() {
 			return typeof this.size == "string" ? this.size : `${this.size}px`;
 		}
+	},
+	mounted() {
+		// console.log("获取到的type",this.type)
 	}
 };
 </script>

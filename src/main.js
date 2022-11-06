@@ -50,9 +50,7 @@ App.mpType = "app";
 Vue.config.productionTip = false;
 Vue.prototype.zz = zz
 
-const loader = Loading.service({
-	text: "加载配置中"
-})
+const loader = Loading.service({text: "加载配置中"})
 
 store.dispatch("appLoad").done(() => {
 	loader.close()

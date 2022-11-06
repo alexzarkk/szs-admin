@@ -240,18 +240,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wx8243aa2843282582",
-        "setting" : {
-            "urlCheck" : true,
-            "postcss" : true,
-            "minified" : true
-        },
-        "usingComponents" : true,
-        "permission" : {
-            "scope.userLocation" : {
-                "desc" : "用于地图或线路的定位辅助"
-            }
-        }
+        "usingComponents" : true
     },
     "mp-alipay" : {
         "usingComponents" : true
@@ -266,6 +255,28 @@
         "enable" : false
     },
     "vueVersion" : "2",
+	//浙里办
+	// "h5" : {
+	//     "title" : "环浙步道",
+	//     "appkey" : "4kzz5t3t+2002281722+mzaaot",
+	//     "publicPath" : "./",
+	//     "router" : {
+	//         "base" : "./",
+	//         "mode" : "hash"
+	//     },
+	//     "sdkConfigs" : {
+	//         "maps" : {
+	//             "qqmap" : {
+	//                 "key" : "5VZBZ-WNO6Q-R4I55-GRABZ-P3NVO-RPFZC"
+	//             }
+	//         }
+	//     },
+	//     "optimization" : {
+	//         "treeShaking" : {
+	//             "enable" : true
+	//         }
+	//     }
+	// },
     "h5" : {
         "title" : "环浙步道",
         "appkey" : "065wqkqc+2001832114+rswca",

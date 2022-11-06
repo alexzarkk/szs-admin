@@ -23,7 +23,7 @@ const bd = {
 	amapKey: 'daffb83c14428939221e09ebc785c89c',
 
 	sys: {
-		name: "环浙步道",
+		
 		desc: "运动浙江 户外天堂",
 		code: '330213',
 		admin: '宁波之之步道技术有限公司',
@@ -32,12 +32,14 @@ const bd = {
 
 
 		// #ifdef H5-ZLB
+		name: "环浙步道服务应用管理端",
 		copyright: '浙江省体育局、宁波市奉化区文化和广电旅游体育局',
 		tel: '0574-88517465'
 		// #endif
 
 		// #ifndef H5-ZLB
-		copyright: "© 2022 浙江体育科学研究所（浙江省反兴奋剂中心）",
+		name: "环浙步道数字平台",
+		copyright: "© 2021-至今 浙江体育科学研究所（浙江省反兴奋剂中心）",
 		tel: '0574-88517758'
 		// #endif
 	},

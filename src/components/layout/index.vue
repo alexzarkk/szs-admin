@@ -37,7 +37,7 @@ export default {
 		$route() {
 			if (!this.token && this.$route.path != '/pages/login/index') {
 				this.$store.dispatch('userRemove');
-				uni.navigateTo({
+				uni.redirectTo({
 					url: '/pages/login/index'
 				});
 			}

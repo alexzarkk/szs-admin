@@ -1,3 +1,5 @@
+@import './cuIcon.scss';
+
 @font-face {
 	font-family: "cl-iconfont"; /* project id 1413181 */
 	src: url("//at.alicdn.com/t/font_1413181_bwp86guyuu.eot");
@@ -6,6 +8,14 @@
 		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.woff") format("woff"),
 		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.ttf") format("truetype"),
 		url("//at.alicdn.com/t/font_1413181_bwp86guyuu.svg#iconfont") format("svg");
+}
+
+[class*="zts-"] {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 [class*="cl-icon"] {
