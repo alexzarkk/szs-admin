@@ -51,7 +51,9 @@ export default class TerrainControl extends Base {
 			this.layer.setIcon(iLayer())
 			
 			if(this.full) {
+				// #ifndef H5-ZLB
 				this.around.node.style.display = ''
+				// #endif
 			}
 			
 			if(this.map.sid=='amap') {
