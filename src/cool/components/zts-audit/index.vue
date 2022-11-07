@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<!-- 审核资源的弹框 -->
-		<cl-dialog width="30%" title="审核" :visible.sync="examineVisible">
+		<cl-dialog width="30%" title="审核" :props="{fullscreen:false}" :controls="['close']" :visible.sync="examineVisible">
 			<el-form :model="examineObj" ref="examineForm" :rules="rules">
 				<!-- 资源名称 -->
 				<el-row>

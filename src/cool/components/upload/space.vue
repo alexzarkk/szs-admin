@@ -1,16 +1,13 @@
 <template>
     <div class="cl-upload-space__wrap">
         <slot>
-            <el-button
-                size="mini"
-                @click="open"
-            >点击上传</el-button>
+            <el-button v-if="btn" size="mini" @click="open">点击上传</el-button>
         </slot>
 
         <!-- 弹框 -->
         <cl-dialog
             :visible.sync="visible"
-            v-bind="props"
+            :props = "dialogProps"
         >
             <div class="cl-upload-space">
                 <!-- 类目 -->
@@ -109,9 +106,12 @@
                     <el-pagination
                         background
                         :page-size="file.pagination.size"
+						:page-sizes="[10, 20, 40, 60, 80, 100, 200, 400]"
                         :current-page="file.pagination.page"
                         :total="file.pagination.total"
+						layout="total, sizes, prev, pager, next"
                         @current-change="onCurrentChange"
+						@size-change="handleSizeChange"
                     ></el-pagination>
                 </div>
             </div>
@@ -127,17 +127,19 @@
 
 <script>
 import { mapGetters } from "vuex";
-import _ from "lodash";
-import { uploadFile } from "../../utils/cloud";
+// import _ from "lodash";
+// import { uploadFile } from "../../utils/cloud";
 
 export default {
 	componentName: "UploadSpace",
 
 	props: {
+		
 		limit: {
 			type: Number,
 			default: 8
-		}
+		},
+		btn: { type: Boolean, default: true }
 	},
 
 	components: {
@@ -236,7 +238,7 @@ export default {
 
 				switch (fileType) {
 					case "image":
-						itemEl = <el-image fit="cover" src={url} lazy></el-image>;
+						itemEl = <el-image fit="contain" src={url} lazy></el-image>;
 						break;
 
 					case "video":
@@ -279,7 +281,8 @@ export default {
 	data() {
 		return {
 			visible: false,
-			props: {
+			dialogProps: {
+				modal:false,
 				title: "文件空间",
 				props: {
 					"close-on-click-modal": false,
@@ -295,7 +298,7 @@ export default {
 				list: [],
 				pagination: {
 					page: 1,
-					size: 12,
+					size: 20,
 					total: 0
 				},
 				loading: {
@@ -339,23 +342,22 @@ export default {
 		// 选择图片
 		chooseImage() {
 			uni.chooseImage({
+				sizeType: ['compressed'],
 				success: (res) => {
 					this.file.loading.uploadImage = true;
 
 					// 批量上传
 					const arr = res.tempFiles.map((e, i) => {
 						return new Promise((resolve, reject) => {
-							uploadFile({
+							this.zz.upload({
 								filePath: res.tempFilePaths[i],
 								cloudPath: e.name
-							})
-								.then((url) => {
+							}).then((url) => {
 									this.$service.space.info.add({
 										url,
 										type: e.type,
 										classifyId: this.category.current.id
 									});
-
 									resolve(url);
 								})
 								.catch((err) => {
@@ -384,7 +386,7 @@ export default {
 				success: (res) => {
 					this.file.loading.uploadVideo = true;
 
-					uploadFile({
+					this.zz.upload({
 						filePath: res.tempFilePath,
 						cloudPath: res.tempFile.name
 					})
@@ -602,8 +604,7 @@ export default {
 			})
 				.then(() => {
 					this.file.loading.delete = true;
-					this.$service.space.info
-						.delete({
+					this.$service.space.info.delete({
 							ids: selection.map((e) => e.id).join(",")
 						})
 						.then(() => {
@@ -619,7 +620,16 @@ export default {
 				})
 				.catch(() => {});
 		},
-
+		handleSizeChange(val) {
+			console.log(`每页 ${val} 条`);
+			this.file.pagination = {
+				page: 1,
+				size: val
+			};
+			this.refreshFile({
+				page: 1
+			});
+		},
 		// 选择页
 		onCurrentChange(i) {
 			this.refreshFile({
@@ -633,7 +643,7 @@ export default {
 <style lang="scss" scoped>
 .cl-upload-space {
 	display: flex;
-	height: 520px;
+	height: 560px;
 
 	&__category {
 		width: 250px;
@@ -652,7 +662,7 @@ export default {
 		&-list {
 			overflow: hidden auto;
 
-			::v-deep ul {
+			::ul {
 				li {
 					list-style: none;
 					font-size: 14px;
@@ -684,7 +694,7 @@ export default {
 		height: calc(100% - 70px);
 		overflow: hidden auto;
 
-		::v-deep .cl-upload-space__file-item {
+		::cl-upload-space__file-item {
 			display: flex;
 			align-items: center;
 			justify-content: center;

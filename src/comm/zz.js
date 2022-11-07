@@ -123,7 +123,7 @@ const
 		return new Promise((resolve, reject) => {
 			uniCloud.uploadFile({
 				filePath,
-				cloudPath: filePath.startsWith('blob') ? 'szs_h5_' + uni.getStorageSync(filePath) : 'szs_' + filePath.replace('_doc/uniapp_save/', ''),
+				cloudPath: filePath.startsWith('blob') ? fileName : 'szs_' + filePath.replace('_doc/uniapp_save/', ''),
 				onUploadProgress(progressEvent) {
 					// let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
 				},

@@ -25,7 +25,8 @@
 		{
 			"root": "pages/zts",
 			"pages": [ 
-				{ "path": "/article/list" }
+				{ "path": "/article/list" },
+				{ "path": "/article/edit" }
 			]
 		}
 	],

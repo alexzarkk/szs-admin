@@ -151,11 +151,8 @@
 			</div>
 		</div>
 
-		<!-- <cl-dialog :title="'扫码预览'" :height="'200px'" :width="'240px'" :controls="['close']" :visible.sync="preview">
-			<image style="width: 200px; height: 200px;" mode="aspectFill" :src="svg"></image>
-		</cl-dialog> -->
-		<el-dialog title="提示" center :visible.sync="preview" :width="'240px'">
-		  <div id="qrcodez" style="width: 200px;height:200px;position: relative;"></div>
+		<el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
+			<zz-qrcode :url="shareUrl"></zz-qrcode>
 		</el-dialog>
 		
 		<zts-audit :tar="'poi'" :cur="cur"></zts-audit>
@@ -164,7 +161,6 @@
 </template>
 
 <script>
-	import UQRCode from 'uqrcodejs';
 	import { dept, article, poi } from "@/comm/dict"
 	import { checkPerm } from "@/cool/permission"
 
@@ -178,9 +174,10 @@
 				type: '',
 				status: '',
 				expand: this.$store.getters.userInfo.isLeaf,
+				
 				preview: false,
-				svg: '',
-				epxorting: false,
+				shareUrl: '',
+				
 				cur: {}
 			};
 		},
@@ -216,77 +213,9 @@
 				});
 			},
 			
-			async detail(e) {
-				console.log(e);
-				
+			detail(e) {
 				this.preview = true
-				setTimeout(()=>{
-					var qr = new UQRCode();
-					// 设置二维码内容
-					qr.data = "https://zts.5618.co/h5/#/pages/share?path=/pages/planning/article&id=" + e._id
-					// 设置二维码大小，必须与canvas设置的宽高一致
-					qr.size = 200;
-					// 设置二维码前景图，可以是路径
-					// qr.foregroundImageSrc = ''
-					// 调用制作二维码方法
-					qr.make();
-									
-					// 遍历drawModules创建dom元素
-					var qrHtml = '';
-					for (var i = 0; i < qr.drawModules.length; i++) {
-					    var drawModule = qr.drawModules[i];
-					    switch (drawModule.type) {
-					    case 'block':
-					        /* 绘制小块 */
-					        qrHtml += `<div style="position: absolute;left: ${drawModule.x}px;top: ${drawModule.y}px;width: ${drawModule.width}px;height: ${drawModule.height}px;background: ${drawModule.color};"></div>`;
-					        break;
-					    case 'image':
-					        /* 绘制图像 */
-					        qrHtml += `<img style="position: absolute;left: ${drawModule.x}px;top: ${drawModule.y}px;width: ${drawModule.width}px;height: ${drawModule.height}px;" src="${drawModule.imageSrc}" />`;
-					        break;
-					    }
-					}
-					document.getElementById('qrcodez').innerHTML = qrHtml;
-				}, 300);
-				 // var UQRCode = window.UQRCode;
-				    // 获取uQRCode实例
-				    
-					
-				// var qr = new UQRCode();
-				// // 设置二维码内容
-				// qr.data = "https://zts.5618.co/h5/#/pages/share?path=/pages/planning/article&id=" + e._id
-				// // 设置二维码大小，必须与canvas设置的宽高一致
-				// qr.size = 200;
-				// // 调用制作二维码方法
-				// qr.make();
-				// // 获取canvas元素
-				// var canvas = document.getElementById("qrcodez");
-				// // 获取canvas上下文
-				// var canvasContext = canvas.getContext("2d");
-				// // 设置uQRCode实例的canvas上下文
-				// qr.canvasContext = canvasContext;
-				// // 调用绘制方法将二维码图案绘制到canvas上
-				// qr.drawCanvas();
-				
-				// if (!this.preview) {
-				// 	this.preview = true
-				// 	let qrcode = new QRCode({
-				// 		content: "https://zts.5618.co/h5/#/pages/share?path=/pages/planning/article&id=" + e._id,
-				// 		join: true
-				// 	});
-				// 	let svg = qrcode.svg();
-
-				// 	// await this.$service.zts.poi.preview({
-				// 	// 	file: svg
-				// 	// }).then(e => {
-				// 	// 	this.svg = e
-				// 	// })
-				// 	let t = this
-				// 	setTimeout(function() {
-				// 		t.$service.space.info.delete({ url: t.svg })
-				// 	}, 3000)
-				// }
-				
+				this.shareUrl = 'path=/pages/planning/article&id=' + e._id
 			},
 			toAudit(e){
 				this.cur = {}

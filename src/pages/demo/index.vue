@@ -1,145 +1,199 @@
 <template>
     <cl-layout>
-        <div id="index" ref="appRef">
-            <div class="bg">
-                <dv-loading v-if="loading">Loading...</dv-loading>
-                <div v-else class="host-body">
-                    <div class="d-flex jc-center">
-                        <dv-decoration-10 class="dv-dec-10" />
-                        <div class="d-flex jc-center">
-                            <dv-decoration-8 class="dv-dec-8" :color="decorationColor" />
-                            <div class="title">
-                                <span class="title-text">title</span>
-                                <dv-decoration-6 class="dv-dec-6" :reverse="true" :color="['#50e3c2', '#67a1e5']" />
-                            </div>
-                            <dv-decoration-8 class="dv-dec-8" :reverse="true" :color="decorationColor" />
-                        </div>
-                        <dv-decoration-10 class="dv-dec-10-s" />
+        <div class="page-demo">
+            <el-row :gutter="10">
+                <el-col
+                    v-for="(item, index) in layout"
+                    :key="index"
+                    :xs="24"
+                    :md="12"
+                    :lg="6"
+                >
+                    <div
+                        class="block"
+                        :ref="`col-${index + 1}`"
+                    >
+                        <transition-group name="fade">
+                            <component
+                                :ref="item2"
+                                :is="item2"
+                                :key="item2 + index2"
+                                v-for="(item2, index2) in item"
+                            ></component>
+                        </transition-group>
                     </div>
-
-                    <!-- 第二行 -->
-                    <div class="d-flex jc-between px-2">
-                        <div class="d-flex aside-width">
-                            <div class="react-left ml-4 react-l-s">
-                                <span class="react-left"></span>
-                                <span class="text">数据分析1</span>
-                            </div>
-                            <div class="react-left ml-3">
-                                <span class="text">数据分析2</span>
-                            </div>
-                        </div>
-                        <div class="d-flex aside-width">
-                            <div class="react-right bg-color-blue mr-3">
-                                <span class="text fw-b">sub-title</span>
-                            </div>
-                            <div class="react-right mr-4 react-l-s">
-                                <span class="react-after"></span>
-                                <span class="text">{{ dateYear }} {{ dateWeek }} {{ dateDay }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="body-box">
-                        <!-- 第三行数据 -->
-                        <div class="content-box">
-                            <div>
-                                <dv-border-box-12>
-                                    <centerLeft1 />
-                                </dv-border-box-12>
-                            </div>
-                            <div>
-                                <dv-border-box-12>
-                                    <centerLeft2 />
-                                </dv-border-box-12>
-                            </div>
-                            <!-- 中间 -->
-                            <div>
-                                <center />
-                            </div>
-                            <!-- 中间 -->
-                            <div>
-                                <centerRight2 />
-                            </div>
-                            <div>
-                                <dv-border-box-13>
-                                    <centerRight1 />
-                                </dv-border-box-13>
-                            </div>
-                        </div>
-
-                        <!-- 第四行数据 -->
-                        <div class="bottom-box">
-                            <dv-border-box-13>
-                                <bottomLeft />
-                            </dv-border-box-13>
-                            <dv-border-box-12>
-                                <bottomRight />
-                            </dv-border-box-12>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                </el-col>
+            </el-row>
         </div>
     </cl-layout>
 </template>
 
 <script>
-import drawMixin from "@/utils/drawMixin";
-import { formatTime } from '@/utils/index.js'
-import centerLeft1 from './centerLeft1'
-import centerLeft2 from './centerLeft2'
-import centerRight1 from './centerRight1'
-import centerRight2 from './centerRight2'
-import center from './center'
-import bottomLeft from './bottomLeft'
-import bottomRight from './bottomRight'
+import BClUpload from "./components/b-cl-upload";
+import BVCopy from "./components/b-v-copy";
+import BClCrud from "./components/b-cl-crud";
+import BClForm from "./components/b-cl-form";
+import BClContextMenu from "./components/b-cl-context-menu";
+import BErrorPage from "./components/b-error-page";
 
 export default {
-    mixins: [drawMixin],
-    data() {
-        return {
-            timing: null,
-            loading: true,
-            dateDay: null,
-            dateYear: null,
-            dateWeek: null,
-            weekday: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-            decorationColor: ['#568aea', '#000000']
-        }
-    },
-    components: {
-        centerLeft1,
-        centerLeft2,
-        centerRight1,
-        centerRight2,
-        center,
-        bottomLeft,
-        bottomRight
-    },
-    mounted() {
-        this.timeFn()
-        this.cancelLoading()
-    },
-    beforeDestroy() {
-        clearInterval(this.timing)
-    },
-    methods: {
-        timeFn() {
-            this.timing = setInterval(() => {
-                this.dateDay = formatTime(new Date(), 'HH: mm: ss')
-                this.dateYear = formatTime(new Date(), 'yyyy-MM-dd')
-                this.dateWeek = this.weekday[new Date().getDay()]
-            }, 1000)
-        },
-        cancelLoading() {
-            setTimeout(() => {
-                this.loading = false
-            }, 500)
-        }
-    }
-}
+	components: {
+		BClUpload,
+		BVCopy,
+		BClCrud,
+		BClForm,
+		BClContextMenu,
+		BErrorPage
+	},
+
+	data() {
+		return {
+			list: [
+				"b-cl-upload",
+				"b-cl-crud",
+				"b-v-copy",
+				"b-cl-form",
+				"b-cl-context-menu",
+				"b-error-page"
+			],
+			layout: [[], [], [], []]
+		};
+	},
+
+	mounted() {
+		this.append();
+	},
+
+	methods: {
+		getHeight(name) {
+			return this.$refs[name][0].offsetHeight;
+		},
+
+		selectCol() {
+			const h1 = this.getHeight("col-1");
+			const h2 = this.getHeight("col-2");
+			const h3 = this.getHeight("col-3");
+			const h4 = this.getHeight("col-4");
+
+			switch (Math.min(h1, h2, h3, h4)) {
+				case h1:
+					return 0;
+				case h2:
+					return 1;
+				case h3:
+					return 2;
+				case h4:
+					return 3;
+				default:
+					return 0;
+			}
+		},
+
+		append(index = 0) {
+			const i = this.selectCol();
+			const item = this.list[index];
+
+			if (!item) {
+				return false;
+			}
+
+			this.layout[i].push(item);
+
+			this.$nextTick(() => {
+				setTimeout(() => {
+					this.append(index + 1);
+				}, 100);
+			});
+		}
+	}
+};
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/index.scss';
+.fade-enter-active,
+.fade-leave-active {
+	transition: all 0.5s ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+	opacity: 0;
+}
+
+.page-demo {
+	overflow: hidden auto;
+
+	.block {
+		width: 100%;
+	}
+
+	::v-deep .scope {
+		background-color: #fff;
+		border-radius: 3px;
+		margin-bottom: 10px;
+		break-inside: avoid;
+
+		.h {
+			display: flex;
+			align-items: center;
+			height: 30px;
+			padding: 10px;
+			font-size: 12px;
+
+			span {
+				background-color: $uni-color-main;
+				color: #fff;
+				border-radius: 3px;
+				padding: 2px 5px;
+				margin-right: 10px;
+				font-size: 14px;
+				letter-spacing: 1px;
+			}
+		}
+
+		.c {
+			padding: 10px;
+			font-size: 14px;
+
+			&._svg {
+				.icon-svg {
+					margin-right: 15px;
+				}
+			}
+
+			a {
+				font-size: 13px;
+				color: #666;
+				position: relative;
+
+				&:hover {
+					color: $uni-color-main;
+
+					&:after {
+						content: "";
+						width: 100%;
+						height: 1px;
+						position: absolute;
+						bottom: -2px;
+						left: 0;
+						background-color: $uni-color-main;
+					}
+				}
+			}
+		}
+
+		.f {
+			height: 30px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 10px;
+			font-size: 12px;
+
+			.date {
+				color: #999;
+			}
+		}
+	}
+}
 </style>

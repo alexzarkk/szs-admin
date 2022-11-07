@@ -16,4 +16,5 @@ Vue.component("cl-scroll", () => import("./scroll/index.vue"));
 Vue.component("cl-context-menu", () => import("./context-menu/index.js"));
 Vue.component("icon-svg", () => import("./icon-svg/index.vue"));
 
+Vue.component("tool-tip", () => import("./tool-tip/index.vue"));
 Vue.component("zts-audit", () => import("./zts-audit/index.vue"));
