@@ -18,7 +18,10 @@
 		},
 		{
 			"root": "pages/demo",
-			"pages": [ { "path": "index" }, { "path": "crud" }
+			"pages": [
+				{ "path": "index" },
+				{ "path": "datav" },
+				{ "path": "crud" }
 			]
 		},
 		
