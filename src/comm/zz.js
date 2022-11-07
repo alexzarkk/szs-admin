@@ -83,7 +83,8 @@ const
 	/**
 	 * 上传文件
 	 */
-	upload = async (filePath, remove) => {
+	upload = async (blob, remove) => {
+		let filePath = blob.blobUri()
 		// #ifdef H5-ZLB
 		/* 用 http 请求上传 */
 		let base64 = [],
