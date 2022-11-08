@@ -5,10 +5,7 @@
         </slot>
 
         <!-- 弹框 -->
-        <cl-dialog
-            :visible.sync="visible"
-            :props = "dialogProps"
-        >
+        <cl-dialog :visible.sync="visible" :props="dialogProps">
             <div class="cl-upload-space">
                 <!-- 类目 -->
                 <div class="cl-upload-space__category">
@@ -27,10 +24,7 @@
                     </div>
 
                     <div class="cl-upload-space__category-list">
-                        <category-list
-                            :list="categoryList"
-                            :current="category.current.id"
-                        ></category-list>
+                        <category-list :list="categoryList" :current="category.current.id" />
                     </div>
                 </div>
 
@@ -127,9 +121,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import _ from "lodash";
-// import { uploadFile } from "../../utils/cloud";
-
+import { uploadFile } from "@/cool/utils/upload";
 export default {
 	componentName: "UploadSpace",
 
@@ -175,25 +167,26 @@ export default {
 
 			render() {
 				return (
-					<ul>
+					<view class='solid flex flex-direction'>
 						{this.list.map((item) => {
 							return (
-								<li
-									class={{
-										"is-active": item.id == this.current
+								<view class={{
+										'margin-left-sm padding-top-xs solid-bottom flex align-center':true,
+										"bg-blue light": item.id == this.current
 									}}
 									on-click={() => {
 										this.onSelect(item);
 									}}
 									on-contextmenu={(e) => {
 										this.onContextMenu(e, item);
-									}}>
+									}}
+								>
 									{item.name}
-								</li>
-							);
+								</view>
+							)
 						})}
-					</ul>
-				);
+					</view>
+				)
 			}
 		},
 
@@ -238,7 +231,7 @@ export default {
 
 				switch (fileType) {
 					case "image":
-						itemEl = <el-image fit="contain" src={url} lazy></el-image>;
+						itemEl = <el-image fit="cover" src={url} lazy></el-image>;
 						break;
 
 					case "video":
@@ -282,6 +275,7 @@ export default {
 		return {
 			visible: false,
 			dialogProps: {
+				fullscreen:false,
 				modal:false,
 				title: "文件空间",
 				props: {
@@ -317,7 +311,6 @@ export default {
 		categoryList() {
 			return this.category.list.filter((e) => e.name.includes(this.category.keyword));
 		},
-
 		selection() {
 			return this.file.list.filter((e) => e.selected);
 		}
@@ -349,7 +342,7 @@ export default {
 					// 批量上传
 					const arr = res.tempFiles.map((e, i) => {
 						return new Promise((resolve, reject) => {
-							this.zz.upload({
+							uploadFile({
 								filePath: res.tempFilePaths[i],
 								cloudPath: e.name
 							}).then((url) => {
@@ -357,10 +350,9 @@ export default {
 										url,
 										type: e.type,
 										classifyId: this.category.current.id
-									});
-									resolve(url);
-								})
-								.catch((err) => {
+									})
+									resolve(url)
+								}).catch((err) => {
 									reject(err);
 								});
 						});
@@ -386,19 +378,16 @@ export default {
 				success: (res) => {
 					this.file.loading.uploadVideo = true;
 
-					this.zz.upload({
+					uploadFile({
 						filePath: res.tempFilePath,
 						cloudPath: res.tempFile.name
-					})
-						.then((url) => {
-							this.$service.space.info
-								.add({
+					}).then((url) => {
+							this.$service.space.info.add({
 									url,
 									type: res.tempFile.type,
 									classifyId: this.category.current.id
-								})
-								.then(() => {
-									this.refreshFile();
+								}).then(() => {
+									this.refreshFile()
 								});
 						})
 						.catch((err) => {
@@ -413,10 +402,8 @@ export default {
 
 		// 刷新资源文件
 		refreshFile(params) {
-			this.file.loading.refresh = true;
-
-			this.$service.space.info
-				.page({
+			this.file.loading.refresh = true
+			this.$service.space.info.page({
 					...this.file.pagination,
 					...params,
 					classifyId: this.category.current.id
@@ -494,6 +481,7 @@ export default {
 
 		// 选择类目
 		selectCategory(item) {
+			console.log('selectCategory.item',item);
 			this.category.current = item;
 			this.file.pagination = {
 				page: 1,
@@ -543,8 +531,7 @@ export default {
 											console.error(err);
 											this.$message.error(err);
 										});
-								})
-								.catch(() => {});
+								}).catch(() => {});
 						}
 					}
 				]
@@ -641,6 +628,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+	
 .cl-upload-space {
 	display: flex;
 	height: 560px;
@@ -656,26 +644,6 @@ export default {
 
 			.el-button {
 				margin-right: 10px;
-			}
-		}
-
-		&-list {
-			overflow: hidden auto;
-
-			::ul {
-				li {
-					list-style: none;
-					font-size: 14px;
-					height: 40px;
-					line-height: 40px;
-					border-bottom: 1px dashed #eee;
-					padding: 0 5px;
-					cursor: pointer;
-
-					&.is-active {
-						color: #409eff;
-					}
-				}
 			}
 		}
 	}
@@ -694,7 +662,7 @@ export default {
 		height: calc(100% - 70px);
 		overflow: hidden auto;
 
-		::cl-upload-space__file-item {
+		.cl-upload-space__file-item {
 			display: flex;
 			align-items: center;
 			justify-content: center;

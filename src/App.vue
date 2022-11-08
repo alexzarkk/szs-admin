@@ -20,17 +20,17 @@
 			})
 			
 			
-			uni.onNetworkStatusChange(e => {
-				// #ifdef H5
-				comm.setNet(e.isConnected)
-				// #endif
+			// uni.onNetworkStatusChange(e => {
+			// 	// #ifdef H5
+			// 	comm.setNet(e.isConnected)
+			// 	// #endif
 				
-			    if (e.isConnected) {
-					if(!uni.getStorageSync('szs_dict')) {
-						uni.reLaunch({ url: '/pages/index/index' })
-					}
-			    }
-			})
+			//     if (e.isConnected) {
+			// 		if(!uni.getStorageSync('szs_dict')) {
+			// 			uni.reLaunch({ url: '/pages/index/index' })
+			// 		}
+			//     }
+			// })
 			// uni.clearStorageSync()
 			
 			// let dict = uni.getStorageSync('szs_dict')||{v:1}

@@ -17,10 +17,10 @@
                 >
                 </cl-upload>
 
-                <cl-upload
+                <cl-upload-space
                     v-model="urls2"
                     is-space
-                ></cl-upload>
+                ></cl-upload-space>
 
                 <ul
                     class="urls"

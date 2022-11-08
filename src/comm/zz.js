@@ -434,7 +434,7 @@ async function req(params = {}, loading = false, t = 9999) {
 		veri = params.$veri || false,
 		url = params.$url,
 		token = zz.getToken(),
-		net = zz.hadNet(),
+		// net = zz.hadNet(),
 		toLogin = () => {
 			uni.redirectTo({url: "/pages/index/index"})
 		}
@@ -449,7 +449,7 @@ async function req(params = {}, loading = false, t = 9999) {
 	}
 	console.info("requestPrams ===========", params, api[isDev] + fn)
 
-	if (net) {
+	// if (net) {
 		if (loading) uni.showLoading({ mask: true })
 		return new Promise((resolve, reject) => {
 			tim = setTimeout(() => { reject('timedout') }, 9999)
@@ -542,11 +542,11 @@ async function req(params = {}, loading = false, t = 9999) {
 			})
 			// #endif
 		})
-	} else {
-		let data = uni.getStorageSync(zz.key(fn + url + JSON.stringify(params)))
-		if (!data) zz.toast("请求失败，没有网络！")
-		return data
-	}
+	// } else {
+	// 	let data = uni.getStorageSync(zz.key(fn + url + JSON.stringify(params)))
+	// 	if (!data) zz.toast("请求失败，没有网络！")
+	// 	return data
+	// }
 }
 
 /*
