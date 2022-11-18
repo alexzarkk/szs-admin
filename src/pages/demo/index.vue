@@ -35,6 +35,7 @@ import BClCrud from "./components/b-cl-crud";
 import BClForm from "./components/b-cl-form";
 import BClContextMenu from "./components/b-cl-context-menu";
 import BErrorPage from "./components/b-error-page";
+import BRichText from "./components/b-rich-text";
 
 export default {
 	components: {
@@ -43,7 +44,7 @@ export default {
 		BClCrud,
 		BClForm,
 		BClContextMenu,
-		BErrorPage
+		BRichText
 	},
 
 	data() {
@@ -54,7 +55,8 @@ export default {
 				"b-v-copy",
 				"b-cl-form",
 				"b-cl-context-menu",
-				"b-error-page"
+				"b-error-page",
+				"b-rich-text"
 			],
 			layout: [[], [], [], []]
 		};

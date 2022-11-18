@@ -149,10 +149,11 @@ htmlLine = (t, p)=>{
 	return  h
 },
 
-setActive = (map, pm, opt = {}) => {
+setActive = (map, pm, opt = {}, loop) => {
 	if(!pm||!pm.coord) return
 	
-	if(map.run) clearTimeout(map.run)
+	if(map['run'+pm._id]) clearTimeout(map['run'+pm._id])
+	
 	let cds = map.sid=='amap'? trans(pm.coord) : clone(pm.coord)
 	if(pm.t1==2) {
 		let t2 = [pm]
@@ -168,10 +169,13 @@ setActive = (map, pm, opt = {}) => {
 	} 
 	
 	map.curLine = pm
-	map.fitBounds(turf.box(cds), {
-		padding: {top:25, bottom:25, left: 15, right: 15}
-	})
-	let id = 'active_Line',
+	if(!loop) {
+		map.fitBounds(turf.box(cds), {
+			padding: {top:25, bottom:25, left: 15, right: 15}
+		})
+	}
+	
+	let id = 'active_' + pm._id,
 		coord = fixAdd(cds,6),
 		geo = createGeo({t1:1,t2:10, coord: [pm.coord[0]], _id: id},map.sid),
 		paint = {
@@ -218,10 +222,14 @@ setActive = (map, pm, opt = {}) => {
 			'line-join': 'round',
 			'line-cap': 'round'
 		}
-	});
+	})
+	
 	const go = (g, idx, count)=>{
 		if(g.geometry.coordinates.length >= coord.length) {
-			map.run = null
+			map['run'+pm._id] = null
+			if(loop) {
+				return setActive(map, pm, opt, loop)
+			}
 			return true
 		}
 		for (var i = idx*count; i < (idx*count+count) && i<coord.length; i++) {
@@ -229,10 +237,62 @@ setActive = (map, pm, opt = {}) => {
 		}
 		idx ++
 		map.getSource(id).setData(g)
-		map.run = setTimeout(()=>{go(g,idx,count)}, 56)
+		
+		map['run'+pm._id] = setTimeout(()=>{go(g,idx,count)}, 20)
 	}
+	return go(geo.data, 0, Math.ceil(coord.length/200))
+},
+
+move =(map,pm,loop)=>{
+	let idx = 0,
+		_id = 'onMark_'+pm._id,
+		point = {
+			'type': 'FeatureCollection',
+			'features': [
+				{
+					'type': 'Feature',
+					'properties': {},
+					'geometry': {
+						'type': 'Point',
+						'coordinates': pm.coord[0]
+					}
+				}
+			]
+		}
+		
+	map.addSource(_id, {
+		'type': 'geojson',
+		'data': point
+	})
+	map.addLayer({
+		'id': _id,
+		'source': _id,
+		'type': 'symbol',
+		'layout': {
+		'icon-image': 'zts',
+		'icon-size': 0.9,
+		'icon-anchor': 'bottom',
+		
+		'icon-rotate': ['get', 'bearing'],
+		'icon-rotation-alignment': 'map',
+		'icon-allow-overlap': true,
+		'icon-ignore-placement': true
+		}
+	})
 	
-	return go(geo.data, 0, Math.ceil(coord.length/44))
+	const animateMarker = (timestamp) =>{
+		if(idx == pm.coord.length-1) {
+			idx = 0
+		}
+		idx ++
+		point.features[0].geometry.coordinates = pm.coord[idx]
+		map.getSource(_id).setData(point)
+		
+		// Request the next frame of the animation.
+		requestAnimationFrame(animateMarker);
+	}
+	 
+	requestAnimationFrame(animateMarker);
 },
 
 run = (map,btn) =>{
@@ -717,6 +777,7 @@ module.exports = {
 	setLine,
 	setPoint,
 	setActive,
+	move,
 	
 	getElevation,
 	getAround,

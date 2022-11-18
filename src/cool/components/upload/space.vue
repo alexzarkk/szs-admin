@@ -36,7 +36,7 @@
                     </div>
 
                     <!-- 文件区域 -->
-                    <div class="cl-upload-space__file" v-loading="file.loading.refresh" element-loading-text="拼命加载中">
+                    <div class="cl-upload-space__file" v-loading="file.loading.refresh || file.loading.uploadImage || file.loading.uploadVideo" element-loading-text="拼命加载中">
                         <!-- 文件列表 -->
                         <el-row v-if="file.list.length > 0">
                             <el-col :span="6" v-for="(item, index) in file.list" :key="index">
@@ -239,7 +239,7 @@ export default {
                 list: [],
                 pagination: {
                     page: 1,
-                    size: 20,
+                    size: 10,
                     total: 0
                 },
                 loading: {
@@ -284,7 +284,7 @@ export default {
             uni.chooseImage({
                 sizeType: ['compressed'],
                 success: (res) => {
-                    this.file.loading.uploadImage = true;
+                    this.file.loading.uploadImage = true
 
                     // 批量上传
                     const arr = res.tempFiles.map((e, i) => {
@@ -300,22 +300,19 @@ export default {
                                 })
                                 resolve(url)
                             }).catch((err) => {
-                                reject(err);
-                            });
-                        });
-                    });
+                                reject(err)
+                            })
+                        })
+                    })
 
-                    Promise.all(arr)
-                        .then(() => {
-                            this.refreshFile();
-                        })
-                        .catch((err) => {
-                            this.$message.error(err.toString());
-                        })
-                        .done(() => {
-                            this.file.loading.uploadImage = false;
-                        });
-                }
+                    Promise.all(arr).then(() => {
+						this.refreshFile()
+					}).catch((err) => {
+						this.$message.error(err.toString())
+					}).done(() => {
+						this.file.loading.uploadImage = false
+					})
+				}
             });
         },
 
@@ -324,7 +321,6 @@ export default {
             uni.chooseVideo({
                 success: (res) => {
                     this.file.loading.uploadVideo = true;
-
                     uploadFile({
                         filePath: res.tempFilePath,
                         cloudPath: res.tempFile.name
@@ -335,14 +331,12 @@ export default {
                             classifyId: this.category.current.id
                         }).then(() => {
                             this.refreshFile()
-                        });
-                    })
-                        .catch((err) => {
-                            this.$message.error(err.toString());
                         })
-                        .done(() => {
-                            this.file.loading.uploadVideo = false;
-                        });
+                    }).catch((err) => {
+						this.$message.error(err.toString())
+					}).done(() => {
+						this.file.loading.uploadVideo = false;
+					})
                 }
             });
         },
@@ -529,6 +523,9 @@ export default {
 
         // 删除选中文件
         deleteFile(...selection) {
+			
+			console.log('deleteFile', selection);
+			
             if (_.isEmpty(selection)) {
                 selection = this.selection;
             }

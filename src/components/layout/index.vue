@@ -35,11 +35,9 @@ export default {
 
 	watch: {
 		$route() {
-			if (!this.token && this.$route.path != '/pages/login/index') {
-				this.$store.dispatch('userRemove');
-				uni.redirectTo({
-					url: '/pages/login/index'
-				});
+			if (!this.token && this.$route.path != '/pages/login/index' && !this.$route.path.startsWith('/pages/demo')) {
+				this.$store.dispatch('userRemove')
+				uni.redirectTo({ url: '/pages/login/index' })
 			}
 		}
 	},

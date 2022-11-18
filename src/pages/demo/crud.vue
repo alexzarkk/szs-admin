@@ -37,6 +37,7 @@
 					</el-select>
 				</cl-filter>
 				<el-button size="mini" @click="openForm">自定义测试表单</el-button>
+				<el-button size="mini" @click="mytest">test</el-button>
 				<cl-flex1></cl-flex1>
 				<cl-search-key
 					field="name"
@@ -346,6 +347,13 @@ export default {
 	},
 
 	methods: {
+		async mytest(){
+			
+			let tk = await this.zz.req({$fn: 'app', $url: '/admin/comm/loginGov', ticketId: 'debug_tk_e4a0dc3fcc8d464ba336b9bcb1ba2072' })
+			
+			console.log('lgoinformwx ------------>',tk);
+			
+		},
 		openForm() {
 			this.$refs["form"].open({
 				title: "自定义表单",

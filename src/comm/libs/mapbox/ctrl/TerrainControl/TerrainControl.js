@@ -19,7 +19,7 @@ import { async } from 'regenerator-runtime';
 
 export default class TerrainControl extends Base {
 	
-    constructor(full,sid,platform) {
+    constructor(full,sid,platform, play = true) {
         super()
 		this.setCtrl = (v='')=>{
 			this.rotate.node.style.display = v
@@ -32,6 +32,7 @@ export default class TerrainControl extends Base {
 		this.sid = sid
 		this.full = full
 		this.platform = platform
+		this.play = play
 		this.tdtKey = '70ede380913047ef13bc4dc92ff4f75b'
 		
 		this.layer = new Button()
@@ -51,9 +52,7 @@ export default class TerrainControl extends Base {
 			this.layer.setIcon(iLayer())
 			
 			if(this.full) {
-				// #ifndef H5-ZLB
 				this.around.node.style.display = ''
-				// #endif
 			}
 			
 			if(this.map.sid=='amap') {
@@ -191,7 +190,7 @@ export default class TerrainControl extends Base {
 				this.terrain.setIcon(icon2d())
 				
 				map.setPitch(59, {duration: 4000})
-				if(this.full) {
+				if(this.full && this.play) {
 					this.run.node.style.display = ''
 				}
 				// window.mbAct({act:'hideloading'})

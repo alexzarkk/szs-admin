@@ -8,20 +8,23 @@
 	"subPackages": [
 		{
 			"root": "pages/system",
-			"pages": [ { "path": "menu" }, { "path": "user" }, { "path": "role" }, { "path": "log" }, { "path": "param" }
-			]
+			"pages": [ { "path": "menu" }, { "path": "user" }, { "path": "role" }, { "path": "log" }, { "path": "param" } ]
 		},
 		{
 			"root": "pages/error-page",
-			"pages": [ { "path": "403" }, { "path": "404" }, { "path": "500" }, { "path": "503" }
-			]
+			"pages": [ { "path": "403" }, { "path": "404" }, { "path": "500" }, { "path": "503" } ]
 		},
 		{
 			"root": "pages/demo",
 			"pages": [
 				{ "path": "index" },
 				{ "path": "datav" },
-				{ "path": "crud" }
+				{ "path": "articleEdit" },
+				
+				{ "path": "crud" },
+				
+				{ "path": "11/index" },
+				{ "path": "11/map" }
 			]
 		},
 		

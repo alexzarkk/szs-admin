@@ -255,28 +255,28 @@
         "enable" : false
     },
     "vueVersion" : "2",
-	//浙里办
-	// "h5" : {
-	//     "title" : "环浙步道",
-	//     "appkey" : "4kzz5t3t+2002281722+mzaaot",
-	//     "publicPath" : "./",
-	//     "router" : {
-	//         "base" : "./",
-	//         "mode" : "hash"
-	//     },
-	//     "sdkConfigs" : {
-	//         "maps" : {
-	//             "qqmap" : {
-	//                 "key" : "5VZBZ-WNO6Q-R4I55-GRABZ-P3NVO-RPFZC"
-	//             }
-	//         }
-	//     },
-	//     "optimization" : {
-	//         "treeShaking" : {
-	//             "enable" : true
-	//         }
-	//     }
-	// },
+    //浙里办
+    // "h5" : {
+    //     "title" : "环浙步道",
+    //     "appkey" : "4kzz5t3t+2002281722+mzaaot",
+    //     "publicPath" : "./",
+    //     "router" : {
+    //         "base" : "./",
+    //         "mode" : "hash"
+    //     },
+    //     "sdkConfigs" : {
+    //         "maps" : {
+    //             "qqmap" : {
+    //                 "key" : "5VZBZ-WNO6Q-R4I55-GRABZ-P3NVO-RPFZC"
+    //             }
+    //         }
+    //     },
+    //     "optimization" : {
+    //         "treeShaking" : {
+    //             "enable" : true
+    //         }
+    //     }
+    // },
     "h5" : {
         "title" : "环浙步道",
         "appkey" : "065wqkqc+2001832114+rswca",

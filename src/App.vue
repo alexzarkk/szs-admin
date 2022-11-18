@@ -68,10 +68,9 @@
 		onShow: function () {
 			console.log("App Show");
 			if (!uni.getStorageSync("token")) {
-				if (this.$route.path != "/pages/login/index") {
-					uni.navigateTo({
-						url: "/pages/login/index"
-					});
+				let url = this.$route.path
+				if (!url.startsWith('/pages/demo')) {
+					uni.navigateTo({ url: "/pages/login/index" })
 				}
 			}
 
