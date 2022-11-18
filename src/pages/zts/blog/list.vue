@@ -42,8 +42,8 @@
                             <cl-search-key />
                         </el-row>
 
-                        <el-row>
-                            <cl-table :contextMenu="[]" :props="{
+                        <el-row type="flex">
+                            <cl-table style="width:80%;" :contextMenu="[]" :props="{
 										'default-sort': {
 											prop: 'createTime',
 											order: 'descending'
@@ -54,51 +54,45 @@
 											align: 'center',
 											width: '60'
 										},
-										{
-											prop: 'deptId',
-											label: '部门',
-											align: 'center',
-											dict: depts
-										},
-										{
-											prop: 'author',
-											label: '作者/来源',
-											align: 'center'
-										},
-										{
-											prop: 'title',
-											label: '标题',
-											align: 'center'
-										},
-										{
-											prop: 'cover',
-											label: '封面',
-											align: 'center'
-										},
-										{
-											prop: 'type',
-											label: '分类',
-											align: 'center'
-										},
-										
-										{
-											prop: 'status',
-											label: '状态',
-											align: 'center'
-										},
-										{
+                                         {
 											prop: 'createTime',
-											label: '创建时间',
-											align: 'center',
-											sortable: 'custom'
+											label: '评论时间',
+											align: 'center'
+										},
+                                        {
+											prop: 'tt',
+											label: '评论类型',
+											align: 'center'
+										},
+										{
+											prop: 'content',
+											label: '评论内容',
+											align: 'center'
+										},
+                                        {
+											prop: 'img',
+											label: '评论图片',
+											align: 'center'
+										},
+                                        {
+											prop: 'userId',
+											label: '评论人',
+											align: 'center'
+										},
+                                        {
+											prop: 'status',
+											label: '评论状态',
+											align: 'center'
 										},
 										{
 											label: '操作',
 											align: 'center',
 											type: 'op',
-											buttons: ['slot-edit', 'slot-detail', 'slot-veri']
+                                            
+											buttons: [ 'slot-detail', 'slot-veri']
 										}
 									]">
+                                <!-- 'slot-edit', -->
                                 <!-- 时间 -->
                                 <template #column-createTime="{ scope }">
                                     {{ scope.row.updateTime }}
@@ -119,9 +113,9 @@
 
                                 </template>
                                 <template #column-status="{ scope }">
-                                    <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
+                                    <!-- <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
                                         {{ st[scope.row.status].text }}
-                                    </el-tag>
+                                    </el-tag> -->
                                 </template>
 
                                 <template #slot-edit="{ scope }">
@@ -134,12 +128,21 @@
                                     <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
                                 </template>
                             </cl-table>
+
+                            <iframe class="content-iframe" src="https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9"></iframe>
+                            <!-- <div style="width:100%;height:100%; background-image:url(https://v1.uviewui.com/common/iPhoneX_model.png)">
+                                <div class="demo-model">
+                                    <div class="model-content">
+                                    </div>
+                                </div>
+                            </div> -->
                         </el-row>
 
                         <el-row type="flex">
                             <cl-flex1 />
                             <cl-pagination />
                         </el-row>
+
                     </cl-crud>
 
                 </div>
@@ -149,7 +152,7 @@
 		<el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
 			<zz-qrcode :url="shareUrl"></zz-qrcode>
 		</el-dialog> -->
-
+        <!-- 审核组件 -->
         <!-- <zts-audit :tar="'poi'" :cur="cur"></zts-audit> -->
 
     </cl-layout>
@@ -214,8 +217,9 @@ export default {
         },
 
         detail(e) {
-            this.preview = true
-            this.shareUrl = 'path=/pages/planning/article&id=' + e._id
+            console.log("更新iframe==", e)
+            // this.preview = true
+            // this.shareUrl = 'path=/pages/planning/article&id=' + e._id
         },
         toAudit(e) {
             this.cur = {}
@@ -253,4 +257,20 @@ export default {
         flex: 1;
     }
 }
+
+.content-iframe {
+    // width: 100%;
+    min-width: 375px;
+    height: 800px;
+}
+
+// .demo-model {
+//     width: 300px;
+//     height: 545px;
+//     .model-content {
+//         width: 100%;
+//         height: 100%;
+
+//     }
+// }
 </style>
