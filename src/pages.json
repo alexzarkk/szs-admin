@@ -32,7 +32,8 @@
 			"root": "pages/zts",
 			"pages": [ 
 				{ "path": "/article/list" },
-				{ "path": "/article/edit" }
+				{ "path": "/article/edit" },
+				{ "path": "/blog/list" }
 			]
 		}
 	],
