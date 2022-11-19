@@ -57,12 +57,14 @@
                                          {
 											prop: 'createTime',
 											label: '评论时间',
-											align: 'center'
+											align: 'center',
+                                            width: '160'
 										},
                                         {
 											prop: 'tt',
-											label: '评论类型',
-											align: 'center'
+											label: '评论内容类型',
+											align: 'center',
+                                            width: '140'
 										},
 										{
 											prop: 'content',
@@ -72,11 +74,6 @@
                                         {
 											prop: 'img',
 											label: '评论图片',
-											align: 'center'
-										},
-                                        {
-											prop: 'userId',
-											label: '评论人',
 											align: 'center'
 										},
                                         {
@@ -97,22 +94,27 @@
                                 <template #column-createTime="{ scope }">
                                     {{ scope.row.updateTime }}
                                 </template>
-                                <template #column-type="{ scope }">
-                                    <block v-for="(i, idx) of scope.row.type" :key="idx">
+                                <template #column-tt="{ scope }">
+                                    {{getContentTypeText(scope.row.tt)}}
+                                    <!-- <block v-for="(i, idx) of scope.row.type" :key="idx">
                                         <el-tag size="mini" style="margin-left: 4px;" :class="'bg-'+articleO[i].color" effect="plain">
                                             {{ articleO[i].label }}
                                         </el-tag>
-                                    </block>
+                                    </block> -->
                                 </template>
 
-                                <template #column-cover="{ scope }">
-                                    <template v-if="scope.row.cover">
-                                        <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover.url" :preview-src-list="[scope.row.cover.url]">
+                                <template #column-img="{ scope }">
+                                    <template v-if="scope.row.imgs && scope.row.imgs.length>0">
+                                        <!-- {{scope.row.imgs}} -->
+                                        <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.imgs" :preview-src-list="scope.row.imgs">
                                         </el-image>
                                     </template>
 
                                 </template>
                                 <template #column-status="{ scope }">
+                                    {{scope.row.status}}
+                                    <!-- {{ st[scope.row.status].text }} -->
+                                    <!-- <el-tag size="small" effect="dark" :type="st[scope.row.status].type"></el-tag> -->
                                     <!-- <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
                                         {{ st[scope.row.status].text }}
                                     </el-tag> -->
@@ -122,14 +124,17 @@
                                     <el-button type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
                                 </template>
                                 <template #slot-detail="{ scope }">
-                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button>
+                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览内容</el-button>
                                 </template>
                                 <template #slot-veri="{ scope }">
                                     <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
                                 </template>
                             </cl-table>
 
-                            <iframe class="content-iframe" src="https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9"></iframe>
+                            <iframe v-if="iframeLink" ref="iframe" class="content-iframe" :src="iframeLink"></iframe>
+                            <div v-else class="content-iframe">
+                                <span>点击预览内容查看当前评论所在的内容</span>
+                            </div>
                             <!-- <div style="width:100%;height:100%; background-image:url(https://v1.uviewui.com/common/iPhoneX_model.png)">
                                 <div class="demo-model">
                                     <div class="model-content">
@@ -165,6 +170,8 @@ import { checkPerm } from "@/cool/permission"
 export default {
     data() {
         return {
+            iframeLink: '', // H5显示的内容的链接
+            iframeLink: 'https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9', // H5显示的内容的链接
             article,
             articleO: this.zz.toObj(article),
             depts: dept.getLabel(),
@@ -176,16 +183,63 @@ export default {
             preview: false,
             shareUrl: '',
 
-            cur: {}
+            cur: {},
+            ttMap: null
         };
     },
     created() {
-        console.log("blog=====list=====created")
+        console.log("blog=====list=====created", this.st)
     },
     mounted() {
         console.log("blog=========list======")
+        let map = new Map()
+        map.set(2, {
+            title: '评论',
+            path: '/pages/my/social/commentDetails'
+        })
+        map.set(10, {
+            title: '文章',
+            path: '/pages/planning/article' // 有无article 然后去跳转  '/pages/my/social/pushDetails'
+        })
+        map.set(20, {
+            title: '兴趣点',
+            path: '/pages/planning/poi'
+        })
+        map.set(40, {
+            title: '路线',
+            path: '/pages/planning/detail'
+        })
+        map.set(42, {
+            title: '路线',
+            path: '/pages/nav/rec/lineDetail'
+        })
+        map.set(44, {
+            title: '兴趣点',
+            path: '/pages/planning/poi'
+        })
+        map.set(70, {
+            title: '动态、帖子',
+            path: ''
+        })
+        map.set(100, {
+            title: '路线',
+            path: '/pages/comm/kml'
+        })
+        this.ttMap = map
     },
     methods: {
+
+        // 获取tt对应的文字
+        getContentTypeText(tt) {
+            const obj = this.ttMap.get(Number(tt))
+            if (obj) {
+                return obj.title
+            } else {
+                return tt
+            }
+
+
+        },
         deptExpand() {
             this.expand = !this.expand;
         },
@@ -218,6 +272,19 @@ export default {
 
         detail(e) {
             console.log("更新iframe==", e)
+            const obj = this.ttMap.get(Number(e.tt))
+            // obj.path
+            if (e.tt == 2) {
+                // let v = encodeURI(JSON.stringify({
+                //     tid: 1,
+                //     commentId: e.tid
+                // }))
+                // this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?v=${v}`
+            } else {
+                this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
+            }
+
+            console.log("更新iframeLink", this.iframeLink)
             // this.preview = true
             // this.shareUrl = 'path=/pages/planning/article&id=' + e._id
         },
