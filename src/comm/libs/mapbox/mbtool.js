@@ -150,6 +150,9 @@ htmlLine = (t, p)=>{
 },
 
 setActive = (map, pm, opt = {}, loop) => {
+	
+	clone('setActivesetActivesetActive')
+	
 	if(!pm||!pm.coord) return
 	
 	if(map['run'+pm._id]) clearTimeout(map['run'+pm._id])
@@ -180,8 +183,8 @@ setActive = (map, pm, opt = {}, loop) => {
 		geo = createGeo({t1:1,t2:10, coord: [pm.coord[0]], _id: id},map.sid),
 		paint = {
 			'line-color': opt.color||'#ffff00',
-			'line-width': opt.width||5,
-			'line-opacity':opt.opacity||0.7
+			'line-width': opt.width||6,
+			'line-opacity':opt.opacity||0.9
 		}
 	
 	removeObj(map, id)
@@ -199,8 +202,8 @@ setActive = (map, pm, opt = {}, loop) => {
 			})
 			paint = {
 				'line-color': 'red',
-				'line-width': opt.width||5.5,
-				'line-opacity':opt.opacity||0.8,
+				'line-width': opt.width||6,
+				'line-opacity':opt.opacity||0.9,
 				'line-gradient': [
 					'interpolate',
 					['linear'],
@@ -222,7 +225,7 @@ setActive = (map, pm, opt = {}, loop) => {
 			'line-join': 'round',
 			'line-cap': 'round'
 		}
-	})
+	},pm._id)
 	
 	const go = (g, idx, count)=>{
 		if(g.geometry.coordinates.length >= coord.length) {
@@ -238,12 +241,12 @@ setActive = (map, pm, opt = {}, loop) => {
 		idx ++
 		map.getSource(id).setData(g)
 		
-		map['run'+pm._id] = setTimeout(()=>{go(g,idx,count)}, 20)
+		map['run'+pm._id] = setTimeout(()=>{go(g,idx,count)}, 40)
 	}
-	return go(geo.data, 0, Math.ceil(coord.length/200))
+	return go(geo.data, 0, Math.ceil(coord.length/444))
 },
 
-move =(map,pm,loop)=>{
+move =(map,pm)=>{
 	let idx = 0,
 		_id = 'onMark_'+pm._id,
 		point = {
@@ -280,19 +283,40 @@ move =(map,pm,loop)=>{
 		}
 	})
 	
-	const animateMarker = (timestamp) =>{
+	
+	const draw = ()=>{
 		if(idx == pm.coord.length-1) {
 			idx = 0
 		}
-		idx ++
+		idx ++ 
 		point.features[0].geometry.coordinates = pm.coord[idx]
 		map.getSource(_id).setData(point)
 		
-		// Request the next frame of the animation.
-		requestAnimationFrame(animateMarker);
+		setTimeout(()=>{
+			draw()
+		}, (pm.speed||1) * 100)
 	}
+	
+	draw()
 	 
-	requestAnimationFrame(animateMarker);
+	
+	// const animateMarker = (timestamp) =>{
+	// 	if(idx == pm.coord.length-1) {
+	// 		idx = 0
+	// 	}
+	// 	idx ++
+		
+		
+	// 	point.features[0].geometry.coordinates = pm.coord[idx]
+	// 	map.getSource(_id).setData(point)
+		
+	// 	// Request the next frame of the animation.
+	// 	requestAnimationFrame(animateMarker);
+		
+		
+	// }
+	 
+	// requestAnimationFrame(animateMarker);
 },
 
 run = (map,btn) =>{
@@ -709,9 +733,125 @@ setKml = (m,pms,line,point,gon,act=1)=>{
 		} else {
 			m.setPitch(0, {duration: 2000})
 		}
+		
 		if(act&&line.length) setActive(m, line[0])
+		
 		setPoint(m, point)
+		
 	}, 1200)
+},
+
+
+setMask = (map, deptNum)=>{
+	const province = require('@/pages/demo/11/330000.json')
+	
+	console.log(province);
+	let newPolygon = [],
+		center = [119.476498,29.898918],
+		mask = null, //	遮罩的geojson数据
+		polygon = null, // 高亮区域的geojosn
+		masked = null, // 遮罩生成以后的geojson数据
+		maskSource = [
+			[73, 53],
+			[134, 53],
+			[134, 18],
+			[73, 18],
+		] // 遮罩数据
+		
+	let isCity = false // 是否城市
+	let features = province.features; // 用作polygon的geojson数据
+	if (deptNum === 330000) { // 当前是浙江省的地理数据
+		// console.log("当前获取到的浙江省的地理信息", province)
+		let areaPolygon = []
+		// province.features
+		for (let i = 0; i < province.features.length; i++) {
+			province.features[i].geometry.coordinates.forEach((item, index) => {
+				areaPolygon.push(province.features[i].geometry.coordinates[index][0]);
+			})
+		}
+		// console.log("当前浙江省的数据", areaPolygon)
+		newPolygon = areaPolygon  // 浙江省的polygon 数组数据
+		// return;
+	}else if(deptNum % 100 === 0) { // 判断当前是否是城市一级
+		isCity = true
+	}
+	
+	// try {
+	// 	if (isCity) { // 获取城市一级的数据,从全省的数据中获取
+	// 		// console.log("城市地理数据",province)
+	// 		const city = province.features.find(item => {
+	// 			return item.properties.adcode === deptNum // 返回当前的城市一级
+	// 		})
+	// 		features = city
+	// 	} else { // 区县一级数据
+	// 		const deptData = require(`@/static/geo/chart/${deptNum}.json`)
+	// 		features = deptData.features[0]
+	// 	}
+	// } catch (err) {
+	// 	console.log("获取到部门信息失败了", err)
+	// }
+	
+	
+	
+	// center = features.properties.center
+	/**
+	 * 计算出高亮的数据
+	 */
+	// if (deptNum === 330000) {  // 浙江省获取高亮数据
+		
+	// } else {  // 非浙江省获取高亮数据
+		// const areaPolygon = features.geometry.coordinates // 地区边界的多边形数据
+		// areaPolygon.forEach((item, index) => { // 从本地json 文件读取到polygon数据
+		// 	newPolygon.push(deptNum === 330000?areaPolygon[index]:areaPolygon[index][0]); // 提取到可以用于遮罩的数据
+		// });
+	// }
+	polygon = { // 高亮数据
+		geometry: {
+			coordinates: newPolygon,
+			type: "Polygon"
+		},
+		properties: {},
+		type: "Feature"
+	}
+	newPolygon.unshift(maskSource) // 加入遮罩的数据
+	masked = {
+		geometry: {
+			coordinates: newPolygon,
+			type: "Polygon"
+		},
+		properties: {},
+		type: "Feature"
+	}
+	console.log(map.getStyle());
+	
+	
+	if (map.getLayer('my-mask-layer')) {
+		map.removeLayer('my-mask-layer')
+	}
+	if (map.getSource('my-mask-source')) { // 清空当前的图层
+		map.removeSource('my-mask-source')
+	}
+	
+	let mapStyle = map.getStyle().name
+	
+	console.log(mapStyle,mapStyle);
+	setTimeout(()=>{
+		map.addSource('my-mask-source', {
+			type: 'geojson',
+			data: masked
+		});
+		map.addLayer({
+			id: 'my-mask-layer',
+			type: 'fill',
+			source: 'my-mask-source',
+			paint: {
+				'fill-color': mapStyle=='Outdoors'? '#000':'#fff',
+				'fill-opacity': mapStyle=='Outdoors'? 0.2:0.3
+			}
+		})
+	}, 333)
+	
+	return center
 },
 
 on = async(map) => {
@@ -781,5 +921,6 @@ module.exports = {
 	
 	getElevation,
 	getAround,
+	setMask,
 	on
 }

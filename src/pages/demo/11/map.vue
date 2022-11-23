@@ -180,6 +180,8 @@ export default {
 				comm.setStorage('mbStyle', map.getStyle())
 				
 				// this.geolocate.trigger()
+				
+				
 			})
 			map.on('moveend', (e) => {
 				// mbtool.on(map)
@@ -188,6 +190,7 @@ export default {
 			map.on('zoomend', () => {
 				// mbtool.on(map)
 			})
+			
 		},
 		
 		async updateData({exec=null, sysInfo={}, center=null, pms=null, line=[], point=[], gon=[], isf=false}, ov, self) {
@@ -197,35 +200,61 @@ export default {
 			if (!map.init) return this.init(self, sysInfo, center, isf)
 			
 			console.log('map.inited...')
-			console.log('updateData:=======================', center,point,line);
+			console.log('updateData:=======================', pms,point,line);
 			// console.log('updateData.old:====',ov);
 			
 			mbtool.setKml(this.map, pms, line, point, gon, 0)
 			
-			
-			
-			setTimeout(async ()=> {
-				map.setZoom(9)
-				const delay = (n)=>{
-					return new Promise(function(resolve){
-						setTimeout(resolve,n*100);
-					});
-				},
-				rndInt = (a = 0, z = 4) => { return Math.floor(Math.random() * (z - a + 1)) + a }
+			mbtool.setMask(this.map, 330000)
+			// setTimeout(async ()=> {
+			// 	map.setZoom(9)
+			// 	const delay = (n)=>{
+			// 		return new Promise(function(resolve){
+			// 			setTimeout(resolve,n*100);
+			// 		});
+			// 	},
+			// 	rndInt = (a = 0, z = 4) => { return Math.floor(Math.random() * (z - a + 1)) + a }
 				
-				for (let pm of pms) {
-					await delay(1+rndInt())
-					mbtool.setActive(map, pm, {}, 1)
-					mbtool.move(map, pm)
-				}
+			// 	for (let pm of pms) {
+			// 		await delay(1+rndInt())
+			// 		// mbtool.setActive(map, pm, {}, 1)
+			// 		mbtool.move(map, pm)
+			// 	}
 				
-			}, 3000);
+			// }, 3000);
 		},
+		
+	
 		
 		
 		onloc(){ mbtool.onLoc(this.map) },
 		stopLoc(){ comm.stopWatch() },
-		fit(e){ mbtool.setActive(this.map,e) },
+		fit(e){ 
+			for (let pm of e) {
+				mbtool.setActive(this.map, pm, {}, true)
+			}
+		},
+		fits(e) {
+			this.map.fitBounds(mbtool.turf.box(this.map.sid=='amap'? trans(e.coord) : e.coord), {
+				padding: {top:25, bottom:25, left: 40, right: 40}
+			})
+		},
+		
+		
+		async move(e){
+			const delay = (n)=>{
+				return new Promise(function(resolve){
+					setTimeout(resolve,n*100);
+				});
+			},
+			rndInt = (a = 0, z = 4) => { return Math.floor(Math.random() * (z - a + 1)) + a }
+			
+			for (let pm of e) {
+				await delay(1+rndInt())
+				mbtool.move(this.map, pm)
+			}
+		},
+		
 		setKml(e) { mbtool.setKml(this.map, null, e.line, e.point, e.gon, 0) },
 		runx(e){ mbtool.run(this.map,e) },
 		getAround(e){ mbtool.getAround(this.map,null,e) },
@@ -257,7 +286,7 @@ export default {
 			winH: 0,
 			stH: 0,
 			kml: {},
-			center: [121,30],
+			center: null,
 			
 			mapHeight: 0,
 			mdone: false,
@@ -283,8 +312,10 @@ export default {
 				this.mb = {
 					ver: this.ver++,
 				    center: this.center,
-					pms: this.kml.t1
+					pms: this.kml.lineRun
 				}
+				
+				
 			} else {
 				this.mb = {
 				    sysInfo: this.sysInfo,
@@ -297,6 +328,16 @@ export default {
 		mapDone(e) {
 			this.mdone = e
 			this.setProp()
+			
+			setTimeout(()=>{
+				this.exec({m:'fits', e: this.kml.lineRun[0] } )
+			}, 2200)
+			setTimeout(()=>{
+				this.exec({m:'fit', e: this.kml.lineRun } )
+			}, 5000)
+			setTimeout(()=>{
+				this.exec({m:'move', e: this.kml.pointRun } )
+			}, 10000)
 		},
 		mapDo(e) {
 			// console.log('mapDo ------ >', e)

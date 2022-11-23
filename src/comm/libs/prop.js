@@ -5,7 +5,7 @@ const prop = {
 	3: 	{text: '区域', v:'Polygon'},
 	
 	9:  {text: '采集路线', width: 10, opacity: 0.3, color: '#00005f', dottedLine:true},
-	10: {text: '默认', width: 4,opacity: 0.8,color: "#ff5500"},
+	10: {text: '默认', width: 2,opacity: 0.7,color: "#ff5500"},
 	11: {text: '一级', width: 4,opacity: 0.7,color: "#aaaaff"},
 	12: {text: '二级', width: 4,opacity: 0.7,color: "#ffaaff"},
 	13: {text: '三级', width: 4,opacity: 0.7,color: "#ff00ff"},

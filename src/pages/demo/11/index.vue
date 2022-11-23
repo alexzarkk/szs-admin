@@ -1,12 +1,19 @@
 <template>
 	<div>
 		<view class="flex justify-center margin">
-			<el-button type="primary" @click="detail('n')">北线</el-button>
+			<el-button type="primary" @click="detail('north')">北线</el-button>
+			<el-button type="primary" @click="detail('east')">东线</el-button>
+			<el-button type="primary" @click="detail('south')">南线</el-button>
+			<el-button type="primary" @click="detail('west')">西线</el-button>
+			<el-button type="primary" @click="detail('zs')">舟山</el-button>
 		</view>
 	</div>
 </template>
 
 <script>
+	
+import {getPms} from './dict.js'
+	
 export default {
 	data() {
 		return {
@@ -19,10 +26,8 @@ export default {
 	mounted() {
 	},
 	methods: {
-		async detail(url) {
-			
-			let kml = await this.zz.req({ $fn: 'app', $url: 'public/kml/info', _id: url+'20221127', plain: true, chart: true },1)
-			
+		detail(k) {
+			let kml = getPms(k)
 			this.zz.href('/pages/demo/11/map', {kml})
 		}
 	}
