@@ -220,11 +220,11 @@ export default {
 				// this.geolocate.trigger()
 			})
 			map.on('moveend', (e) => {
-				mbtool.on(map)
+				// mbtool.on(map)
 				self.callMethod('mbEvent', evt(e))
 			});
 			map.on('zoomend', () => {
-				mbtool.on(map)
+				// mbtool.on(map)
 			})
 		},
 		
@@ -237,14 +237,28 @@ export default {
 			// console.log('map.inited...')
 			// console.log('updateData:=======================', center,point,line);
 			// console.log('updateData.old:====',ov);
-			
-			mbtool.setKml(this.map, pms, line, point, gon)
+			mbtool.setMask(this.map, 330000)
+			mbtool.setKml(this.map, pms, line, point, gon, false)
 		},
 		
 		onloc(){ mbtool.onLoc(this.map) },
 		stopLoc(){ comm.stopWatch() },
 		fit(e){ mbtool.setActive(this.map,e) },
-		setKml(e) { mbtool.setKml(this.map, null, e.line, e.point, e.gon, 0) },
+		draw(e){
+			for (let pm of e) {
+				mbtool.setActive(this.map, pm, {}, true)
+			}
+		},
+		remove(){
+			for(let k in this.map.pm) {
+				clearTimeout(this.map['run' + k])
+				mbtool.removeObj(this.map, 'active_' + k)
+				mbtool.removeObj(this.map, k)
+			}
+			// this.map = {}
+		},
+		
+		setKml(e) { mbtool.setKml(this.map, null, e.line, e.point, e.gon, false) },
 		runx(e){ mbtool.run(this.map,e) },
 		getAround(e){ mbtool.getAround(this.map,null,e) },
 		mbAct(e){
@@ -351,6 +365,16 @@ export default {
         },
         refKml(e, o) {
             if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.mb = { exec: {m:'setKml', e} }
+        },
+        pms(e, o) {
+			this.exec({m:'remove'} )
+			setTimeout(()=> {
+				this.setProp()
+			}, 1000)
+			setTimeout(()=> {
+				this.exec({m:'draw', e } )
+			}, 2000);
+			
         },
         winH(e, o) { this.setProp() }
     },

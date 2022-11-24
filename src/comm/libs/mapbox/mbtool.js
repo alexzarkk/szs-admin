@@ -151,8 +151,6 @@ htmlLine = (t, p)=>{
 
 setActive = (map, pm, opt = {}, loop) => {
 	
-	clone('setActivesetActivesetActive')
-	
 	if(!pm||!pm.coord) return
 	
 	if(map['run'+pm._id]) clearTimeout(map['run'+pm._id])
@@ -216,6 +214,7 @@ setActive = (map, pm, opt = {}, loop) => {
 	
 	geo.lineMetrics = true
 	map.addSource(id, geo)
+	
 	map.addLayer({
 		id,
 		source: id,
@@ -225,7 +224,7 @@ setActive = (map, pm, opt = {}, loop) => {
 			'line-join': 'round',
 			'line-cap': 'round'
 		}
-	},pm._id)
+	}, pm._id)
 	
 	const go = (g, idx, count)=>{
 		if(g.geometry.coordinates.length >= coord.length) {
@@ -249,6 +248,7 @@ setActive = (map, pm, opt = {}, loop) => {
 move =(map,pm)=>{
 	let idx = 0,
 		_id = 'onMark_'+pm._id,
+		coord = fixAdd(pm.coord,5),
 		point = {
 			'type': 'FeatureCollection',
 			'features': [
@@ -257,7 +257,7 @@ move =(map,pm)=>{
 					'properties': {},
 					'geometry': {
 						'type': 'Point',
-						'coordinates': pm.coord[0]
+						'coordinates': coord
 					}
 				}
 			]
@@ -272,24 +272,24 @@ move =(map,pm)=>{
 		'source': _id,
 		'type': 'symbol',
 		'layout': {
-		'icon-image': 'zts',
-		'icon-size': 0.9,
-		'icon-anchor': 'bottom',
-		
-		'icon-rotate': ['get', 'bearing'],
-		'icon-rotation-alignment': 'map',
-		'icon-allow-overlap': true,
-		'icon-ignore-placement': true
+			'icon-image': 'zts',
+			'icon-size': 0.9,
+			'icon-anchor': 'bottom',
+			
+			'icon-rotate': ['get', 'bearing'],
+			'icon-rotation-alignment': 'map',
+			'icon-allow-overlap': true,
+			'icon-ignore-placement': true
 		}
 	})
 	
 	
 	const draw = ()=>{
-		if(idx == pm.coord.length-1) {
+		if(idx == coord.length-1) {
 			idx = 0
 		}
 		idx ++ 
-		point.features[0].geometry.coordinates = pm.coord[idx]
+		point.features[0].geometry.coordinates = coord[idx]
 		map.getSource(_id).setData(point)
 		
 		setTimeout(()=>{
@@ -298,25 +298,6 @@ move =(map,pm)=>{
 	}
 	
 	draw()
-	 
-	
-	// const animateMarker = (timestamp) =>{
-	// 	if(idx == pm.coord.length-1) {
-	// 		idx = 0
-	// 	}
-	// 	idx ++
-		
-		
-	// 	point.features[0].geometry.coordinates = pm.coord[idx]
-	// 	map.getSource(_id).setData(point)
-		
-	// 	// Request the next frame of the animation.
-	// 	requestAnimationFrame(animateMarker);
-		
-		
-	// }
-	 
-	// requestAnimationFrame(animateMarker);
 },
 
 run = (map,btn) =>{

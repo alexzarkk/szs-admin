@@ -231,7 +231,7 @@ export default {
 		stopLoc(){ comm.stopWatch() },
 		fit(e){ 
 			for (let pm of e) {
-				mbtool.setActive(this.map, pm, {}, true)
+				mbtool.setActive(this.map, pm, {}, false)
 			}
 		},
 		fits(e) {
@@ -303,7 +303,6 @@ export default {
 			let { kml } = this.zz.getParam(v)
 			this.kml = kml
 		}
-		console.log(this.kml);
 	},
 	mounted() { this.setProp() },
 	methods: {
