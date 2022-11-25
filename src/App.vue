@@ -7,14 +7,15 @@
 	export default {
 		onLaunch: function () {
 			
-			console.log("App Launch")
+			// console.log("App Launch")
 			
 			uni.getSystemInfo({
 				success: function (e) {
 					Vue.prototype.platform = e.platform
 					window.model = e.model
 					
-					console.log('szsSys ------->', e)
+					// console.log('szsSys ------->', e)
+
 					uni.setStorageSync('szsSys', e)
 				}
 			})
@@ -66,7 +67,7 @@
 			})
 		},
 		onShow: function () {
-			console.log("App Show");
+			// console.log("App Show");
 			if (!uni.getStorageSync("token")) {
 				let url = this.$route.path
 				if (!url.startsWith('/pages/demo')) {
@@ -92,7 +93,7 @@
 			});
 		},
 		onHide: function () {
-			console.log("App Hide");
+			// console.log("App Hide");
 		}
 	};
 </script>
