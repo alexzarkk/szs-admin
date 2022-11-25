@@ -158,7 +158,7 @@
 			<zz-qrcode :url="shareUrl"></zz-qrcode>
 		</el-dialog> -->
         <!-- 审核组件 -->
-        <!-- <zts-audit :tar="'poi'" :cur="cur"></zts-audit> -->
+        <zts-audit tar="blog" :cur="cur"></zts-audit>
 
     </cl-layout>
 </template>
