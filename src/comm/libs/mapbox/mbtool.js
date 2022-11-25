@@ -150,99 +150,102 @@ htmlLine = (t, p)=>{
 },
 
 setActive = (map, pm, opt = {}, loop) => {
-	
-	if(!pm||!pm.coord) return
-	
-	if(map['run'+pm._id]) clearTimeout(map['run'+pm._id])
-	
-	let cds = map.sid=='amap'? trans(pm.coord) : clone(pm.coord)
-	if(pm.t1==2) {
-		let t2 = [pm]
-		if(pm.direction) {
-			for (let t of pm.direction) {
-				for (let s of t.target) {
-					t2.push({ ...s, _id: uniqId(), t1: 2, t2: 200 })
+	return new Promise((res, rej) => { 
+		if(!pm||!pm.coord) return
+		
+		if(map['run'+pm._id]) clearTimeout(map['run'+pm._id])
+		
+		let cds = map.sid=='amap'? trans(pm.coord) : clone(pm.coord)
+		if(pm.t1==2) {
+			let t2 = [pm]
+			if(pm.direction) {
+				for (let t of pm.direction) {
+					for (let s of t.target) {
+						t2.push({ ...s, _id: uniqId(), t1: 2, t2: 200 })
+					}
+				}
+			}
+			setPoint(map, t2)
+			return map.flyTo({center:[cds[0],cds[1]], zoom:16, bearing: pm.curDrect||0})
+		} 
+		
+		map.curLine = pm
+		if(!loop) {
+			map.fitBounds(turf.box(cds), {
+				padding: {top:25, bottom:25, left: 15, right: 15}
+			})
+		}
+		
+		let id = 'active_' + pm._id,
+			coord = fixAdd(cds,6),
+			geo = createGeo({t1:1,t2:10, coord: [pm.coord[0]], _id: id},map.sid),
+			paint = {
+				'line-color': opt.color||'#ffff00',
+				'line-width': opt.width||6,
+				'line-opacity':opt.opacity||0.9
+			}
+		
+		removeObj(map, id)
+		if(pm.id != 'selected') {
+			let color = ['#0000FF','#00aaff','#55ffff','#00FF00','#FFFF00','#FFA500','#FF0000','#8B0000'],
+				progress = [],
+				info = calData(reArr(coord),true),
+				// info = pm.info,
+				range = info.top - info.bottom
+				
+			if(range>50) {
+				info.dElv.forEach((e,i)=>{
+					progress.push((i+1)/info.dElv.length)
+					progress.push(color[math((e[1]-info.bottom)/(range/(color.length-1)),0)])
+				})
+				paint = {
+					'line-color': 'red',
+					'line-width': opt.width||6,
+					'line-opacity':opt.opacity||0.9,
+					'line-gradient': [
+						'interpolate',
+						['linear'],
+						['line-progress'],
+							...progress
+						]
 				}
 			}
 		}
-		setPoint(map, t2)
-		return map.flyTo({center:[cds[0],cds[1]], zoom:16, bearing: pm.curDrect||0})
-	} 
-	
-	map.curLine = pm
-	if(!loop) {
-		map.fitBounds(turf.box(cds), {
-			padding: {top:25, bottom:25, left: 15, right: 15}
-		})
-	}
-	
-	let id = 'active_' + pm._id,
-		coord = fixAdd(cds,6),
-		geo = createGeo({t1:1,t2:10, coord: [pm.coord[0]], _id: id},map.sid),
-		paint = {
-			'line-color': opt.color||'#ffff00',
-			'line-width': opt.width||6,
-			'line-opacity':opt.opacity||0.9
-		}
-	
-	removeObj(map, id)
-	if(pm.id != 'selected') {
-		let color = ['#0000FF','#00aaff','#55ffff','#00FF00','#FFFF00','#FFA500','#FF0000','#8B0000'],
-			progress = [],
-			info = calData(reArr(coord),true),
-			// info = pm.info,
-			range = info.top - info.bottom
-			
-		if(range>50) {
-			info.dElv.forEach((e,i)=>{
-				progress.push((i+1)/info.dElv.length)
-				progress.push(color[math((e[1]-info.bottom)/(range/(color.length-1)),0)])
-			})
-			paint = {
-				'line-color': 'red',
-				'line-width': opt.width||6,
-				'line-opacity':opt.opacity||0.9,
-				'line-gradient': [
-					'interpolate',
-					['linear'],
-					['line-progress'],
-						...progress
-					]
-			}
-		}
-	}
-	
-	geo.lineMetrics = true
-	map.addSource(id, geo)
-	
-	map.addLayer({
-		id,
-		source: id,
-		paint,
-		type: 'line',
-		layout: {
-			'line-join': 'round',
-			'line-cap': 'round'
-		}
-	}, pm._id)
-	
-	const go = (g, idx, count)=>{
-		if(g.geometry.coordinates.length >= coord.length) {
-			map['run'+pm._id] = null
-			if(loop) {
-				return setActive(map, pm, opt, loop)
-			}
-			return true
-		}
-		for (var i = idx*count; i < (idx*count+count) && i<coord.length; i++) {
-			g.geometry.coordinates.push(coord[i])
-		}
-		idx ++
-		map.getSource(id).setData(g)
 		
-		map['run'+pm._id] = setTimeout(()=>{go(g,idx,count)}, 40)
-	}
-	return go(geo.data, 0, Math.ceil(coord.length/444))
+		geo.lineMetrics = true
+		map.addSource(id, geo)
+		
+		map.addLayer({
+			id,
+			source: id,
+			paint,
+			type: 'line',
+			layout: {
+				'line-join': 'round',
+				'line-cap': 'round'
+			}
+		}, pm._id)
+		
+		const go = (g, idx, count)=>{
+			if(g.geometry.coordinates.length >= coord.length) {
+				map['run'+pm._id] = null
+				if(loop) {
+					setActive(map, pm, opt, loop)
+				}else {
+					res(true) 
+				}
+			}
+			for (var i = idx*count; i < (idx*count+count) && i<coord.length; i++) {
+				g.geometry.coordinates.push(coord[i])
+			}
+			idx ++
+			map.getSource(id).setData(g)
+			
+			map['run'+pm._id] = setTimeout(()=>{go(g,idx,count)}, 40)
+		}
+		go(geo.data, 0, Math.ceil(coord.length/444))
+	
+	})
 },
 
 move =(map,pm)=>{

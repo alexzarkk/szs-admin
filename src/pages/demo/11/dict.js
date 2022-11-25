@@ -719,33 +719,35 @@ function getPms(k){
 	}
 	return { pointRun, lineRun }
 }
-function getKml(keys) {
+async function getKml(keys) {
 	
-	let pms = [...place]
-	for (let k of keys) {
-		for (let tar of dict[k]) {
-			let coords = tar.kml.split(' ')
-			let coord = []
-				
-			for (let s of coords) {
-				let c = s.split(',')
-				coord.push([Number(c[0]),Number(c[1]),Number(c[2])])
-			}
-			
-			const getLine = (name,coord)=>{
-				return {
-					_id: geotools.uniqId(),
-					name,
-					t2: 10,
-					t1: 1,
-					coord
+	return new Promise((res, rej) => {
+		let pms = [...place]
+		for (let k of keys) {
+			for (let tar of dict[k]) {
+				let coords = tar.kml.split(' ')
+				let coord = []
+					
+				for (let s of coords) {
+					let c = s.split(',')
+					coord.push([Number(c[0]),Number(c[1]),Number(c[2])])
 				}
+				
+				const getLine = (name,coord)=>{
+					return {
+						_id: geotools.uniqId(),
+						name,
+						t2: 10,
+						t1: 1,
+						coord
+					}
+				}
+				pms.push(getLine(tar.name,coord))
 			}
-			pms.push(getLine(tar.name,coord))
 		}
-	}
-	
-	return pms 
+		
+		return res(pms) 
+	})
 }
 
 const dict = {
