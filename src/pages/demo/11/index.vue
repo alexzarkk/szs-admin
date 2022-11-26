@@ -1,20 +1,20 @@
 <template>
     <div>
         <view class="button-box">
-            <button @click="handleActive">激活</button>
+            <button style="width: 16px; height: 20px; background-color: green; margin-right: 10px;" @click="handleActive"> </button>
             <el-button type="primary" size="mini" @click="detail('north')">北线</el-button>
             <el-button type="primary" size="mini" @click="detail('east')">东线</el-button>
             <el-button type="primary" size="mini" @click="detail('south')">南线</el-button>
             <el-button type="primary" size="mini" @click="detail('west')">西线</el-button>
             <el-button type="primary" size="mini" @click="detail('zs')">舟山</el-button>
 
-            <el-button type="success" size="mini" @click="show(['north'])">北线</el-button>
-            <el-button type="success" size="mini" @click="show(['east'])">东线</el-button>
-            <el-button type="success" size="mini" @click="show(['south'])">南线</el-button>
-            <el-button type="success" size="mini" @click="show(['west'])">西线</el-button>
-            <el-button type="success" size="mini" @click="show(['zs'])">舟山</el-button>
-            <el-button type="success" size="mini" @click="show(['dt'])">洞头</el-button>
-            <el-button type="success" size="mini" @click="show(['north','east','south','west','zs'])">全省</el-button>
+            <el-button type="success" size="mini" @click="show(0)">北线</el-button>
+            <el-button type="success" size="mini" @click="show(1)">东线</el-button>
+            <el-button type="success" size="mini" @click="show(2)">南线</el-button>
+            <el-button type="success" size="mini" @click="show(3)">西线</el-button>
+            <el-button type="success" size="mini" @click="show(4)">舟山</el-button>
+            <el-button type="success" size="mini" @click="show(5)">洞头</el-button>
+            <el-button type="success" size="mini" @click="show(6)">全省</el-button>
         </view>
         <map11 v-if="loaded" :pms="kml" :winH="mapHeight" @drawFinish="drawFinish"></map11>
         <div v-if="isShow" class="flex align-center justify-between info-box " :class="active?'an-scale-up':'an-scale-up-reverse'">
@@ -23,7 +23,7 @@
                 <!-- <div>环浙步道logo</div> -->
             </div>
             <div class="right">
-                <div class="text-1">环浙步道 - 全省</div>
+                <div class="text-1">环浙步道 - {{line[idx].title}}</div>
                 <div class="text-2 text-ztsgreen">成功贯通</div>
             </div>
             <div style="font-size:24px;" @click="handleActive">
@@ -50,11 +50,22 @@ export default {
             loaded: true,
             kml: null,
             active: false,
-            isShow: false
+            isShow: false,
+			idx:0,
+			
+			line:[
+				{ k:['north'], title: '北线' },
+				{ k:['east'], title: '东线' },
+				{ k:['west'], title: '西线' },
+				{ k:['south'], title: '南线' },
+				{ k:['zs'], title: '舟山' },
+				{ k:['dt'], title: '洞头' },
+				{ k:['north','east','south','west','zs'], title: '省级主线' }
+			]
         };
     },
     onLoad() {
-        this.mapHeight = window.screen.height
+        this.mapHeight = window.screen.height - 40
         // this.zz.req('')
     },
     onReady() {
@@ -85,8 +96,9 @@ export default {
             let kml = getPms(k)
             this.zz.href('/pages/demo/11/map', { kml })
         },
-        async show(k) {
-
+        async show(idx) {
+			this.idx = idx
+			let k = this.line[idx].k
             this.loaded = false
             this.kml = await getKml(k)
             this.loaded = true
@@ -102,7 +114,7 @@ export default {
 
 <style lang="scss" scoped>
 .button-box {
-    height: 100px;
+    height: 40px;
     display: flex;
     flex-direction: row;
     align-items: center;
