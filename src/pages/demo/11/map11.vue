@@ -258,6 +258,7 @@ export default {
 				
 				console.log("结束渲染-------", e)
 				
+				this.self.callMethod('drawFinish', e)
 			})
 			
 			
@@ -464,6 +465,11 @@ export default {
 					this.zz.toast(e.e)
 					this.setProp()
 					break;
+					
+				case 'drawFinish':
+					this.$emit('drawFinish')
+					break;	
+					
 				case 'fullscreen':
 					if(e.e) {
 					// if(this.isFullscreen) {

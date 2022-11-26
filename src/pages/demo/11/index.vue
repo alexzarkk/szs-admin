@@ -16,7 +16,7 @@
 			<el-button type="success" size="mini" @click="show(['north','east','south','west','zs'])">全省</el-button>
 		</view>
 			
-		<map11 v-if="loaded" :pms="kml" :winH="800"></map11>
+		<map11 v-if="loaded" :pms="kml" :winH="800" @drawFinish="drawFinish"></map11>
 		
 	</div>
 </template>
@@ -52,6 +52,9 @@ export default {
 			this.kml = await getKml(k)
 			this.loaded = true
 			console.log(this.kml);
+		},
+		drawFinish(){
+			console.log('drawFinish');
 		}
 	}
 };
