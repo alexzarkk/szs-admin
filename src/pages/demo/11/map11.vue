@@ -446,6 +446,9 @@ export default {
 		mbEvent(e){
 			// console.log('mapbox.mbEvent: ',e);
 		},
+		drawFinish(){
+			this.$emit('drawFinish')
+		},
 		mapDo(e) {
 			console.log('mapDo ------ >', e)
 			switch (e.act){
@@ -465,11 +468,6 @@ export default {
 					this.zz.toast(e.e)
 					this.setProp()
 					break;
-					
-				case 'drawFinish':
-					this.$emit('drawFinish')
-					break;	
-					
 				case 'fullscreen':
 					if(e.e) {
 					// if(this.isFullscreen) {
