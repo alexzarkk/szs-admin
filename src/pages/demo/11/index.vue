@@ -22,10 +22,10 @@
                 <image class="image" mode="aspectFit" src="@/static/logo.png" alt="logo" />
                 <!-- <div>环浙步道logo</div> -->
             </div>
-            <div class="right">
+            <view class="right flex justify-center">
                 <div class="text-1">环浙步道 - {{line[idx].title}}</div>
-                <div class="text-2 text-ztsgreen">成功贯通</div>
-            </div>
+                <div class="text-2 text-ztsgreen"><text class="text-bold padding-lr">{{line[idx].text}}</text> 成功贯通</div>
+            </view>
             <div style="font-size:24px;" @click="handleActive">
                 <span class="cuIcon-close close-icon"></span>
             </div>
@@ -54,13 +54,13 @@ export default {
 			idx:0,
 			
 			line:[
-				{ k:['north'], title: '北线' },
-				{ k:['east'], title: '东线' },
-				{ k:['west'], title: '西线' },
-				{ k:['south'], title: '南线' },
-				{ k:['zs'], title: '舟山' },
-				{ k:['dt'], title: '洞头' },
-				{ k:['north','east','south','west','zs'], title: '省级主线' }
+				{ k:['north'], title: '北线',text:'' },
+				{ k:['east'], title: '东线',text:'' },
+				{ k:['west'], title: '西线',text:'' },
+				{ k:['south'], title: '南线',text:'' },
+				{ k:['zs'], title: '舟山',text:'' },
+				{ k:['dt'], title: '洞头',text:'' },
+				{ k:['north','east','south','west','zs'], title: '省级主线',text:'2300km' }
 			]
         };
     },
