@@ -21,10 +21,7 @@
 				{ "path": "datav" },
 				{ "path": "articleEdit" },
 				
-				{ "path": "crud" },
-				
-				{ "path": "11/index" },
-				{ "path": "11/map" }
+				{ "path": "crud" }
 			]
 		},
 		
