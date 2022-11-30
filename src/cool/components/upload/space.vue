@@ -532,8 +532,7 @@ export default {
 
             this.$confirm("此操作将删除文件, 是否继续?", "提示", {
                 type: "warning"
-            })
-                .then(() => {
+            }).then(() => {
                     this.file.loading.delete = true;
                     this.$service.space.info.delete({
                         ids: selection.map((e) => e.id).join(",")

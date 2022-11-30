@@ -33,8 +33,8 @@
                             <cl-search-key />
                         </el-row>
 
-                        <el-row type="flex">
-                            <cl-table style="width:80%;" :contextMenu="[]" :props="{
+                        <el-row>
+                            <cl-table :contextMenu="[]" :props="{
 										'default-sort': {
 											prop: 'createTime',
 											order: 'descending'
@@ -46,24 +46,18 @@
 											width: '60'
 										},
 										{
-											prop: 'deptId',
-											label: '部门',
-											align: 'center',
-											dict: depts
-										},
-										{
-											prop: 'author',
+											prop: 'user',
 											label: '作者/来源',
 											align: 'center'
 										},
 										{
-											prop: 'title',
-											label: '标题',
+											prop: 'content',
+											label: '内容',
 											align: 'center'
 										},
 										{
-											prop: 'cover',
-											label: '封面',
+											prop: 'imgs',
+											label: '照片',
 											align: 'center'
 										},
 										{
@@ -91,9 +85,15 @@
 										}
 									]">
                                 <!-- 时间 -->
-                                <template #column-createTime="{ scope }">
-                                    {{ scope.row.updateTime }}
-                                </template>
+                               <template #column-createTime="{ scope }">
+                                   {{ scope.row.updateTime }}
+                               </template>
+							   <template #column-user="{ scope }">
+								   <view class="flex align-center justify-center">
+									<el-image style="width: 30px; height: 30px" fit="cover" :src="scope.row.userInfo.headImg" :preview-src-list="[scope.row.userInfo.headImg]"/>
+									<text class="margin-left-xs">{{ scope.row.userInfo.name }}</text>
+								   </view>
+							   </template>
                                 <template #column-type="{ scope }">
                                     <block v-for="(i, idx) of scope.row.type" :key="idx">
                                         <el-tag size="mini" style="margin-left: 4px;" :class="'bg-'+articleO[i].color" effect="plain">
@@ -102,10 +102,11 @@
                                     </block>
                                 </template>
 
-                                <template #column-cover="{ scope }">
-                                    <template v-if="scope.row.cover">
-                                        <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover.url" :preview-src-list="[scope.row.cover.url]">
-                                        </el-image>
+                                <template #column-imgs="{ scope }">
+                                    <template v-if="scope.row.imgs.length">
+										<block v-for="(i, idx) of scope.row.imgs" :key="idx">
+										    <el-image style="width: 60px; height: 60px" fit="cover" :src="i" :preview-src-list="scope.row.imgs"/>
+										</block>
                                     </template>
                                 </template>
                                 <template #column-status="{ scope }">
@@ -118,14 +119,12 @@
                                     <el-button type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
                                 </template>
                                 <template #slot-detail="{ scope }">
-                                    <!-- <el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button> -->
-                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览内容</el-button>
+                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button>
                                 </template>
                                 <template #slot-veri="{ scope }">
                                     <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
                                 </template>
                             </cl-table>
-                            <zz-iframe :iframeLink="iframeLink"></zz-iframe>
                         </el-row>
 
                         <el-row type="flex">
@@ -133,7 +132,6 @@
                             <cl-pagination />
                         </el-row>
                     </cl-crud>
-
                 </div>
             </div>
         </div>
@@ -154,7 +152,6 @@ import { checkPerm } from "@/cool/permission"
 export default {
     data() {
         return {
-            iframeLink: 'https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9', // H5显示的内容的链接
             article,
             articleO: this.zz.toObj(article),
             depts: dept.getLabel(),
@@ -190,7 +187,8 @@ export default {
         onCrudLoad({ ctx, app }) {
             ctx.service(this.$service.zts.article).done();
             app.refresh({
-				pc: 1,
+				ui: 1,
+				app: 1,
                 page: 1,
                 isoDept: true
             });
@@ -204,6 +202,7 @@ export default {
         },
 
         detail(e) {
+			console.log(e);
             this.preview = true
             this.shareUrl = 'path=/pages/planning/article&id=' + e._id
         },

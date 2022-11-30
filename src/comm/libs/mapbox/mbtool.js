@@ -727,7 +727,7 @@ setKml = (m,pms,line,point,gon,act=1)=>{
 
 
 setMask = (map, deptNum)=>{
-	const province = require('@/pages/demo/11/330000.json')
+	// const province = require('https://zts.5618.co/static/geo/chart/330000.json')
 	
 	console.log(province);
 	let newPolygon = [],
@@ -905,6 +905,6 @@ module.exports = {
 	
 	getElevation,
 	getAround,
-	setMask,
+	// setMask,
 	on
 }

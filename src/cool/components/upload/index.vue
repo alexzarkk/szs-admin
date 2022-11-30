@@ -1,56 +1,21 @@
 <template>
     <div class="cl-upload__wrap">
         <!-- 文件空间 -->
-        <cl-upload-space
-            ref="space"
-            :limit="limit"
-            @confirm="onSpaceConfirm"
-            v-if="isSpace"
-        >
+        <cl-upload-space ref="space" :limit="limit" @confirm="onSpaceConfirm" v-if="isSpace">
             <slot></slot>
         </cl-upload-space>
 
         <!-- 默认上传 -->
-        <div
-            v-else
-            class="cl-upload"
-            :class="{
-			'is-multiple': multiple
-		}"
-        >
-            <div
-                v-for="(item, index) in list"
-                class="cl-upload__item"
-                :key="index"
-                :style="style"
-                v-loading="item.loading"
-                @click="chooseImage(item)"
-            >
-                <img
-                    class="cl-upload__image"
-                    :src="item.url"
-                    alt=""
-                    v-if="item.url"
-                />
-                <i
-                    class="el-icon-picture"
-                    v-else
-                ></i>
-
-                <i
-                    class="el-icon-close"
-                    v-if="item.url"
-                    @click.stop="removeFile(index)"
-                ></i>
+        <div v-else class="cl-upload" :class="{ 'is-multiple': multiple }">
+            <div v-for="(item, index) in list" class="cl-upload__item" :key="index" :style="style" v-loading="item.loading"  @click="chooseImage(item)">
+                <img class="cl-upload__image" :src="item.url" alt="" v-if="item.url"/>
+                <i class="el-icon-picture" v-else />
+                <i class="el-icon-close" v-if="item.url" @click.stop="removeFile(index)" />
             </div>
 
             <template v-if="isAppend">
-                <div
-                    class="cl-upload__item"
-                    :style="style"
-                    @click="chooseImage()"
-                >
-                    <i class="el-icon-picture"></i>
+                <div class="cl-upload__item" :style="style" @click="chooseImage()">
+                    <i class="el-icon-picture"/>
                 </div>
             </template>
         </div>
@@ -76,6 +41,13 @@ export default {
 			type: Number,
 			default: 9
 		},
+		
+		//是否压缩上传
+		compress:{
+			type: Boolean,
+			default: true
+		},
+		
 		// 上传时的钩子
 		onUpload: Function,
 		// 删除文件时的钩子
@@ -98,7 +70,7 @@ export default {
 				(e) => {
 					return _.isNumber(e) ? `${e}px` : e;
 				}
-			);
+			)
 
 			return {
 				height,
@@ -130,18 +102,10 @@ export default {
 				}
 
 				this.list = list.filter(Boolean).map((url) => {
-					return {
-						url,
-						loading: false
-					};
-				});
+					return { url, loading: false }
+				})
 			} else {
-				this.list = [
-					{
-						url: value,
-						loading: false
-					}
-				];
+				this.list = [{ url: value, loading: false }]
 			}
 		},
 
@@ -188,44 +152,74 @@ export default {
 
 		// 移除文件
 		removeFile(i) {
-			const next = (index) => {
-				this.list.splice(index, 1);
-				this.emit();
-			};
+			// const next = (index) => {
+			// 	this.list.splice(index, 1);
+			// 	this.emit();
+			// };
 
-			if (this.onRemove) {
-				this.onRemove(i, { next });
-			} else {
-				next(i);
-			}
+			// if (this.onRemove) {
+			// 	this.onRemove(i, { next });
+			// } else {
+			// 	next(i);
+			// }
+			
+			// if (this.onUpload){
+			// 	await this.onRemove(i);
+			// 	this.$emit("input", '');
+			// 	return this.list = [{}]
+			// }
+			
+			this.list[i].loading = true;
+			this.$service.space.info.delete({
+					url: this.list[i].url
+				}).then(() => {
+					// this.$message.success("删除成功");
+					const next = (index) => {
+						this.list.splice(index, 1);
+						this.emit();
+					};
+					if (this.onRemove) {
+						this.onRemove(i, { next });
+					} else {
+						next(i);
+					}
+				}).catch((err) => {
+					this.$message.error(err);
+				})
 		},
 
 		// 选择图片
 		chooseImage(item) {
 			const count = this.multiple && !item ? 2 : 1;
 
+			console.log(item);
 			uni.chooseImage({
+				sizeType: this.compress? ['compressed'] : ['original'],
 				count,
 				success: (res) => {
-					let data = null;
+					
+					
+					console.log(res);
+					
+					let data = null
 
 					if (item) {
 						item.loading = true;
 						data = item;
 					}
-
+					for (let s of res.tempFilePaths) {
+						this.list.push({ loading: true })
+					}
 					res.tempFiles
 						.filter((e, i) => {
 							return this.multiple ? i < this.limit - this.list.length : i < 1;
-						})
-						.forEach((e, i) => {
+						}).forEach((e, i) => {
 							const next = (name) => {
 								return new Promise((resolve, reject) => {
 									uploadFile({
 										filePath: res.tempFilePaths[i],
 										cloudPath: name || e.name
-									})
-										.then((url) => {
+									}).then((url) => {
 											this.onUploadSuccess(url, e, data);
 											resolve(url);
 										})
@@ -241,11 +235,21 @@ export default {
 								}
 							};
 
+							// if (this.onUpload) {
+							// 	this.onUpload(e, { next, done });
+							// } else {
+							// 	next();
+							// }
+							
 							if (this.onUpload) {
+								this.list = [{ url:e.name }];
+								this.$emit("input", e.name);
 								this.onUpload(e, { next, done });
 							} else {
 								next();
 							}
+							
+							
 						});
 				}
 			});
