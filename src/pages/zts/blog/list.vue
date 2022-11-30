@@ -105,19 +105,16 @@
 
                                 <template #column-img="{ scope }">
                                     <template v-if="scope.row.imgs && scope.row.imgs.length>0">
-                                        <!-- {{scope.row.imgs}} -->
                                         <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.imgs" :preview-src-list="scope.row.imgs">
                                         </el-image>
                                     </template>
-
                                 </template>
                                 <template #column-status="{ scope }">
-                                    {{scope.row.status}}
-                                    <!-- {{ st[scope.row.status].text }} -->
-                                    <!-- <el-tag size="small" effect="dark" :type="st[scope.row.status].type"></el-tag> -->
-                                    <!-- <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
+                                    <!-- :type="st[scope.row.status].type|| 'primary'" -->
+                                    <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
+                                        <!-- {{scope.row.status}} -->
                                         {{ st[scope.row.status].text }}
-                                    </el-tag> -->
+                                    </el-tag>
                                 </template>
 
                                 <template #slot-edit="{ scope }">
@@ -130,17 +127,7 @@
                                     <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
                                 </template>
                             </cl-table>
-
-                            <iframe v-if="iframeLink" ref="iframe" class="content-iframe" :src="iframeLink"></iframe>
-                            <div v-else class="content-iframe">
-                                <span>点击预览内容查看当前评论所在的内容</span>
-                            </div>
-                            <!-- <div style="width:100%;height:100%; background-image:url(https://v1.uviewui.com/common/iPhoneX_model.png)">
-                                <div class="demo-model">
-                                    <div class="model-content">
-                                    </div>
-                                </div>
-                            </div> -->
+                            <zz-iframe :iframeLink="iframeLink"></zz-iframe>
                         </el-row>
 
                         <el-row type="flex">
@@ -166,11 +153,10 @@
 <script>
 import { dept, article, poi } from "@/comm/dict"
 import { checkPerm } from "@/cool/permission"
-
 export default {
     data() {
         return {
-            iframeLink: '', // H5显示的内容的链接
+            // iframeLink: '', // H5显示的内容的链接
             iframeLink: 'https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9', // H5显示的内容的链接
             article,
             articleO: this.zz.toObj(article),
@@ -323,12 +309,6 @@ export default {
         width: calc(100% - 310px);
         flex: 1;
     }
-}
-
-.content-iframe {
-    // width: 100%;
-    min-width: 375px;
-    height: 800px;
 }
 
 // .demo-model {

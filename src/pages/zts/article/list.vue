@@ -42,8 +42,8 @@
                             <cl-search-key />
                         </el-row>
 
-                        <el-row>
-                            <cl-table :contextMenu="[]" :props="{
+                        <el-row type="flex">
+                            <cl-table style="width:80%;" :contextMenu="[]" :props="{
 										'default-sort': {
 											prop: 'createTime',
 											order: 'descending'
@@ -116,7 +116,6 @@
                                         <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover.url" :preview-src-list="[scope.row.cover.url]">
                                         </el-image>
                                     </template>
-
                                 </template>
                                 <template #column-status="{ scope }">
                                     <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
@@ -128,12 +127,14 @@
                                     <el-button type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
                                 </template>
                                 <template #slot-detail="{ scope }">
-                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button>
+                                    <!-- <el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button> -->
+                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览内容</el-button>
                                 </template>
                                 <template #slot-veri="{ scope }">
                                     <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
                                 </template>
                             </cl-table>
+                            <zz-iframe :iframeLink="iframeLink"></zz-iframe>
                         </el-row>
 
                         <el-row type="flex">
@@ -162,6 +163,7 @@ import { checkPerm } from "@/cool/permission"
 export default {
     data() {
         return {
+            iframeLink: 'https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9', // H5显示的内容的链接
             article,
             articleO: this.zz.toObj(article),
             depts: dept.getLabel(),
