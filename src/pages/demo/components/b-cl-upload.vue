@@ -26,14 +26,8 @@
                     class="urls"
                     v-if="urls2"
                 >
-                    <li
-                        v-for="(item, index) in list"
-                        :key="index"
-                    >
-                        <img
-                            :src="item"
-                            alt=""
-                        >
+                    <li v-for="(item, index) in list" :key="index" >
+                        <img :src="item" alt=""/>
                     </li>
                 </ul>
             </el-row>
