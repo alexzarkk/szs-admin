@@ -6,21 +6,8 @@
         </div>
         <div class="c">
             <el-row>
-                <cl-upload
-                    v-model="urls"
-                    multiple
-                    :limit="3"
-                    :on-upload="onUpload"
-                    :on-remove="onRemove"
-                    @success="onSuccess"
-                    @error="onError"
-                >
-                </cl-upload>
-
-                <cl-upload-space
-                    v-model="urls2"
-                    is-space
-                ></cl-upload-space>
+                <cl-upload v-model="urls" :limit="3" @success="onSuccess" @error="onError"/>
+                <cl-upload-space v-model="urls2" is-space></cl-upload-space>
 
                 <ul
                     class="urls"
@@ -30,6 +17,11 @@
                         <img :src="item" alt=""/>
                     </li>
                 </ul>
+				
+				视频上传
+				<cl-upload v-model="file" :fileType="'video'" :limit="1" @success="onSuccess" @error="onError"/>
+				文件
+				<cl-upload v-model="kml" :fileType="'kml'" :limit="1" @success="onSuccess" @error="onError"/>
             </el-row>
         </div>
         <div class="f">
@@ -42,8 +34,10 @@
 export default {
 	data() {
 		return {
-			urls: "",
-			urls2: ""
+			urls: "https://vkceyugu.cdn.bspapp.com/VKCEYUGU-996909cb-e5ca-4be8-8150-b60ae2422186/8781a1ac-35eb-40c4-b5a9-2534dd4bd05e.png",
+			urls2: "",
+			file: 'https://vkceyugu.cdn.bspapp.com/VKCEYUGU-996909cb-e5ca-4be8-8150-b60ae2422186/a8828e74-741a-4c92-9441-3804f836dd04.mp4',
+			kml: "",
 		};
 	},
 
@@ -57,7 +51,6 @@ export default {
 		onSuccess(url) {
 			this.$message.success("上传成功");
 			console.log("上传成功", url);
-			console.log(url);
 		},
 
 		onError(err) {

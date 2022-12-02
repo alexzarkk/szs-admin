@@ -44,6 +44,7 @@ export default {
 		BClCrud,
 		BClForm,
 		BClContextMenu,
+		BErrorPage,
 		BRichText
 	},
 
