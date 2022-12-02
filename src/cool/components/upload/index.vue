@@ -1,51 +1,70 @@
 <template>
     <div class="cl-upload__wrap">
         <!-- 文件空间 -->
-        <cl-upload-space ref="space" :limit="limit" @confirm="onSpaceConfirm" v-if="isSpace">
+        <cl-upload-space v-if="isSpace" ref="space" :limit="limit" @confirm="onSpaceConfirm">
             <slot></slot>
         </cl-upload-space>
 
         <!-- 默认上传 -->
-        <div v-else class="cl-upload" :class="{ 'is-multiple': multiple }">
-            <div v-for="(item, index) in list" class="cl-upload__item" :key="index" :style="style" v-loading="item.loading"  @click="chooseImage(item)">
-                <img class="cl-upload__image" :src="item.url" alt="" v-if="item.url"/>
-                <i class="el-icon-picture" v-else />
-                <i class="el-icon-close" v-if="item.url" @click.stop="removeFile(index)" />
+        <div v-else-if="fileType=='image'" class="cl-upload" :class="{ 'is-multiple': list.length < limit }">
+            <div v-for="(item, index) in list" :key="index" :style="style" class="cl-upload__item" v-loading="item.loading">
+				<template v-if="item.url">					<img class="cl-upload__image" :src="item.url"/>
+					<i class="el-icon-close" @click.stop="removeFile(index)"/>				</template>
+				<template v-else>
+					<i class="el-icon-picture"/>
+				</template>
             </div>
-
-            <template v-if="isAppend">
+			
+            <template v-if="list.length < limit">
                 <div class="cl-upload__item" :style="style" @click="chooseImage()">
                     <i class="el-icon-picture"/>
                 </div>
             </template>
         </div>
+		
+		<!-- 单文件上传 -->
+		<div v-else>
+			<el-row type="flex" class="row-bg" justify="left">
+				<el-col :span="24">
+					<template v-if="list.length">
+						<template v-if="fileType=='video'">
+							<video :src="list[0].url"></video>
+						</template>
+						<template v-else>
+							<el-link class="padding-right-sm" type="info">{{ list[0].url }}</el-link>
+						</template>
+						<el-button type="danger" icon="el-icon-delete" plain circle :loading="list[0].loading" @click.stop="removeFile(0)"></el-button>
+					</template>
+					<template v-else>
+						<el-button type="primary" size="small" plain @click="chooseImage">文件上传<i class="el-icon-upload el-icon--right"></i></el-button>
+					</template>
+				</el-col>
+			</el-row>
+		</div>
     </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import _ from "lodash";
-import { uploadFile } from "@/cool/utils/upload";
+import { Loading } from "element-ui";
+import { uploadFile } from "../../utils/upload.js";
 
 export default {
 	props: {
 		value: [Array, String],
-		size: {
+		showSize: {
 			type: [Number, Array],
 			default: 120
 		},
-		// 是否支持多选文件
-		multiple: Boolean,
+		
 		// 最大允许上传个数
 		limit: {
 			type: Number,
 			default: 9
 		},
 		
-		//是否压缩上传
-		compress:{
-			type: Boolean,
-			default: true
+		fileType: {
+			type: String,
+			default: 'image'
 		},
 		
 		// 上传时的钩子
@@ -58,28 +77,18 @@ export default {
 
 	data() {
 		return {
-			list: []
+			list: [],
+			que: 0
 		};
 	},
 
 	computed: {
-		...mapGetters(["token"]),
-
 		style() {
-			const [height, width] = (_.isArray(this.size) ? this.size : [this.size, this.size]).map(
-				(e) => {
-					return _.isNumber(e) ? `${e}px` : e;
-				}
-			)
-
-			return {
-				height,
-				width
-			};
-		},
-
-		isAppend() {
-			return this.multiple ? this.list.length < this.limit : this.list.length == 0;
+			if(this.fileType=='image') {
+				return { height: this.showSize+'px', width: this.showSize+'px' }
+			}else{
+				return { height: '40px', width: '100%' }
+			}
 		}
 	},
 
@@ -89,57 +98,44 @@ export default {
 			handler: "parseValue"
 		}
 	},
+	mounted() {
+		
+	},
 
 	methods: {
 		parseValue(value) {
-			if (this.multiple) {
-				let list = [];
-
-				if (value instanceof Array) {
-					list = value;
-				} else {
-					list = (value || "").split(",");
-				}
-
-				this.list = list.filter(Boolean).map((url) => {
-					return { url, loading: false }
-				})
+			let list = []
+			if (value instanceof Array) {
+				list = value
 			} else {
-				this.list = [{ url: value, loading: false }]
+				if(value) list = value.split(",")
 			}
+			this.list = list.map(url => {return {url}})
+			console.log(this.list,this.fileType)
 		},
 
 		// 回调
 		emit() {
-			const value = this.list
-				.filter((e) => e.url)
-				.map((e) => e.url)
-				.join(",");
-
+			let value = this.list.filter((e) => e.url).map((e) => e.url).join(",");
 			this.$emit("input", value);
 			this.$emit("change", value);
 		},
 
 		// 上传成功
-		onUploadSuccess(url, file, item) {
-			if (this.multiple) {
-				if (item) {
-					item.url = url;
-				} else {
-					this.list.push({
-						url
-					});
-				}
-			} else {
-				this.list = [{ url }];
+		onUploadSuccess(url, filePath) {
+			console.log(url, filePath);
+			// debugger
+			let x = this.list.find(e=>e.filePath&&e.filePath==filePath)
+			x.loading = false
+			x.url = url
+			delete x.filePath
+			
+			this.$emit("success", url)
+			
+			this.que --
+			if(this.que==0) {
+				this.emit()
 			}
-
-			if (item) {
-				item.loading = false;
-			}
-
-			this.$emit("success", url);
-			this.emit();
 		},
 
 		// 上传错误
@@ -151,37 +147,27 @@ export default {
 		},
 
 		// 移除文件
-		removeFile(i) {
-			// const next = (index) => {
-			// 	this.list.splice(index, 1);
-			// 	this.emit();
-			// };
-
-			// if (this.onRemove) {
-			// 	this.onRemove(i, { next });
-			// } else {
-			// 	next(i);
-			// }
+		async removeFile(i) {
+			if (this.onRemove){
+				await this.onRemove(i)
+				this.$emit("input", '')
+				return this.list = []
+			}
 			
-			// if (this.onUpload){
-			// 	await this.onRemove(i);
-			// 	this.$emit("input", '');
-			// 	return this.list = [{}]
-			// }
+			this.$set(this.list[i], "loading", true)
 			
-			this.list[i].loading = true;
 			this.$service.space.info.delete({
 					url: this.list[i].url
 				}).then(() => {
-					// this.$message.success("删除成功");
 					const next = (index) => {
 						this.list.splice(index, 1);
-						this.emit();
+						this.emit()
 					};
+					
 					if (this.onRemove) {
-						this.onRemove(i, { next });
+						this.onRemove(i, { next })
 					} else {
-						next(i);
+						next(i)
 					}
 				}).catch((err) => {
 					this.$message.error(err);
@@ -189,70 +175,63 @@ export default {
 		},
 
 		// 选择图片
-		chooseImage(item) {
-			const count = this.multiple && !item ? 2 : 1;
-
-			console.log(item);
-			uni.chooseImage({
-				sizeType: this.compress? ['compressed'] : ['original'],
-				count,
+		chooseImage() {
+			let ext = [];
+			switch (this.fileType) {
+				case "kml":
+					ext = ['kml'];
+					break;
+				case "pdf":
+					ext = ['pdf'];
+					break;
+				case "video":
+					ext = ['mp4','m4v','avi','webm','MPEG'];
+					break;
+				case "cdr":
+					ext = ['cdr'];
+					break;
+				default:
+					ext = ['bmp','jpg','png','tif','gif','pcx','jpeg','jfif','svg','psd','cdr',',ai','webp'];
+			}
+			
+			uni.chooseFile({
+				count: this.limit - this.list.length,
+				type: this.fileType,
+				extension: ext,
 				success: (res) => {
-					
-					
-					console.log(res);
-					
-					let data = null
-
-					if (item) {
-						item.loading = true;
-						data = item;
-					}
 					for (let s of res.tempFilePaths) {
-						this.list.push({ loading: true })
+						this.que ++
+						this.list.push({filePath: s, loading: true })
 					}
-					res.tempFiles
-						.filter((e, i) => {
-							return this.multiple ? i < this.limit - this.list.length : i < 1;
-						}).forEach((e, i) => {
-							const next = (name) => {
-								return new Promise((resolve, reject) => {
-									uploadFile({
-										filePath: res.tempFilePaths[i],
-										cloudPath: name || e.name
-									}).then((url) => {
-											this.onUploadSuccess(url, e, data);
-											resolve(url);
-										})
-										.catch((err) => {
-											reject(err);
-										});
-								});
-							};
+					
+					res.tempFiles.forEach((e, i) => {
+						const next = (name) => {
+							return new Promise((resolve, reject) => {
+								uploadFile({
+									filePath: res.tempFilePaths[i],
+									cloudPath: name || e.name
+								}).then((url) => {
+										this.onUploadSuccess(url, res.tempFilePaths[i])
+										resolve(url)
+									}).catch((err) => {
+										reject(err)
+									})
+							})
+						}
 
-							const done = () => {
-								if (item) {
-									item.loading = false;
-								}
-							};
-
-							// if (this.onUpload) {
-							// 	this.onUpload(e, { next, done });
-							// } else {
-							// 	next();
-							// }
-							
-							if (this.onUpload) {
-								this.list = [{ url:e.name }];
-								this.$emit("input", e.name);
-								this.onUpload(e, { next, done });
-							} else {
-								next();
-							}
-							
-							
-						});
+						const done = (item) => {
+							if(item) item.loading = false
+						}
+						if (this.onUpload) {
+							this.list = [{ url: e.name }]
+							this.$emit("input", e.name)
+							this.onUpload(e, { next, done })
+						} else {
+							next()
+						}
+					})
 				}
-			});
+			})
 		},
 
 		// 打开文件空间
@@ -284,7 +263,8 @@ export default {
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		border: 1px dashed #d9d9d9;
+		border: 1px dashed #bfbfbf;
+		background-color: #FFF;
 		border-radius: 6px;
 		position: relative;
 		margin-right: 10px;

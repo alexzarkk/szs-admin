@@ -281,7 +281,7 @@
         "title" : "环浙步道",
         "appkey" : "065wqkqc+2001832114+rswca",
         "router" : {
-            "base" : "/szs",
+            "base" : "/admin",
             "mode" : "hash"
         },
         "sdkConfigs" : {

@@ -348,14 +348,12 @@ export default {
                 ...this.file.pagination,
                 ...params,
                 classifyId: this.category.current.id
-            })
-                .then((res) => {
-                    this.file.list = res.list;
-                    this.file.pagination = res.pagination;
-                })
-                .done(() => {
-                    this.file.loading.refresh = false;
-                });
+            }).then((res) => {
+				this.file.list = res.list
+				this.file.pagination = res.pagination;
+			}).done(() => {
+				this.file.loading.refresh = false;
+			});
         },
 
         // 刷新分类

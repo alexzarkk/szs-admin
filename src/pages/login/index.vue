@@ -34,10 +34,11 @@
 			</div>
 		</div>
 		<view class="cu-bar foot flex justify-center">
-		    <text class="text-sm text-gray">技术支持：{{sys.admin}}</text>
+		    <text class="text-sm text-gray">
+				技术支持：{{sys.admin}}
+			</text>
 		    <text class="margin-left-sm sm text-sm text-gray">
-		    	咨询电话：
-		    	<text class="text-bold text-grey">{{sys.tel}}</text>
+		    	咨询电话：{{sys.tel}}
 		    </text>
 		</view>
 	</div>

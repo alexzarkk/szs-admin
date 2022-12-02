@@ -576,6 +576,7 @@ const zz = {
 	isSame,
 	clone,
 	toArr,
+	isDev,
 	isArray,
 
 	deepTree,

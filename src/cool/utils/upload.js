@@ -1,12 +1,9 @@
-// #ifndef H5-ZLB
 import { pathToBase64 } from '@/js_sdk/mmmm-image-tools'
 import { req, rndInt } from '@/comm/zz'
 import { uniqId } from '@/comm/geotools'
-// #endif
 
 export async function uploadFile({ filePath, cloudPath }) {
 	
-	// #ifndef H5-ZLB
 	/* 用 http 请求上传 */
 	let base64 = [],
 		f = await pathToBase64(filePath),
@@ -32,25 +29,23 @@ export async function uploadFile({ filePath, cloudPath }) {
 			resolve(e.fileID)
 		})
 	})
-	// #endif
 
-	// #ifndef H5-ZLB
-	return new Promise((resolve, reject) => {
-		uniCloud.uploadFile({
-			filePath,
-			cloudPath,
-			onUploadProgress(progressEvent) {
-				// let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-			},
-			success(e) {
-				resolve(e.fileID)
-			},
-			fail(err) {
-				console.error(filePath, "文件上传失败===", err)
-				reject(false)
-			}
-		})
-	})
-	// #endif
+	/*  uniCloud 上传 */
+	// return new Promise((resolve, reject) => {
+	// 	uniCloud.uploadFile({
+	// 		filePath,
+	// 		cloudPath,
+	// 		onUploadProgress(progressEvent) {
+	// 			// let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+	// 		},
+	// 		success(e) {
+	// 			resolve(e.fileID)
+	// 		},
+	// 		fail(err) {
+	// 			console.error(filePath, "文件上传失败===", err)
+	// 			reject(false)
+	// 		}
+	// 	})
+	// })
 	
 }

@@ -204,8 +204,11 @@ export default {
         },
 
         detail(e) {
-            this.preview = true
-            this.shareUrl = 'path=/pages/planning/article&id=' + e._id
+			this.zz.openWin({
+				url: 'https://'+(this.zz.isDev?'test':'zts')+'.5618.co/h5/#/pages/share?path=/pages/planning/article&id='+e._id,
+				w: 380,
+				h: 780
+			})
         },
         toAudit(e) {
             this.cur = {}
