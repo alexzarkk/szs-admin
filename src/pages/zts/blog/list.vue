@@ -260,13 +260,15 @@ export default {
             console.log("更新iframe==", e)
             const obj = this.ttMap.get(Number(e.tt))
             // obj.path
-            if (e.tt == 2) {
-                // let v = encodeURI(JSON.stringify({
-                //     tid: 1,
-                //     commentId: e.tid
-                // }))
-                // this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?v=${v}`
+            if (e.tt == 2) {  // 当前评论是对 评论的回复
+                let v = encodeURI(JSON.stringify({
+                    tid: e.tid,  // 内容id，必传
+                    commentId: e.pid // 主评论的id
+                }))
+                this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?v=${v}`
+                // this.iframeLink = `http://localhost:8081/h5/#${obj.path}?v=${v}`
             } else {
+                // this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
                 this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
             }
 
