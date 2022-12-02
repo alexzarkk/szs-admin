@@ -45,7 +45,6 @@
 </template>
 
 <script>
-import { Loading } from "element-ui";
 import { uploadFile } from "../../utils/upload.js";
 
 export default {
