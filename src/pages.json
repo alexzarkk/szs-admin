@@ -2,7 +2,6 @@
 	"pages": [
 		{ "path": "pages/index/index" },
 		{ "path": "pages/login/index" },
-		{ "path": "pages/url/index" },
 		{ "path": "pages/my/info" }
 	],
 	"subPackages": [
@@ -20,19 +19,27 @@
 				{ "path": "index" },
 				{ "path": "datav" },
 				{ "path": "articleEdit" },
-				
+				{"path": "/url/index"},
 				{ "path": "crud" }
 			]
 		},
-		
 		{
-			"root": "pages/zts",
+			"root": "pages/zts/track/",
+			"pages": [
+				{ "path": "draw/index" }
+				// { "path": "mng/layout" }
+		    ]
+		},
+		{
+			"root": "pages/zts/",
 			"pages": [ 
-				{ "path": "/article/list" },
-				{ "path": "/article/edit" },
-				{ "path": "/moment/list" },
-				{ "path": "/moment/edit" },
-				{ "path": "/blog/list" }
+				{ "path": "map/map" },
+				
+				{ "path": "article/list" },
+				{ "path": "article/edit" },
+				{ "path": "moment/list" },
+				{ "path": "moment/edit" },
+				{ "path": "blog/list" }
 			]
 		}
 	],

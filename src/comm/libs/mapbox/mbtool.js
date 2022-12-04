@@ -4,7 +4,7 @@ var helpers = require('@turf/helpers')
 import { along, bbox, bearing, bezierSpline, destination, distance, length } from '@turf/turf'
 import { uniqId, isSame, dist, clone, trans, getLocation, geoErr, calData, fixNum, math, reArr } from '@/comm/geotools.js'
 
-// import { req } from '@/comm/zz'
+import { isDev } from '@/comm/bd'
 import comm from '@/comm/comm'
 import icon from '@/comm/libs/icon'
 import prop from '@/comm/libs/prop'
@@ -128,8 +128,10 @@ layerLine = (s)=>{
 		}
 	}
 },
-
-htmlLine = (t, p)=>{
+href = (act,t,k)=>{
+	return "<a class=map-href act="+encodeURI(JSON.stringify({act,pm:{...t}}))+" onclick='window.mbAct(JSON.parse(decodeURI(this.getAttribute(\"act\"))))'>"+k+"</a>"
+},
+htmlLine = (t, add)=>{
 	let imgs = ''
 	if(t.imgs){
 		for (var i = 0; i < t.imgs.length; i++) {
@@ -137,13 +139,16 @@ htmlLine = (t, p)=>{
 		}
 	}
 	let h = `<p><b><font size="3" color="orange">${t.name}</font></b></p>` + (imgs?`<div>照片：</div>${imgs}</div>`:'')
+	
+	if(!t.info) t.info = calData(t.coord)
+	
 	if(t.info){
 		h +=`<p>长度：<b>${t.info.flatLen + t.info.upLen + t.info.downLen}</b>m</p>` +
 			`<p>海拔：最高 <b>${t.info.top}</b>m 最低 <b>${t.info.bottom}</b>m</p>` +
 			`<p>累计：↑ <b>${t.info.up}</b>m ↓<b>${t.info.down}</b>m</p>`
 	}
 	if(t.t2=='2bl1') {
-		h+=	//"<p><a class=map-href act="+JSON.stringify({act:'add2bl', pid:t.pid, i:t.i})+" onclick='window.mbAct(JSON.parse(this.getAttribute(\"act\")))'>添加</a></p>" +
+		h += (add?"<p>"+href('add',t,'添加')+"</p>":"") +
 			`<p><font size=1 color=gray>路网引用于“两步路”APP（侵权 删）</font></p>`
 	}
 	return  h
@@ -153,9 +158,9 @@ setActive = (map, pm, opt = {}, loop) => {
 	return new Promise((res, rej) => { 
 		if(!pm||!pm.coord) return
 		
-		if(map['run'+pm._id]) clearTimeout(map['run'+pm._id])
+		if(map.zz.running) clearTimeout(map.zz.running)
 		
-		let cds = map.sid=='amap'? trans(pm.coord) : clone(pm.coord)
+		let cds = map.zz.sid=='amap'? trans(pm.coord) : clone(pm.coord)
 		if(pm.t1==2) {
 			let t2 = [pm]
 			if(pm.direction) {
@@ -169,20 +174,20 @@ setActive = (map, pm, opt = {}, loop) => {
 			return map.flyTo({center:[cds[0],cds[1]], zoom:16, bearing: pm.curDrect||0})
 		} 
 		
-		map.curLine = pm
+		map.zz.curLine = pm
 		if(!loop) {
 			map.fitBounds(turf.box(cds), {
 				padding: {top:25, bottom:25, left: 15, right: 15}
 			})
 		}
 		
-		let id = 'active_' + pm._id,
+		let id = 'active_running',
 			coord = fixAdd(cds,6),
-			geo = createGeo({t1:1,t2:10, coord: [pm.coord[0]], _id: id},map.sid),
+			geo = createGeo({t1:1,t2:10, coord: [pm.coord[0]], _id: id},map.zz.sid),
 			paint = {
 				'line-color': opt.color||'#ffff00',
-				'line-width': opt.width||6,
-				'line-opacity':opt.opacity||0.9
+				'line-width': opt.width||5,
+				'line-opacity':opt.opacity||0.8
 			}
 		
 		removeObj(map, id)
@@ -200,8 +205,8 @@ setActive = (map, pm, opt = {}, loop) => {
 				})
 				paint = {
 					'line-color': 'red',
-					'line-width': opt.width||6,
-					'line-opacity':opt.opacity||0.9,
+					'line-width': opt.width||5,
+					'line-opacity':opt.opacity||0.8,
 					'line-gradient': [
 						'interpolate',
 						['linear'],
@@ -224,11 +229,11 @@ setActive = (map, pm, opt = {}, loop) => {
 				'line-join': 'round',
 				'line-cap': 'round'
 			}
-		}, pm._id)
+		})
 		
 		const go = (g, idx, count)=>{
 			if(g.geometry.coordinates.length >= coord.length) {
-				map['run'+pm._id] = null
+				map.zz.running = null
 				if(loop) {
 					setActive(map, pm, opt, loop)
 				}else {
@@ -241,10 +246,9 @@ setActive = (map, pm, opt = {}, loop) => {
 			idx ++
 			map.getSource(id).setData(g)
 			
-			map['run'+pm._id] = setTimeout(()=>{go(g,idx,count)}, 40)
+			map.zz.running = setTimeout(()=>{go(g,idx,count)}, 33)
 		}
-		go(geo.data, 0, Math.ceil(coord.length/444))
-	
+		go(geo.data, 0, Math.ceil(coord.length/120))
 	})
 },
 
@@ -306,7 +310,7 @@ move =(map,pm)=>{
 run = (map,btn) =>{
 	// console.log('run',btn);
 	let id = 'trace',
-		line = map.curLine
+		line = map.zz.curLine
 	
 	if(map.play) {
 		if(btn.x) {
@@ -342,7 +346,7 @@ run = (map,btn) =>{
 		},
 		// info = calData(line.coord),
 		info = line.info,
-		geojs = createGeo({t1:1,t2:10, coord: line.coord, _id: id}, map.sid),
+		geojs = createGeo({t1:1,t2:10, coord: line.coord, _id: id}, map.zz.sid),
 		pinRoute = geojs.data.geometry.coordinates,
 		path = turf.line(pinRoute),
 		pathDistance = turf.length(path),
@@ -457,90 +461,97 @@ getElevation = async(coord, partial=false) =>{
 	})
 },
 
-setLine = (map, line, beforeId) => {
-	if(beforeId) {
-		for (let k in map.pm) {
-			if(map.pm[k].t1==1) {
-				beforeId = map.pm[k]._id || map.pm[k].id
+setLine = (map, line, beforeId=1) => {
+	if(beforeId==1) {
+		let l = map.getStyle()
+		beforeId = l.layers[l.layers.length-1].id
+	} else {
+		for (let k in map.zz.pm) {
+			if(map.zz.pm[k].t1==1) {
+				beforeId = k
 				break
 			}
 		}
-		if(beforeId==1) {
-			let l = map.getStyle()
-			beforeId = l.layers[l.layers.length-1].id
-		}
 	}
+	
 	for (let s of line) {
-		let id = ''+(s._id||s.id)
-		// if(!s.prop) s.prop = prop[s.t2]
-		map.pm[id] = s
-		removeObj(map, id)
 		
-		// if(!toggleLayer(map,s)) {
-		map.addSource(id, createGeo(s,map.sid))
-		map.addLayer(layerLine(s), beforeId);
-		map.on('click', id, (e)=> {
-			if(!map.pop) {
-				map.pop = true
-				
-				try{
-					let t = map.pm[id],
-						html = htmlLine(t)
-						
-					// if(map.editble) {
-					// 	html = html +
-					// 				`<p><a class=mapa onclick="return window.m.mbAction('edit','${t._id}');">编辑</a>&nbsp;&nbsp;&nbsp;&nbsp;` +
-					// 				`<a class=mapa onclick="return window.m.mbAction('draw','${t._id}')">绘制</a>&nbsp;&nbsp;&nbsp;&nbsp;` +
-					// 				`<a class=mapa onclick="window.m.mbAction('del','${t._id}')">删除</a></p>`
-					// }
-					if(t.t2!='2bl1') setActive(map, t)
+		let id = ''+(s._id||s.id),
+			pro = s.grade? prop.grade[s.grade] : prop[s.t2||1]
+			
+		map.zz.pm[id] = s
+		// removeObj(map, id)
+		
+		map.addSource(id, createGeo(s,map.zz.sid))
+		map.addLayer(layerLine(s), beforeId)
+		if(s.t2!='bound') {
+			map.on('click', id, (e)=> {
+				if(!map.zz.pop && !map.zz.drawing) {
+					map.zz.pop = true
 					
-					let pop = new Popup({ maxWidth: '500px' }).setLngLat(e.lngLat).setHTML(html).addTo(map)
-					map.pp = pop
-					pop.on('close', (e)=>{ map.pop = false })
-				}catch(e){
-					console.error('setLine.err',e)
-					map.pop = false
+					try{
+						let t = map.zz.pm[id],
+							html = htmlLine(t, map.zz.editble)
+						
+						if(t.t2!='2bl1') {
+							setActive(map, t)
+							if(map.zz.editble && !t.noEdit){
+								html +=	"<p>" +
+											href('edit',t,'编辑')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
+											href('draw',t,'绘制')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
+											href('del',t,'删除') +
+										"</p>"
+							}
+						} 
+						
+						let pop = new Popup({ maxWidth: '500px' }).setLngLat(e.lngLat).setHTML(html).addTo(map)
+						map.zz.pp = pop
+						pop.on('close', (e)=>{ map.zz.pop = false })
+					}catch(e){
+						console.error('setLine.err',e)
+						map.zz.pop = false
+					}
 				}
-			}
-		})
-		if(s.t2=='2bl1') {
-			map._2p.push(id)
-			if(window.model=='PC') {
-				map.on('mouseenter', id, function (e) {
-					if(map.drawing) return
-					map.busy = true
-					map.getCanvas().style.cursor = 'pointer'
-					map.setPaintProperty(id, 'line-width', 4)
-					map.setPaintProperty(id, 'line-color', prop['2bl1'].on)
-				});
-				 
-				map.on('mouseleave', id, function () {
-					if(map.drawing) return
-					map.busy = false
-					map.getCanvas().style.cursor = '';
-					map.setPaintProperty(id, 'line-width', 2);
-					map.setPaintProperty(id, 'line-color', prop['2bl1'].color)
-				});
-			}
+			})
 		}
-		// }
+		
+		if(pro.on) {
+			map.on('mouseenter', id, (e)=>{
+				if(map.zz.drawing) return
+				map.busy = true
+				map.getCanvas().style.cursor = 'pointer'
+				map.setPaintProperty(id, 'line-width', pro.width+1)
+				map.setPaintProperty(id, 'line-color', pro.on)
+			})
+			 
+			map.on('mouseleave', id, (e)=>{
+				if(map.zz.drawing) return
+				map.busy = false
+				map.getCanvas().style.cursor = ''
+				map.setPaintProperty(id, 'line-width', pro.width)
+				map.setPaintProperty(id, 'line-color', pro.color)
+			})
+		}
+		
+		if(s.t2=='2bl1') {
+			map.zz._2p.push(id)
+		}
 	}
 },
 
-setPoint = (map, point)=> {
+setPoint = (map, point, beforeId)=> {
 	
 	for (var i = 0; i < point.length; i++) {
 		
 		let s = point[i],
 			id = ''+(s._id||s.id)
 		
-		map.pm[id] = s
-		if(s.t2=='2bl2') map._2p.push(id)
+		map.zz.pm[id] = s
+		if(s.t2=='2bl2') map.zz._2p.push(id)
 		
 		removeObj(map, id, '_')
 		
-		map.addSource(id, createGeo(s,map.sid))
+		map.addSource(id, createGeo(s,map.zz.sid))
 		let lay = {
 			id,
 			'filter': ['all',['<', ['pitch'], 60]],
@@ -576,10 +587,10 @@ setPoint = (map, point)=> {
 		map.addLayer(_d, id)
 		
 		map.on('click', id, (e)=> {
-			if(!map.pop) {
-				map.pop = true
+			if(!map.zz.pop && !map.zz.drawing) {
+				map.zz.pop = true
 				try{
-					let t = map.pm[id],
+					let t = map.zz.pm[id],
 						imgs = '',
 						video = ''
 					if(t.imgs){
@@ -598,15 +609,33 @@ setPoint = (map, point)=> {
 								`<p>类型：${prop[t.t2].text}</p>` + (imgs?`<div>照片：</div>${imgs}</div>`:'') +
 								video +
 								`<p>经纬度：<b>${t.coord[0]}, ${t.coord[1]}</b></p>` +
-								`<p>海拔： <b>${t.coord[2] || 0 }</b>m</p><p>`
-								
-					if(t.editble){
-						html +=	"<a class='map-href' data="+JSON.stringify({act:'edit', id})+" onclick='window.mbAct(JSON.parse(this.getAttribute(\"data\")))'>编辑</a>&nbsp;&nbsp;&nbsp;&nbsp;" +
-								"<a class='map-href' data="+JSON.stringify({act:'del', id})+" onclick='window.mbAct(JSON.parse(this.getAttribute(\"data\")))'>删除</a>"
-					}		
-								
-								// + `<p>地址：<span id="zddr"></span></p>`
+								`<p>海拔： <b>${t.coord[2] || 0 }</b>m</p><p>` +
+								`<p>地址：<span id="zddr"></span></p>`
 					
+					if(t.t2=='2bl2') {
+						if(map.zz.editble) {
+							html += "<p><"+href('add',t,'添加')+"</p>"
+						}
+						html += `<p><font size=1 color=gray>照片引用于“两步路”APP（侵权 删）</font></p>`
+					}else{
+						if(map.zz.editble && !t.noEdit) {
+							html +=	href('edit',t,'编辑')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
+									href('draw',t,'移动')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
+									href('del',t,'删除')
+						
+							if(t.t2&&(t.t2==29||t.t2==28)){
+								html += "&nbsp;&nbsp;&nbsp;&nbsp;" + href('direct',t,'指向')
+							}
+						}
+					}
+					
+					
+					window.uni.request({
+						url:'https://api.tianditu.gov.cn/geocoder?postStr='+JSON.stringify({lon:t.coord[0],lat:t.coord[1],ver:1})+'&type=geocode&tk=70ede380913047ef13bc4dc92ff4f75b'
+					}).then(tdt=>{
+						document.getElementById('zddr').innerText = tdt[1].data.result.formatted_address
+					})
+					// + `<p>地址：<span id="zddr"></span></p>`
 					// window.Geocoder.getAddress(s.coord, (st, e)=>{
 					// 	if (st === 'complete' && e.info === 'OK') {
 					// 		document.getElementById('zddr').innerText = e.regeocode.formattedAddress
@@ -614,14 +643,14 @@ setPoint = (map, point)=> {
 					// })
 					
 					let pop = new Popup({ maxWidth: '500px'	}).setLngLat(e.lngLat).setHTML(html).addTo(map)
-					map.pp = pop
+					map.zz.pp = pop
 					
 					if(t.video) window.mbAct({act:'viewVideo', url:t.video.url})
-					pop.on('close', (e)=>{ map.pop = false })
+					pop.on('close', (e)=>{ map.zz.pop = false })
 					
 				}catch(e){
 					console.error(e,s)
-					map.pop = false
+					map.zz.pop = false
 				}
 			}
 		})
@@ -636,7 +665,7 @@ getAround = async(map, loc, btn) =>{
 	if(map.aroundmarker) {
 		map.aroundmarker.remove()
 	}
-	for (let x of map._2p) {
+	for (let x of map.zz._2p) {
 		removeObj(map, x, x.startsWith('_')?'_':'')
 	}
 	btn.self.node.childNodes[0].remove()
@@ -668,8 +697,7 @@ getAround = async(map, loc, btn) =>{
 			e = comm.getStorage('_2bl'+id)
 		if(!e) {
 			e = await comm.req({ $url: '/public/zz/pm2bl', _id: s.id })
-			for (let x of e.line) { x.name = s.name; x.pid = id }
-			
+			for (let x of e.line) { x.name = s.name }
 			comm.setStorage('_2bl'+id, e)
 		}
 		s.line = e.line
@@ -701,7 +729,7 @@ getAround = async(map, loc, btn) =>{
 	map.aroundmarker = marker
 },
 
-setKml = (m,pms,line,point,gon,act=1)=>{
+setKml = (m,pms,line,point,gon,act=0)=>{
 	
 	if(pms) {
 		line = line.concat(pms.filter(e=>e.t1==1))
@@ -726,10 +754,14 @@ setKml = (m,pms,line,point,gon,act=1)=>{
 },
 
 
-setMask = (map, deptNum)=>{
+setBound= async (map, code=330000)=>{
 	// const province = require('https://zts.5618.co/static/geo/chart/330000.json')
 	
-	console.log(province);
+	let area = await comm.req({ $url: '/public/zz/geoGon', code })
+	setLine(map, area.children)
+	
+	// return console.log(area,'gongongongongon');s
+	
 	let newPolygon = [],
 		center = [119.476498,29.898918],
 		mask = null, //	遮罩的geojson数据
@@ -838,49 +870,59 @@ setMask = (map, deptNum)=>{
 	return center
 },
 
-on = async(map) => {
-	let center = map.getCenter(),
-		k = comm.nearst([center.lng,center.lat]),
-		zoom = math(map.getZoom(),0),
-		nav = map.nav,
-		bounds = map.getBounds(),
-		ne = bounds.getNorthEast(),
-		sw = bounds.getSouthWest(),
-		xy = ~~(math(~~(dist([ne.lng, ne.lat], [sw.lng, sw.lat])+(zoom>=15?8000:0))/10000,0) * 10000/0.5)||10000
-	
-	if (!nav[k]) nav[k] = {}
-	if (!k||isSame(nav.x,[k,zoom,xy])||nav.busy) return
-	nav.x = [k,zoom,xy]
-	nav.busy = true
-	if(zoom>19) zoom = 19
-	if(zoom<8) zoom = 8
-	
-	
-	let kml = await comm.gridNet(k,xy,zoom)
-	
-	for (let k in nav.r) {
-		map.setLayoutProperty(k, 'visibility', 'none')
-	}
-	// console.log(k, zoom, xy,'req ----------', kml[k])
-	for (let s of kml.line) {
-		let id = s._id
-		nav.r[id] = 0
-		if(!map.getLayer(id)) {
-			setLine(map,[s],1)
-		} else {
-			map.setLayoutProperty(id, 'visibility', 'visible')
+on = async(map,f=0) => {
+	if(map.ztsGrid) {
+		let center = map.getCenter(),
+			k = comm.nearst([center.lng,center.lat]),
+			zoom = math(map.getZoom(),0),
+			nav = map.zz.nav,
+			bounds = map.getBounds(),
+			ne = bounds.getNorthEast(),
+			sw = bounds.getSouthWest(),
+			xy = ~~(math(~~(dist([ne.lng, ne.lat], [sw.lng, sw.lat])+(zoom>=15?8000:0))/10000,0) * 10000/0.5)||10000
+		
+		if (!nav[k]) nav[k] = {}
+		if(!f) {
+			if (!k||isSame(nav.x,[k,zoom,xy])||nav.busy) return
+		}
+		
+		nav.x = [k,zoom,xy]
+		nav.busy = true
+		if(zoom>19) zoom = 19
+		if(zoom<8) zoom = 8
+		
+		
+		let kml = await comm.gridNet(k,xy,zoom)
+		
+		for (let k in nav.r) {
+			map.setLayoutProperty(k, 'visibility', 'none')
+		}
+		// console.log(k, zoom, xy,'req ----------', kml[k])
+		for (let s of kml.line) {
+			let id = s._id
+			nav.r[id] = 0
+			if(!map.getLayer(id)) {
+				setLine(map,[s],1)
+			} else {
+				map.setLayoutProperty(id, 'visibility', 'visible')
+			}
+		}
+		for (let s of kml.point) {
+			let id = s._id
+			nav.r[id] = 1
+			if(!map.getLayer(id)){
+				setPoint(map,[s])
+			} else {
+				map.setLayoutProperty(id, 'visibility', 'visible')
+			}
+		}
+		nav.busy = false
+	} else {
+		let nav = map.zz.nav
+		for (let k in nav.r) {
+			map.setLayoutProperty(k, 'visibility', 'none')
 		}
 	}
-	for (let s of kml.point) {
-		let id = s._id
-		nav.r[id] = 1
-		if(!map.getLayer(id)){
-			setPoint(map,[s])
-		} else {
-			map.setLayoutProperty(id, 'visibility', 'visible')
-		}
-	}
-	nav.busy = false
 }
 
 module.exports = {
@@ -900,11 +942,12 @@ module.exports = {
 	setKml,
 	setLine,
 	setPoint,
+	setGon,
 	setActive,
 	move,
 	
 	getElevation,
 	getAround,
-	// setMask,
+	setBound,
 	on
 }

@@ -588,6 +588,8 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
 }
 
 .mapboxgl-popup-close-button {
+	width: 16px;
+	height: 16px;
 	position: absolute;
 	right: 0;
 	top: 0;
@@ -811,6 +813,15 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
 	border: 0;
 	border-radius: 50%;
 }
+
+.mapbox-control-ruler{
+	background-position: center;
+	width: 30px;
+	height: 30px;
+	padding: 2px;
+	border: 0;
+}
+
 
 .mapboxgl-ctrl-geolocate {
 	background-position: center;

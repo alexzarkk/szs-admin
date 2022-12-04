@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import { deepTree } from "../../utils";
 export default {
 	name: "cl-dept-cascader",
 	props: {
@@ -79,7 +78,7 @@ export default {
 			this.$service.system.dept
 				.list({load:true})
 				.then((res) => {
-					this.list = deepTree(res);
+					this.list = this.zz.deepTree(res);
 					this.refreshTree(this.value);
 				})
 				.catch((err) => {

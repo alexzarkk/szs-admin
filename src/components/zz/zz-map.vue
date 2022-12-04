@@ -5,37 +5,11 @@
 	import mbtool from '@/comm/libs/mapbox/mbtool.js'
 	import comm from '@/comm/comm'
 	import icon from '@/comm/libs/icon'
-	import { CompassControl, TerrainControl, FullscreenControl } from '@/comm/libs/mapbox/ctrl/index.js'
+	import { CompassControl, TerrainControl, FullscreenControl, GridControl, RulerControl } from '@/comm/libs/mapbox/ctrl/index.js'
 	import { trans } from '@/comm/geotools.js'
 	import { amapKey } from '@/comm/bd'
 	
 	import '@/comm/libs/mapbox/mapbox.css'
-	// import '@/comm/libs/mapbox/draw/mapbox-gl-draw.css'
-	const geolocation = {
-		getCurrentPosition(_onSuccess){
-			uni.getLocation({
-				isHighAccuracy: true,
-				altitude: true,
-				success(c){
-					_onSuccess({coords:c})
-				}
-			})
-		},
-		watchPosition(_onSuccess){
-			uni.getLocation({
-				isHighAccuracy: true,
-				altitude: true,
-				success(c){
-					_onSuccess({coords:c})
-					window.wid = setTimeout(()=> { geolocation.watchPosition(_onSuccess) }, 3999)
-					return window.wid
-				}
-			})
-		},
-		clearWatch(wid){
-			clearTimeout(wid||window.wid)
-		}
-	}
 	
 export default {
 	data() {
@@ -52,7 +26,7 @@ export default {
 			settings: {
 				style: 'mapbox://styles/alexzarkk/ckqt2gqrc650n17nw67q4glqu',
 				container: 'mbContainer',
-				center: [121,29],
+				center: [120.109913, 29.181466],
 				zoom: 15,
 				minZoom: 3,
 				maxZoom: 20,
@@ -76,99 +50,45 @@ export default {
 		this.newMb()
 	},
 	methods: {
-		resize(e){
+		resize(){
 			let ct = document.getElementById('mbContainer')
-			ct.style.width = this.lay.width-10+'px'
-			ct.style.height = this.lay.height-10+'px'
-			this.map.resize()
+			if(ct) {
+				ct.style.width = this.lay.width-10+'px'
+				ct.style.height = this.lay.height-10+'px'
+				this.map.resize()
+			}
 		},
-		async newMb(){
+		newMb(){
 			let map = new mapboxgl.Map(this.settings)
 			
-			map.addControl(new CompassControl(), 'bottom-right')
-			// map.addControl(new LocationControl(), 'bottom-left')
-			this.geolocate = new mapboxgl.GeolocateControl({
-				positionOptions: { enableHighAccuracy: true, timeout: 10000, geocode: false },
-				trackUserLocation: true,
-				showUserHeading: true,
-				
-				// #ifdef APP-PLUS
-				geolocation: plus.geolocation
-				// #endif
-				 
-				// #ifdef H5
-				geolocation
-				// #endif
-			})
+			map.addControl(new CompassControl(), 'bottom-left')
+			map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
 			
-			map.addControl(this.geolocate, 'bottom-left')
-			// this.geolocate.on('geolocate', _p => {
-			// 	console.log('A geolocate event has occurred.', _p.timestamp ,_p.coords.longitude, _p.coords.latitude, _p.coords.altitude)
-			// })
-			
-			map.sid = 'default'
-			map.pm = {}
-			map.nav = {r:{}}
-			map._2p = []
+			map.zz = {sid:'default',pm:{},nav:{r:{}},_2p:[]}
+			// map.zz.sid = 'default'
+			// map.zz.pm = {}
+			// map.zz.nav = {r:{}}
+			// map.zz._2p = []
 			this.map = map
 		},
-		init(self,si,ct,isf,ctrl,t=1) {
-			let map = this.map
-			if(t==1) {
-				this.self = self
-				// this.isf = isf
-				// map.sysInfo = si
+		init(self,si,ct,isf) {
+			this.self = self
+			let map = this.map,
+				ctrl = new TerrainControl(isf, map.zz.sid, si.platform)
 				
-				ctrl = new TerrainControl(isf, map.sid, si.platform)
-				map.addControl(ctrl, 'top-left')
-				map.addControl(new mapboxgl.FullscreenControl());
-			}
+			map.addControl(ctrl, 'top-left')
 			
-			// #ifdef APP-PLUS
-			if(isf) {
-				const setTop = (x) => { for (let s of x) { s.style.marginTop = (si.safeArea.top-6)+'px' } }
-				setTop(document.getElementsByClassName('mapboxgl-ctrl-top-right'))
-				setTop(document.getElementsByClassName('mapboxgl-ctrl-top-left'))
-				// plus.screen.lockOrientation('landscape-primary')
-				// this.resize(si.platform=='android'?1:0)
-				this.resize(0)
-				
+			if(si.grid) {
+				map.ztsGrid = true
+				map.addControl(new GridControl(), 'top-left')
 			}
-			//无网重试
-			if(plus.networkinfo.getCurrentType()<=1 && t>0) {
-				let style = comm.getStorage('mbStyle')
-				if(style) {
-					map.setStyle(style)
-					return this.init(self,si,ct,isf,ctrl,0)
-				}
-				
-				t++
-				if(t>20) {
-					// alert('网络连接失败，请稍后重试')
-					uni.showToast({
-						icon:"error",
-						title:'网络连接失败，请稍后重试'
-					})
-				} else {
-					console.info('超时重载！！！！')
-					setTimeout(()=>{
-						map.remove()
-						this.newMb()
-						this.init(self,si,ct,isf,ctrl,t)
-					}, 10000)
-				}
-				return
-			}
-			// #endif
 			
 			 
-			// #ifdef H5
 			map.resize()
 			if(isf) {
 				this.resize()
 				window.addEventListener('resize', this.resize)
 			}
-			// #endif
 			
 			const evt = (e) =>{
 				let _c = (c)=>{return [mbtool.fixNum(c.lng), mbtool.fixNum(c.lat)]},
@@ -182,7 +102,7 @@ export default {
 			}
 			if(ct){
 				map.setZoom(14)
-				map.setCenter(map.sid=='amap'? trans([ct[0],ct[1]]): [ct[0],ct[1]])
+				map.setCenter(map.zz.sid=='amap'? trans([ct[0],ct[1]]): [ct[0],ct[1]])
 			}else{
 				map.setZoom(6.5)
 			}
@@ -212,6 +132,7 @@ export default {
 			}
 			
 			map.on('load', (e) => {
+				map.addControl(new RulerControl(), 'top-right')
 				ctrl.done()
 				map.init = true
 				self.callMethod('mapDone', true)
@@ -220,47 +141,48 @@ export default {
 				// this.geolocate.trigger()
 			})
 			map.on('moveend', (e) => {
-				// mbtool.on(map)
+				mbtool.on(map)
 				self.callMethod('mbEvent', evt(e))
 			});
 			map.on('zoomend', () => {
-				// mbtool.on(map)
+				mbtool.on(map)
 			})
 		},
 		
-		async updateData({exec=null, sysInfo={}, center=null, pms=null, line=[], point=[], gon=[], isf=false}, ov, self) {
+		async updateData({exec=null, option={}, center=null, pms=null, line=[], point=[], gon=[], isf=false}, ov, self) {
 			if(exec) return this[exec.m](exec.e)
 			let map = this.map
 			if (!map) return
-			if (!map.init) return this.init(self, sysInfo, center, isf)
+			if (!map.init) return this.init(self, option, center, isf)
 			
 			// console.log('map.inited...')
 			// console.log('updateData:=======================', center,point,line);
 			// console.log('updateData.old:====',ov);
-			mbtool.setMask(this.map, 330000)
+			
 			mbtool.setKml(this.map, pms, line, point, gon, false)
 		},
 		
-		onloc(){ mbtool.onLoc(this.map) },
-		stopLoc(){ comm.stopWatch() },
+		// onloc(){ mbtool.onLoc(this.map) },
+		setBound(e){ mbtool.setBound(this.map,e.e) },
 		fit(e){ mbtool.setActive(this.map,e) },
-		draw(e){
-			for (let pm of e) {
-				mbtool.setActive(this.map, pm, {}, true)
-			}
-		},
-		remove(){
-			for(let k in this.map.pm) {
-				clearTimeout(this.map['run' + k])
-				mbtool.removeObj(this.map, 'active_' + k)
-				mbtool.removeObj(this.map, k)
-			}
-			// this.map = {}
-		},
+		// draw(e){
+		// 	for (let pm of e) {
+		// 		mbtool.setActive(this.map, pm, {}, true)
+		// 	}
+		// },
+		// remove(){
+		// 	for(let k in this.map.zz.pm) {
+		// 		clearTimeout(this.map['run' + k])
+		// 		mbtool.removeObj(this.map, 'active_' + k)
+		// 		mbtool.removeObj(this.map, k)
+		// 	}
+		// 	// this.map = {}
+		// },
 		
 		setKml(e) { mbtool.setKml(this.map, null, e.line, e.point, e.gon, false) },
 		runx(e){ mbtool.run(this.map,e) },
 		getAround(e){ mbtool.getAround(this.map,null,e) },
+		onGrid(){mbtool.on(this.map,1)},
 		mbAct(e){
 			if(this[e.act]) {
 				this[e.act](e.e)
@@ -299,7 +221,7 @@ export default {
 			sysInfo: {},
 			isFullscreen: true,
 			video: null
-        };
+        }
     },
     props: {
 		pms: {
@@ -344,6 +266,19 @@ export default {
 		        return {}
 		    }
 		},
+		
+		
+		//组网路线
+		grid: {
+            type: Boolean,
+            default: true
+        },
+		//dept
+		dept: {
+		    type: Number,
+		    default: 330000
+		},
+		
         winH: {
             type: Number,
             default: 400
@@ -372,7 +307,7 @@ export default {
 				this.setProp()
 			}, 1000)
 			setTimeout(()=> {
-				this.exec({m:'draw', e } )
+				this.exec({m:'draw', e})
 			}, 2000);
 			
         },
@@ -412,9 +347,10 @@ export default {
 				}
 			} else {
 				this.mb = {
-				    sysInfo: this.sysInfo,
+				    option: {...this.sysInfo,dept:this.dept, grid:this.grid},
 					isf: this.isFullscreen,
 				    center: this._center,
+					grid: this.grid
 				}
 			}
         },
@@ -449,16 +385,11 @@ export default {
 					this.video = e.url
 					break;
 				case 'chgStyle':
-					this.zz.toast(e.e)
+					this.zz.toast(e.e, 3000, 'success')
 					this.setProp()
 					break;
 				case 'fullscreen':
 					if(e.e) {
-					// if(this.isFullscreen) {
-						// #ifdef APP-PLUS
-						plus.screen.lockOrientation('portrait-primary')
-						// #endif
-						
 						uni.navigateBack()
 					} else {
 						this.zz.href('/pages/comm/mapboxFullscreen', {pms: this.pms, line:this.line, point:this.point, gon:this.gon, refKml:this.refKml},0,'slide-in-bottom')

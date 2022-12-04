@@ -84,8 +84,8 @@ const comm = {
 	// #endif
 	
 	// #ifndef APP-PLUS
-	setStorage:(k,v)=> { uni.setStorageSync(k,v) },
-	getStorage:(k)=>{ return uni.getStorageSync(k) },
+	setStorage:(k,v)=> { window.uni.setStorageSync(k,v) },
+	getStorage:(k)=>{ return window.uni.getStorageSync(k) },
 	setNet:(e)=>{ window.hadNet = e },
 	hadNet(){ return window.hadNet },
 	// #endif

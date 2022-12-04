@@ -1,5 +1,3 @@
-const { async } = require("regenerator-runtime")
-
 const
 	isSame = (a,b)=>{ return (a&&b)&&(JSON.stringify(a)==JSON.stringify(b)) },
 	cd2Str = (c) => { return c[0] + '_' + c[1] },
@@ -98,7 +96,42 @@ const
 			return Object.prototype.toString.call(v) === "[object Array]"
 		}
 	},
-
+	purge=(v, d)=>{
+		let coord = [],
+			top, bottom
+			
+		if (v.length) {
+			let c1 = v[0]
+			top = c1[2]
+			bottom = c1[2]
+			coord.push([fixNum(c1[0], 5), fixNum(c1[1], 5), ~~c1[2]])
+			for (let i = 1; i < v.length - 1; i++) {
+				let c2 = v[i]
+				//取最高|最低
+				if (c2[2] > top) top = c2[2]
+				if (c2[2] < bottom) bottom = c2[2]
+				if (d) {
+					//直线距离
+					let _d = getDist(c1[0], c1[1], c2[0], c2[1], c1[2], c2[2])
+	
+					if (_d > d) {
+						c1 = v[i]
+						coord.push([fixNum(c1[0], 5), fixNum(c1[1], 5), ~~c1[2]])
+					}
+				} else {
+					c1 = v[i]
+					coord.push([fixNum(c1[0], 5), fixNum(c1[1], 5), ~~c1[2]])
+				}
+			}
+			c1 = v[v.length - 1]
+			coord.push([fixNum(c1[0], 5), fixNum(c1[1], 5), ~~c1[2]])
+		}
+		return {
+			coord: d ? coord : v,
+			top: math(top, 0),
+			bottom: math(bottom, 0)
+		}
+	},
 	calData = (v, chart) => {
 		let dElv = [],
 			top = 0, //最高
@@ -118,7 +151,9 @@ const
 			let c1 = v[0],
 				upDist = 0,
 				downDist = 0
-
+			
+			if(!c1[2]) c1[2] = 0
+			
 			//取最高|最低
 			if (c1[2] > top) top = c1[2]
 			if (c1[2] < bottom) bottom = c1[2]
@@ -126,7 +161,9 @@ const
 			dElv.push([0, c1[2]])
 			for (let i = 1; i < v.length; i++) {
 				let c2 = v[i]
-
+				
+				if(!c2[2]) c2[2] = c1[2]
+				
 				//取最高|最低
 				if (c2[2] > top) top = c2[2]
 				if (c2[2] < bottom) bottom = c2[2]
@@ -170,6 +207,7 @@ const
 		}
 
 		let info = {
+			size: v.length,
 			dElv,
 			top,
 			bottom,
@@ -184,7 +222,7 @@ const
 			upAngle,
 			downAngle
 		}
-		// console.log('calData ------------', info);
+		console.log('calData ------------', info);
 		//里程海拔图表
 		if (!chart) delete info.dElv
 		return info
@@ -223,26 +261,6 @@ const
 	getLocation = async (type = 'wgs84') => {
 		let loc = {}
 		return new Promise((res, rej) => {
-
-			// #ifdef APP-PLUS
-			plus.geolocation.getCurrentPosition(p => {
-				loc.p = p.coords
-				loc.coord = [fixNum(p.coords.longitude), fixNum(p.coords.latitude), ~~(p.coords.altitude || 0)]
-				res(loc)
-			}, (e) => {
-				geoErr(e)
-				rej(e)
-			}, {
-				timeout: 60000,
-				geocode: false,
-				coordsType: type,
-				provider: 'system',
-				enableHighAccuracy: true,
-			})
-			// #endif
-
-			// #ifndef APP-PLUS
-			
 			
 			// e = {
 			// 	"status":0,
@@ -281,7 +299,6 @@ const
 			// 		rej(e)
 			// 	}
 			// })
-			// #endif
 		})
 	},
 	
@@ -406,6 +423,7 @@ const geotools = {
 	dist,
 
 	trans,
+	purge,
 	calData
 }
 

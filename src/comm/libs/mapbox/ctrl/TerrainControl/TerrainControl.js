@@ -55,14 +55,14 @@ export default class TerrainControl extends Base {
 				this.around.node.style.display = ''
 			}
 			
-			if(this.map.sid=='amap') {
+			if(this.map.zz.sid=='amap') {
 				this.terrain.node.style.display = 'none'
 				this.ele.node.style.display = 'none'
 			} else {
 				this.terrain.node.style.display = ''
 				this.ele.node.style.display = ''
 			}
-			if(this.map.sid=='outdoor') {
+			if(this.map.zz.sid=='outdoor') {
 				this.ele.node.style.display = 'none'
 			}
 		}
@@ -116,14 +116,24 @@ export default class TerrainControl extends Base {
     insert() {
 		// this.terrain.addClassName('square-btn')
 		for (let k in this) {
-			if(this[k].node) {
+			if(this[k] && this[k].node) {
 				this[k].addClassName('rectangle-btn')
 			}
 		}
+		this.layer.node.title = '切换图层'
+		
 		this.around.node.style.display = 'none'
+		this.around.node.title = '显示/取消路网'
+		
 		this.ele.node.style.display = 'none'
+		this.ele.node.title = '显示/隐藏等高线'
+		
 		this.terrain.node.style.display = 'none'
+		this.terrain.node.title = '切换平面/3D地图'
+		
 		this.run.node.style.display = 'none'
+		this.run.node.title = '轨迹播放'
+		
 		this.setCtrl('none')
 		
 		this.layer.setIcon(iLoading())
@@ -335,20 +345,16 @@ export default class TerrainControl extends Base {
 			
 			let map = this.map
 			this.st ++
-			
-			//ios 跨域不支持 天地图
-			if(this.platform=='ios'&&this.st==2) this.st++
-			
 			if(this.st>3) this.st = 0
-			map.sid = lt[this.st].id
-			map.nav = {r:{}}
+			map.zz.sid = lt[this.st].id
+			map.zz.nav = {r:{}}
 			this.xDem()
 			this.xEle()
 			this.load()
 			
 			map.setStyle(lt[this.st].uri)
 			await map.once('idle')
-			window.mbAct({act:'onLoc'})
+			// window.mbAct({act:'onLoc'})
 			
 			this.done()
 			window.mbAct({act:'chgStyle',e:'已切换至：'+lt[this.st].name+' 地图'})

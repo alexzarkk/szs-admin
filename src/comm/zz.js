@@ -319,12 +319,15 @@ const
 		list.forEach(e => {
 			map[e._id] = e
 		})
+		
 		list.forEach(e => {
-			let parent = map[e.pid]
+			let pid = e.pid||e.parentId,
+				parent = map[pid]
+				
 			if (parent) {
 				(parent.children || (parent.children = [])).push(e)
 			} else {
-				if (!e.pid) {
+				if (!pid) {
 					newList.push(e)
 				}
 			}

@@ -20,8 +20,6 @@
 </template>
 
 <script>
-import { deepTree, revDeepTree } from "../../utils";
-
 export default {
 	name: "cl-dept-tree",
 	props: {
@@ -42,19 +40,19 @@ export default {
 
 	methods: {
 		refresh() {
-			this.loading = true;
-			this.$service.system.dept
-				.list({load:true})
-				.then((res) => {
-					this.list = deepTree(res);
+			this.loading = true
+			this.$service.system.dept.list({load:true}).then((res) => {
+					this.list = this.zz.deepTree(res)
 					if(this.list.length==1) this.rowClick(this.list[0])
-					this.$emit("loaded", this.list);
+					this.$emit("loaded", this.list)
+					
+					uni.setStorageSync('cur_dept_list', this.list)
 				}).done(() => {
 					this.loading = false;
 				});
 		},
 		rowClick(e) {
-			let ids = revDeepTree(e.children).map((e) => e.id);
+			let ids = this.zz.revDeepTree(e.children).map((e) => e.id);
 			ids.unshift(e.id)
 			this.$emit("check", ids)
 		}
@@ -64,7 +62,7 @@ export default {
 
 <style lang="scss" scoped>
 .cl-dept-tree {
-	height: calc(100% - 4px);
+	height: calc(100%);
 	width: 200px;
 	border: 1px solid #e9ecf1;
 	background-color: #eeeeee;
@@ -100,13 +98,13 @@ export default {
 	}
 	.scroller {
 		border-top: 1px solid #eaedf4;
-		height: calc(100% - 50px);
+		height: calc(100% - 40px);
 		box-sizing: border-box;
 		overflow-x: hidden;
 	}
 	
-	::el-tree-node__content {
-		height: 36px;
+	::v-deep .el-tree-node__content {
+		height: 32px;
 		span {
 			&:nth-child(2) {
 				display: flex;

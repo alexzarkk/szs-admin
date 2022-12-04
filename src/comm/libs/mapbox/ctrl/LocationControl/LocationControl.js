@@ -24,7 +24,7 @@ export default class LocationControl extends Base {
 				this.loc.node.childNodes[0].remove()
 				this.loc.setIcon(iconLocation())
 			})
-			this.map.flyTo({center: this.map.sid=='amap'? trans(p.coord):p.coord, zoom:16})
+			this.map.flyTo({center: this.map.zz.sid=='amap'? trans(p.coord):p.coord, zoom:16})
 		});
 		
         this.addButton(this.loc)

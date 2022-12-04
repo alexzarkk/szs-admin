@@ -1,22 +1,22 @@
 const prop = {
 	
-	1: 	{text: '轨迹', v:'LineString', width: 2,opacity: 0.7,color: "#880000"},
+	1: 	{text: '轨迹', v:'LineString', width: 3,opacity: 0.7,color: "#880000"},
 	2: 	{text: '坐标', v:'Point'},
 	3: 	{text: '区域', v:'Polygon'},
 	
 	9:  {text: '采集路线', width: 10, opacity: 0.3, color: '#00005f', dottedLine:true},
-	10: {text: '默认', width: 2,opacity: 0.7,color: "#ff5500"},
-	11: {text: '一级', width: 4,opacity: 0.7,color: "#aaaaff"},
-	12: {text: '二级', width: 4,opacity: 0.7,color: "#ffaaff"},
-	13: {text: '三级', width: 4,opacity: 0.7,color: "#ff00ff"},
-	101: {text: '山林道', width: 4,opacity: 0.7,color: "#aaff7f"},
-	102: {text: '防火道', width: 4,opacity: 0.7,color: "#ffaa00"},
-	103: {text: '古道', width: 4,opacity: 0.7,color: "#950000"},
-	104: {text: '机耕路', width: 3,opacity: 0.5,color: "#aa5500"},
-	105: {text: '硬化道', width: 4,opacity: 0.7,color: "#000000"},
-	106: {text: '连接道', width: 4,opacity: 0.7,color: "#00ffff"},
-	110: {text: '绿道', width: 4,opacity: 0.7,color: "#55ff7f"},
-	120: {text: '水道', width: 4,opacity: 0.8,color: "#55aaff"},
+	10: {text: '默认', width: 3,opacity: 0.7,color: "#ff5500", on:'#00ffff'},
+	11: {text: '一级', width: 4,opacity: 0.7,color: "#aaaaff", on:'#ff557f'},
+	12: {text: '二级', width: 4,opacity: 0.7,color: "#ffaaff", on:'#ff557f'},
+	13: {text: '三级', width: 4,opacity: 0.7,color: "#ff00ff", on:'#ff557f'},
+	101: {text: '山林道', width: 4,opacity: 0.7,color: "#aaff7f", on:'#ffff00'},
+	102: {text: '防火道', width: 4,opacity: 0.7,color: "#ffaa00", on:'#ffff00'},
+	103: {text: '古道', width: 4,opacity: 0.7,color: "#950000", on:'#ffff00'},
+	104: {text: '机耕路', width: 3,opacity: 0.5,color: "#aa5500", on:'#ffff00'},
+	105: {text: '硬化道', width: 4,opacity: 0.7,color: "#000000", on:'#ffff00'},
+	106: {text: '连接道', width: 4,opacity: 0.7,color: "#00ffff", on:'#ffff00'},
+	110: {text: '绿道', width: 4,opacity: 0.7,color: "#55ff7f", on:'#ffff00'},
+	120: {text: '水道', width: 4,opacity: 0.8,color: "#55aaff", on:'#ffff00'},
 	
 	190: {text: '我的', width: 6,opacity: 0.8,color: "#0055ff"},
 	192: {text: '打卡点', width: 1.4,opacity: 0.8,color: "#ff0000", dasharray:[2,1]},
@@ -65,8 +65,8 @@ const prop = {
 			color: "#dde5ff"
 		}
 	},
-	
-	'2bl1': {text: '路网轨迹', width: 1,opacity: 0.8,blur:0.5, color: "#3FB1CE", on:'#00ffff'},
+	'bound':{color: '#fff', width: 2, opacity: 0.6, cap: 'round', dasharray:[3,4,1,2,1] },
+	'2bl1': {text: '路网轨迹', width: 1, opacity: 0.8, blur:0.5, color: "#3FB1CE", on:'#00ffff'},
 	'2bl2': {text: '路网照片'}
 }
 
