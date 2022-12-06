@@ -283,7 +283,7 @@ import { mapGetters } from 'vuex';
 
 import { open, merge, check, veryfy, del, veri } from '@/cool/utils/pmCurd';
 import { upload } from '@/cool/utils/uploadKml.js';
-import { calData } from '@/comm/geotools';
+import { calData, isSame } from '@/comm/geotools';
 
 // import { coord2String, layerStyle, polygonToLine, createGeo, getAround, getElevation, pmTree, removeLayer } from '@/components/mapbox/utils/mbtool.js';
 
@@ -308,6 +308,17 @@ export default {
 				loading: false,
 				expand: true
 			},
+			refKml:null,
+			activeLine:null,
+			cur: {
+				pm: {},
+				sInfo:{},
+				line: { info: {} },
+				selectedTrack: {},
+				chartRender: false,
+				directionChart: false
+			},
+			
 			
 			
 			isMapDataReady: false,
@@ -317,14 +328,7 @@ export default {
 			maptype: '3D',
 			
 			directPoi: {},
-			cur: {
-				pm: {},
-				sInfo:{},
-				line: { info: {} },
-				selectedTrack: {},
-				chartRender: false,
-				directionChart: false
-			},
+			
 			activeName: '1',
 			trackEdit: false,
 
@@ -354,19 +358,12 @@ export default {
 			t10: null,
 			t29: null,
 			t9: [],
-			refKml: {
-				line: [],
-				point: []
-			},
+			
+			
+			
+			
 
-			marker: [],
-			polyline: [],
-			zx: [],
-
-			infowindow: {
-				content: '',
-				target: null
-			}
+			
 		};
 	},
 	computed: {
@@ -375,22 +372,10 @@ export default {
 			return [this.lay.height - 460, this.lay.width - (this.pm.expand? 416:16)]
 		}
 	},
-	watch: {
-		lay: {
-			deep: true,
-			handler(v) {
-				this.setWin();
-			}
-		}
-	},
 	activated() {
-		this.kmlRefresh(true);
-		// let memory = window.performance.memory.usedJSHeapSize
-		// console.log("map页面获得焦点（单位：MB）",(memory/1024)/1024)
+		this.kmlRefresh()
 	},
 	deactivated() {
-		// let memory = window.performance.memory.usedJSHeapSize
-		// console.log("map页面失去焦点（单位：MB）",(memory/1024)/1024)
 		this.activeName = '1';
 		this.polyline = [];
 		this.marker = [];
@@ -403,36 +388,20 @@ export default {
 		this.t29 = null;
 		this.t9 = [];
 
-		// window.m = null
 		this.reset();
 	},
 	mounted() {
-		this.setWin();
-		this.kmlRefresh(true);
-		
-		// let memory = window.performance.memory.usedJSHeapSize
-		// console.log("map页面加载时内存（单位：MB）",(memory/1024)/1024)
-		
-		
-	},
-	beforeDestroy() {
-		// let memory = window.performance.memory.usedJSHeapSize
-		// console.log("map页面销毁时内存情况（单位：MB）",(memory/1024)/1024)
-		delete window.m;
+		this.kmlRefresh()
 	},
 	methods: {
-		setZx(e) { this.zx = e },
-		setWin() {
-			this.winStyle = `width:${this.lay.width}px; height:${this.lay.height}px;`;
-		},
-		
+		exec(e){ this.$refs.zmap.exec(e) },
 		rowClick(e,c){
 			if (c.property && e.children) {
-				this.$refs["table"].toggleRowExpansion(e)
+				this.$refs.table.toggleRowExpansion(e)
 			} else {
 				this.acted = e
 			}
-			console.log(e,c);
+			console.log('rowClick',e,c);
 		},
 		rowCheck(z){
 			const set = (d) =>{
@@ -445,84 +414,45 @@ export default {
 			}
 			set(z)
 			this.pm = this.zz.clone(this.pm)
-			
-			// let pms = []
-			// const deep =(d)=>{
-			// 	if(d.children) {
-			// 		for (let s of d.children) {
-			// 			deep(s)
-			// 		}
-			// 	}else{
-			// 		if(d.checked) pms.push(d)
-			// 	}
-			// }
-			// for (let s of this.pm.list) {
-			// 	deep(s)
-			// }
 			this.setPms()
 			
 			console.log('line ----->', this.pms,this);
 		},
-		
-		
-		changeMapType(e) {
-			if (e == '3D' && !this.notified3D) {
-				this.$notify({ title: '提示', message: '按住鼠标右键并移动（查看3D地形）', offset: 100 });
-				this.notified3D = true;
-			}
-			// if (e == 'zj' && !this.notifiedZj) {
-			// 	this.$notify({ title: '提示', message: '浙江天地图提供影像和标注存在西南偏移20-30m情况，绘制或标注时请作参考使用', offset: 100 });
-			// 	this.notifiedZj = true;
-			// }
-		},
-		init(e) {
-			this.map = e.map;
-			this.draw = e.draw;
-			window.m = this;
-		},
 		reset() {
-			this.tmap.aroundLoc = null;
-			this.marker = [];
-			this.polyline = [];
-			this.activeLine = {};
-			this.refKml = { line: [], point: [] };
+			this.marker = []
+			this.polyline = []
+			this.activeLine = {}
+			this.refKml = null
 			this.kml.checked = []
-			if (this.maptype != 'tdt' && this.map) {
-				this.cancelDraw();
-				removeLayer(this.map);
-				try {
-					this.map.pp.remove();
-				} catch (e) {}
-			}
 		},
 
-		async kmlRefresh(center,force=0) {
-			if(force) {
-				let tp = this.maptype
-				this.maptype = ''
-				setTimeout(()=>{this.maptype=tp},1)
-			}
-			this.kml.loading = true; // 开始加载地图
-			let id = uni.getStorageSync('collect_check'); //  kml id ？
-			// console.log('获取到的id', id);
-			let kml = await this.$service.zts.kml.info({ id, noChild: true }); //   从这个id 获取到kml 的详情   === 当前的轨迹详情
-			// console.log('接口获取到的kml的数据', kml);
-			// this.$api.log(kml,'kml-info 接口数据==========================')
-			console.log('当前的kml---->', kml);
-			// this.$api.log(this.kml,"当前的this.kml")
-			let thiz = this
-			
-			//{label:"制图", value:6}
-			if (center){
-				setTimeout(function(){
-					if(kml.type==6) thiz.maptype = 'outdoor'
-				},1)
-			}
-			
-			
-			//是否改变了kml
-			if (!this.kml._id || this.kml._id != id) {
-				this.geo = null;
+		async kmlRefresh(force=0) {
+			let id = uni.getStorageSync('collect_check')
+			if (force || !this.kml._id || this.kml._id != id) {
+				this.pm.loading = true
+				let kml = await this.$service.zts.kml.info({ id, noChild: true })
+				
+				this.kml = kml
+				this.$service.zts.placemark.list({ kmlId: id, tree: true, force }).then(res => {
+					this.pm.loading = false
+					let keys = [],
+						checked = []
+					
+					if(res.length<100) {
+						for(let s of res) {
+							s.checked = true
+							if(s.kmlId) {
+								if(s.t1==1) s.info = calData(s.coord,true)
+								checked.push(s)
+							}
+							// if(typeof s._id == 'number') keys.push(s._id+'')
+						}
+					}
+					this.pm.list = this.zz.deepTree(res)
+					this.setPms()
+					console.log('获取到的标记点的信息placemark-list接口  ============', this.pms);
+				})
+				
 				if (kml.departmentId != 330000) {
 					// this.zz.ajax({
 					// 	url: './static/geo/chart/' + kml.departmentId + '.json'
@@ -535,59 +465,15 @@ export default {
 					// });
 				}
 				//采集时引用的轨迹
-				if (kml.type==9&&kml.kmlId) {
-					this.$service.zts.kml.info({ id: kml.kmlId }).then(res => {
-						// console.log('kml-info接口======================', res);
-						let refKml = revDeepTree(res.children),
-							line = [],
-							point = [];
-						for (let s of refKml) {
-							s.ref = true;
-							if (s.t1 == 1) line.push(s);
-							if (s.t1 == 2) point.push(s);
-						}
-						this.refKml.line = line;
-						this.refKml.point = point;
-					})
+				if (kml.type==9 && kml.kmlId) {
+					this.refKml = await this.$service.zts.kml.info({ id: kml.kmlId, plain:true })
 				}
 			}
-			this.kml = kml
-			this.pm = {
-				list: [],
-				keys: ['10','2','3'],
-				loading: true,
-				expand: true
-			}
-			
-			this.$service.zts.placemark.list({ kmlId: id, tree: true, force }).then(res => {
-				let keys = [],
-					checked = []
-				
-				if(res.length<100) {
-					for(let s of res) {
-						s.checked = true
-						if(s.kmlId) {
-							if(s.t1==1) s.info = calData(s.coord,true)
-							checked.push(s)
-						}
-						
-						// if(typeof s._id == 'number') keys.push(s._id+'')
-					}
-				}
-				this.pm = {
-					list: this.zz.deepTree(res),
-					keys,
-					loading: false,
-					expand: true
-				}
-				this.setPms()
-				console.log('获取到的标记点的信息placemark-list接口  ============', this.pms);
-			})
 		},
 		setPms(){
 			this.pms = this.zz.revDeepTree(this.pm.list).filter(e=>e.coord!=undefined)
 		},
-
+		
 		chartRefresh(time) {
 			this.cur.chartRender = false;
 			let thiz = this;
@@ -604,7 +490,6 @@ export default {
 		
 		
 		//tdt
-		
 		action(e){
 			console.log('map.action',e);
 			// if (!veri.call(this, {})) return;
@@ -625,7 +510,7 @@ export default {
 				case 'draw':
 					this.drawing = true
 					this.kmlDraw = e.pm
-					this.$refs.zmap.exec({m:'doDraw', e})
+					this.exec({m:'doDraw', e})
 					break;
 				case 'direct':
 					this.directPoi = e.pm
@@ -635,21 +520,7 @@ export default {
 					break;
 			}
 		},
-		markOn(e) {
-			// console.log(e)
-			if (e.e == 'edit') return open({ thiz: this, act: 'edit', pm: e.pm });
-			if (e.e == 'del') return del({ thiz: this, pm: e.pm });
-			if (e.e == 'direct') {
-				this.directPoi = e.pm;
-				return (this.cur.directionChart = true);
-			}
-			//move
-			this.cur.idx = e.idx;
-			this.cur.t1 = e.pm.t1;
-			this.cur.e = e.e;
-			e.pm[e.e] = true;
-			this.marker.splice(e.idx, 1, e.pm);
-		},
+		
 		//更新坐标位置
 		mkDbclick(e) {
 			if (this.cur.e == 'dragging') {
@@ -689,38 +560,25 @@ export default {
 		tcAction({ select, act }) {
 			console.log('tcAction', select);
 			if (act == 'select') {
-				let center
-				// console.log(select)
-				if (this.activeLine.id) {
+				if (this.activeLine) {
+					let coord
 					// 尾部相等
-					if (coord2String(this.activeLine.coord[this.activeLine.coord.length - 1]) == coord2String(select.coord[select.coord.length - 1])) {
-						center = select.coord[0];
-					} else if (coord2String(this.activeLine.coord[0]) == coord2String(select.coord[0])) {
-						center = select.coord[select.coord.length - 1];
-						
-					} else {
-						center = select.coord[(select.coord.length / 2).toFixed(0) * 1];
+					if (isSame(this.activeLine.coord[this.activeLine.coord.length - 1],select.coord[select.coord.length - 1])) {
+						coord = select.coord[0]
+					} else if (isSame(this.activeLine.coord[0],select.coord[0])) {
+						coord = select.coord[select.coord.length - 1]
 					}
-				} else {
-					center = select.coord[(select.coord.length / 2).toFixed(0) * 1];
+					setTimeout(()=>{
+						if(coord) this.exec({m:'fly', e: {coord}})
+					}, 1200)
 				}
-				this.activeLine = { id: 'selected', coord: select.coord };
-				
-				this.cur.sInfo = this.zz.geo.calData(select.coord)
-				this.map.flyTo({center})
-				return (this.cur.selectedTrack = select);
-			}
-			if (act == 'addPoint') {
-				this.$notify({
-					title: '提示',
-					message: '请用鼠标在地图上选取坐标位置',
-					position: 'bottom-right'
-				});
-				return this.$refs.mousetool.open('markTool');
+				this.activeLine = {id: 'selected', coord: select.coord}
+				this.exec({m:'fit', e:{pm:this.activeLine,opt:{t:30}}})
+				this.cur.sInfo = calData(select.coord)
+				return this.cur.selectedTrack = select
 			}
 			if (act == 'reverse') {
 				let pm = this.cur.line;
-				// if(pm.t2==10) return this.$message.error("原始采集轨迹不支持更新操作！")
 				return this.updateCoord(pm._id, pm.coord.reverse());
 			}
 			if (act == 'merge') {
@@ -772,17 +630,20 @@ export default {
 				upload.call(this, {
 					kml: null,
 					e: { coord: false },
-					kt: this.kml.cur.type,
+					kt: this.kml.type,
 					fn: async (pms,data) => {
 						for (let s of pms) {
 							// return console.log({...s, ...data, kmlId: this.kml.cur._id});
-							await this.$service.zts.placemark.add({...s, ...data, kmlId: this.kml.cur._id})
+							await this.$service.zts.placemark.add({...s, ...data, kmlId: this.kml._id})
 						}
-						this.reset();
-						this.kmlRefresh();
+						this.reset()
+						this.kmlRefresh()
+						if (this.kml.status >= 10) {
+							this.$service.zts.kml.createChart({ _id: this.kml._id })
+						}
 					}
-				});
-				if (this.kml.cur.status >= 10) this.$service.zts.kml.createChart({ _id: this.kml.cur._id });
+				})
+				
 			}
 		},
 		download() {
@@ -838,12 +699,12 @@ export default {
 		// mapbox ----------------------------------------- /////////////////// >
 		doDraw(e) {
 			if (!veri.call(this, {})) return
-			this.$refs.zmap.exec({m:'doDraw', e:{e}})
+			this.exec({m:'doDraw', e:{e}})
 			this.drawing = true
 		},
 		continueDraw() {
 			let coord = this.drawed.pm.coord
-			this.$refs.zmap.exec({m:'doDraw', e:{
+			this.exec({m:'doDraw', e:{
 													e:'draw_line_string',
 													name:this.drawed.pm.name,
 													o:{
@@ -856,7 +717,7 @@ export default {
 			this.drawing = false
 			this.drawed = null
 			
-			this.$refs.zmap.exec({m:'finishDraw', e:{pm:this.kmlDraw}})
+			this.exec({m:'finishDraw', e:{pm:this.kmlDraw}})
 			this.kmlDraw = null
 		},
 		drawEvt(e) {

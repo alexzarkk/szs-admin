@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import VueEcharts from "vue-echarts";
+// import VueEcharts from "vue-echarts";
 
 export default {
 	components: {

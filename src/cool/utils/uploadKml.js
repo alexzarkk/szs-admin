@@ -66,7 +66,7 @@ export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"})
 						onUpload: async (e)=>{
 							let {placemark, geojson} = await kml2Geo(e)
 							this.placemark = placemark
-							// console.log(this.placemark)
+							console.log(this.placemark)
 							this.$notify({
 							  title: '文件信息',
 							  dangerouslyUseHTMLString: true,

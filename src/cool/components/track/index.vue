@@ -2,8 +2,8 @@
 	<div class="system">
 		<div class="pane">
 			<!-- chart -->
-			<div class="dept" @mouseup="mup" v-loading="loading">
-				<v-chart ref="bar" :option="option" @datazoom="datazoom" autoresize></v-chart>
+			<div class="dept" v-loading="loading" @mouseup="mup">
+				<l-echart ref="chart" @finished="init"></l-echart>
 			</div>
 
 			<!-- 菜单 -->
@@ -89,44 +89,28 @@
 <script>
 
 import { math, clone, getDist, calData } from '@/comm/geotools'
-// import elDragDialog from "./el-dragDialog";
-
-
-// import { use } from 'echarts/core';
-// import { CanvasRenderer } from 'echarts/renderers';
-// import { PieChart } from 'echarts/charts';
-// import {
-//   TitleComponent,
-//   TooltipComponent,
-//   LegendComponent,
-// } from 'echarts/components';
-// import VChart, { THEME_KEY } from 'vue-echarts';
-// import { ref, defineComponent } from 'vue';
-
-// use([
-//   CanvasRenderer,
-//   PieChart,
-//   TitleComponent,
-//   TooltipComponent,
-//   LegendComponent,
-// ]);
-
-
-
-
-
-import VChart, { THEME_KEY } from 'vue-echarts';
-import { use } from 'echarts/core'
+import elDragDialog from "./el-dragDialog"
+import * as echarts from 'echarts'
+import { TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, DataZoomComponent } from 'echarts/components'
+import { LineChart } from 'echarts/charts'
+import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
-import { TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, DataZoomComponent, LegendComponent, VisualMapComponent,TimelineComponent,CalendarComponent } from 'echarts/components'
-import { LineChart } from 'echarts/charts';
 
-use([TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, DataZoomComponent, LegendComponent,VisualMapComponent,TimelineComponent,CalendarComponent, LineChart, CanvasRenderer]);
+echarts.use([
+	TitleComponent,
+	ToolboxComponent,
+	TooltipComponent,
+	GridComponent,
+	DataZoomComponent,
+	LineChart,
+	CanvasRenderer,
+	UniversalTransition
+])
+import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
 
 export default {
-	components: { VChart },
+	components: { LEchart },
 	directives: { elDragDialog },
-	provide: { [THEME_KEY]: 'dark' },
 	props: {
 		pm: { type: Object },//坐标数组。
 		btn: {type: Array },
@@ -201,15 +185,15 @@ export default {
 				}
 			}
 		},
-		selected: {
-			handler(v) {
-				this.getSelect()
-			}
-		}
+		// selected: {
+		// 	handler(v) {
+		// 		this.getSelect()
+		// 	}
+		// }
 	},
 	mounted() {
 		console.log('chart ..................');
-		this.init()
+		// this.init()
 	},
 	methods: {
 		init(v){
@@ -278,6 +262,16 @@ export default {
 					}
 				]
 			}
+			
+			this.$refs.chart.init(echarts, 'dark', chart => {
+				chart.setOption(this.option)
+				chart.on('datazoom', (e) => {
+					this.datazoom(e)
+				})
+				chart.on('mouseup', (e) => {
+					console.log('mouseupmouseup');
+				});
+			})
 			// console.log('海拔图初始化',JSON.parse(JSON.stringify(this.option)));
 		},
 		getSelect(){

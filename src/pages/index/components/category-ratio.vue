@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import ECharts from "vue-echarts";
-import "echarts";
+// import ECharts from "vue-echarts";
+import echarts from "echarts";
 
 export default {
 	components: {

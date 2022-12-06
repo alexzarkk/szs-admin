@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import VueEcharts from "vue-echarts";
+// import VueEcharts from "vue-echarts";
 import echarts from "echarts";
 
 export default {

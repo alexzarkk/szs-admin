@@ -178,7 +178,7 @@ export default {
 			let ext = [];
 			switch (this.fileType) {
 				case "kml":
-					ext = ['kml'];
+					ext = ['kml','kmz','gpx'];
 					break;
 				case "pdf":
 					ext = ['pdf'];
