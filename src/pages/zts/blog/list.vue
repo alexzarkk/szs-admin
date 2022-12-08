@@ -26,19 +26,19 @@
                             <cl-filter label="状态">
                                 <el-select size="mini" v-model="status" @change="refresh()">
                                     <el-option value="" label="全部"></el-option>
-                                    <el-option :value="1" label="草稿"></el-option>
-                                    <el-option :value="2" label="待审核"></el-option>
-                                    <el-option :value="10" label="已审核"></el-option>
+                                    <el-option :value="0" label="待审核"></el-option>
+                                    <el-option :value="4" label="未通过"></el-option>
+                                    <el-option :value="10" label="已通过"></el-option>
                                 </el-select>
                             </cl-filter>
-                            <cl-filter label="类型">
+                            <!-- <cl-filter label="类型">
                                 <el-select size="mini" v-model="type" @change="refresh()">
                                     <el-option :value="0" label="全部"></el-option>
                                     <block v-for="(t, index) in article" :key="index">
                                         <el-option :value="t.value" :label="t.label"></el-option>
                                     </block>
                                 </el-select>
-                            </cl-filter>
+                            </cl-filter> -->
                             <cl-search-key />
                         </el-row>
 
@@ -105,15 +105,20 @@
 
                                 <template #column-img="{ scope }">
                                     <template v-if="scope.row.imgs && scope.row.imgs.length>0">
-                                        <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.imgs" :preview-src-list="scope.row.imgs">
+                                        <el-image v-for="(item,index) in scope.row.imgs" :key="index" style="width: 100px; height: 100px" fit="cover" :src="item" :preview-src-list="scope.row.imgs">
                                         </el-image>
                                     </template>
                                 </template>
                                 <template #column-status="{ scope }">
                                     <!-- :type="st[scope.row.status].type|| 'primary'" -->
-                                    <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
+                                    <el-tag v-if="scope.row.status!==null&&scope.row.status!==undefined" size="small" effect="dark" :type="st[scope.row.status].type">
                                         <!-- {{scope.row.status}} -->
                                         {{ st[scope.row.status].text }}
+                                    </el-tag>
+                                    <el-tag v-else size="small" effect="dark">
+                                        待审核
+                                        <!-- {{scope.row.status}} -->
+                                        <!-- {{ st[scope.row.status].text }} -->
                                     </el-tag>
                                 </template>
 
@@ -145,7 +150,7 @@
 			<zz-qrcode :url="shareUrl"></zz-qrcode>
 		</el-dialog> -->
         <!-- 审核组件 -->
-        <zts-audit tar="blog" :cur="cur" @refresh="refresh"></zts-audit>
+        <zts-audit tar="blog" :cur="cur" :tt="2" @refresh="refresh"></zts-audit>
 
     </cl-layout>
 </template>
@@ -268,8 +273,9 @@ export default {
                 this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?v=${v}`
                 // this.iframeLink = `http://localhost:8081/h5/#${obj.path}?v=${v}`
             } else {
-                // this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
                 this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
+                // this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
+                // this.iframeLink = `http://localhost:8081/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
             }
 
             console.log("更新iframeLink", this.iframeLink)

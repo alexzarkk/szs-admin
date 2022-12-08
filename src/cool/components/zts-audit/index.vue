@@ -62,29 +62,30 @@
 
 <script>
 export default {
-	props: {
-	    cur: {  // 审核的对象 必须包含以下参数 {name,_id,userId}
-	        type: Object,
-	        require: true
-	    },
-	    // 审核资源对应的请求的内容
-	    tt: {
-	        type: Number,
-			require: true
-	    },
-	    // 发短信使用的type
-	    type: {
-	        type: String, default: ''
-	    },
-		
-	    // 自定义处理审核参数
-	    onDo: Function,
-	    // 是否发送短信
-	    sendSMS: {
-	        type: Boolean,
-	        default: false
-	    }
-	},
+    props: {
+        cur: {  // 审核的对象 必须包含以下参数 {name,_id,userId}
+            type: Object,
+            require: true
+        },
+        // 审核资源对应的请求的内容
+        tt: {
+            type: Number,
+            require: true
+        },
+        // 发短信使用的type
+        type: {
+            type: String,
+            default: ''
+        },
+
+        // 自定义处理审核参数
+        onDo: Function,
+        // 是否发送短信
+        sendSMS: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
         return {
             loading: false,
@@ -108,7 +109,7 @@ export default {
             }
         };
     },
-    
+
     watch: {
         cur: {
             deep: true,
@@ -139,19 +140,20 @@ export default {
             const vali = await this.$refs.examineForm.validate()
             console.log("审核结果=======", this.examineObj, this.cur)
             console.log("修改的表======", this.tar)
-			
+
             if (!vali) {
 
             } else {
                 if (this.onDo) {  // 使用自定义函数来处理审核结果
                     await this.onDo(this.examineObj)
                 } else {
-                    await this.$service.system.audit.add({ 
-						...this.examineObj,
-						tt: this.tt,
-					    tid: this.cur._id,
-						status: Number(this.examineObj.status) })
-					
+                    await this.$service.system.audit.add({
+                        ...this.examineObj,
+                        tt: this.tt,
+                        tid: this.cur._id,
+                        status: Number(this.examineObj.status)
+                    })
+
                     this.$message.success("保存成功！")
                     this.$emit('refresh')
                 }

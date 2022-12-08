@@ -34,7 +34,7 @@
                         </el-row>
 
                         <el-row type="flex">
-                            <cl-table style="width:80%;" :contextMenu="[]" :props="{
+                            <cl-table :contextMenu="[]" :props="{
 										'default-sort': {
 											prop: 'createTime',
 											order: 'descending'
@@ -125,7 +125,7 @@
                                     <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
                                 </template>
                             </cl-table>
-                            <zz-iframe :iframeLink="iframeLink"></zz-iframe>
+                            <!-- <zz-iframe :iframeLink="iframeLink"></zz-iframe> -->
                         </el-row>
 
                         <el-row type="flex">
@@ -184,13 +184,13 @@ export default {
                 dpids: this.dpids,
                 type: this.type,
                 status: this.status
-				
+
             });
         },
         onCrudLoad({ ctx, app }) {
             ctx.service(this.$service.zts.article).done();
             app.refresh({
-				pc: 1,
+                pc: 1,
                 page: 1,
                 isoDept: true
             });
@@ -204,11 +204,11 @@ export default {
         },
 
         detail(e) {
-			this.zz.openWin({
-				url: 'https://'+(this.zz.isDev?'test':'zts')+'.5618.co/h5/#/pages/share?path=/pages/planning/article&id='+e._id,
-				w: 380,
-				h: 780
-			})
+            this.zz.openWin({
+                url: 'https://' + (this.zz.isDev ? 'test' : 'zts') + '.5618.co/h5/#/pages/share?path=/pages/planning/article&id=' + e._id,
+                w: 380,
+                h: 780
+            })
         },
         toAudit(e) {
             this.cur = {}
