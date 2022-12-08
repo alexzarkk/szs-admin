@@ -126,7 +126,7 @@
 </template>
 
 <script>
-// import { upload } from '@/cool/utils/uploadKml.js';
+import { upload } from '@/cool/utils/uploadKml.js';
 import { dept } from "@/comm/dict"
 // import { prop } from "@/cool/utils/dict"
 // import { openWin } from "@/cool/utils"
@@ -191,7 +191,7 @@ export default {
 			this.selected = e
 		},
 		edit(kml) {
-			upload.call(this, { kml , e:{coord:false, ids: getCids(this.userInfo.departmentId)}, kt: [ {label:"绘制草稿", value:2}] });
+			upload.call(this, { kml , e:{coord:false, ids: dept.getCids(this.userInfo.departmentId)}, kt: [{label:"绘制草稿", value:2}] })
 		},
 		draw(e) {
 			uni.setStorageSync('collect_check', e._id)

@@ -157,7 +157,8 @@ export default {
 		},
 		
 		setBound(e){ mbtool.setBound(this.map,e.e) },
-		fit(e){ mbtool.setActive(this.map,e) },
+		fit(e){ mbtool.setActive(this.map, e.pm, e.opt||{}) },
+		fly(e){ this.map.flyTo({center:e.coord, zoom:16, bearing: e.curDrect||0}) },
 		fitBounds(e){
 			this.map.fitBounds(mbtool.turf.box(this.map.zz.sid=='amap'? trans(e): e), {
 				duration: 6000,
@@ -385,7 +386,7 @@ export default {
             if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.setProp()
         },
         cur(e, o) {
-            this.exec({m:'fit', e})
+            this.exec({m:'fit', e:{pm:e}})
         },
         refKml(e, o) {
             if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.mb = { exec: {m:'setKml', e} }

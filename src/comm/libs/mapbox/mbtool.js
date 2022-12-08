@@ -154,7 +154,10 @@ htmlLine = (t, add)=>{
 	return  h
 },
 
-setActive = (map, pm, opt = {}, loop) => {
+setActive = (map, pm, opt={}, loop) => {
+	
+	console.log(opt,'setActive');
+	
 	return new Promise((res, rej) => { 
 		if(!pm||!pm.coord) return
 		
@@ -248,7 +251,7 @@ setActive = (map, pm, opt = {}, loop) => {
 			
 			map.zz.running = setTimeout(()=>{go(g,idx,count)}, 33)
 		}
-		go(geo.data, 0, Math.ceil(coord.length/120))
+		go(geo.data, 0, Math.ceil(coord.length/opt.t||100))
 	})
 },
 

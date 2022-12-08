@@ -20,15 +20,10 @@ async function kml2Geo(file){
 	let placemark
 	return new Promise((resolve, reject) => {
 		reader.onload = function () {
-			// try{
-				const kml = new DOMParser().parseFromString(this.result, 'utf8')
-				let geojson = tj.kml(kml, { styles: true })
-				// console.log(geojson)
-				handleGeojson(geojson)
-				placemark = geo2Placemark(geojson)
-			// }catch(e){
-				// reject(new Error('文件读取失败,请上传正确的kml文件'))
-			// }
+			const kml = new DOMParser().parseFromString(this.result, 'utf8')
+			let geojson = tj.kml(kml, { styles: true })
+			handleGeojson(geojson)
+			placemark = geo2Placemark(geojson)
 			resolve({placemark, geojson})
 		}
 	})
@@ -60,7 +55,7 @@ function handleGeojson(gj, tns) {
 					if(x.type === "Point") {
 						 point ++
 						 let e = x.coordinates
-						 x.coordinates = [fixNum(e[0],5), fixNum(e[1],5), ~~e[2]]
+						 x.coordinates = [fixNum(e[0]), fixNum(e[1]), ~~e[2]]
 					}
 					if(x.type === "LineString") {
 						line ++
@@ -73,13 +68,13 @@ function handleGeojson(gj, tns) {
 			if(s.geometry.type === "Point") {
 				 point ++
 				 let e = s.geometry.coordinates
-				 s.geometry.coordinates = [fixNum(e[0],5), fixNum(e[1],5), ~~e[2]]
+				 s.geometry.coordinates = [fixNum(e[0]), fixNum(e[1]), ~~e[2]]
 			}
 			if(s.geometry.type === "LineString") {
 				line ++
 				let {coord} = purge(s.geometry.coordinates, 12)
 				s.geometry.coordinates = coord
-				// s.geometry.coordinates.map(e => [fixNum(e[0],5), fixNum(e[1],5), ~~e[2]])
+				// s.geometry.coordinates.map(e => [fixNum(e[0]), fixNum(e[1]), ~~e[2]])
 			}
 			s.properties = {
 				name: s.properties.name || '未命名' ,
