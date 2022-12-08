@@ -138,9 +138,9 @@
             </div>
         </div>
 
-        <el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
+        <!-- <el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
             <zz-qrcode :url="shareUrl"></zz-qrcode>
-        </el-dialog>
+        </el-dialog> -->
 
         <zts-audit :tt="10" :cur="cur" @refresh="refresh()"></zts-audit>
 
@@ -155,25 +155,25 @@ export default {
     data() {
         return {
             iframeLink: 'https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9', // H5显示的内容的链接
-            article,
+            article,  // 文章字典
             articleO: this.zz.toObj(article),
-            depts: dept.getLabel(),
-            st: poi.st,
-            type: '',
-            status: '',
-            expand: this.$store.getters.userInfo.isLeaf,
+            depts: dept.getLabel(),  // 获取部门
+            st: poi.st,  // 字典
+            type: '',  // 文章分类筛选
+            status: '',  // 文章审核状态筛选
+            // expand: this.$store.getters.userInfo.isLeaf,
 
-            preview: false,
-            shareUrl: '',
+            // preview: false,  // 扫码预览的modal控制
+            // shareUrl: '',
 
-            cur: {}
+            cur: {}  // 当前正在审核的部分
         };
     },
     mounted() { },
     methods: {
-        deptExpand() {
-            this.expand = !this.expand;
-        },
+        // deptExpand() {
+        //     this.expand = !this.expand;
+        // },
         deptSet(e) {
             this.dpids = e
             this.refresh()

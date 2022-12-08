@@ -33,7 +33,8 @@ export default {
 
 <style lang="scss" scoped>
 .bg-mobile {
-    width: 425px;
+    min-width: 425px;
+	width: 425px;
     height: 900px;
     margin-left: 20px;
     background-image: url(https://v1.uviewui.com/common/iPhoneX_model.png);
@@ -47,6 +48,7 @@ export default {
             left: 24px;
             // width: 100%;
             min-width: 375px;
+			width: 375px;
             height: 800px;
             border-radius: 30px;
             border: none;
