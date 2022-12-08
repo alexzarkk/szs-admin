@@ -193,6 +193,8 @@ kmlType = [
 	{ label: "巡线采集", value: 80 },
 
 	{ label: "推荐路线", value: 60 },
+	{ label: "赛事活动", value: 62 },
+	{ label: "登顶打卡", value: 64 },
 	{ label: "组网路线", value: 99 },
 	{ label: "我的记录", value: 100 }
 ],
