@@ -85,15 +85,15 @@
 										}
 									]">
                                 <!-- 时间 -->
-                               <template #column-createTime="{ scope }">
-                                   {{ scope.row.updateTime }}
-                               </template>
-							   <template #column-user="{ scope }">
-								   <view class="flex align-center justify-center">
-									<el-image style="width: 30px; height: 30px" fit="cover" :src="scope.row.userInfo.headImg" :preview-src-list="[scope.row.userInfo.headImg]"/>
-									<text class="margin-left-xs">{{ scope.row.userInfo.name }}</text>
-								   </view>
-							   </template>
+                                <template #column-createTime="{ scope }">
+                                    {{ scope.row.updateTime }}
+                                </template>
+                                <template #column-user="{ scope }">
+                                    <view class="flex align-center justify-center">
+                                        <el-image style="width: 30px; height: 30px" fit="cover" :src="scope.row.userInfo.headImg" :preview-src-list="[scope.row.userInfo.headImg]" />
+                                        <text class="margin-left-xs">{{ scope.row.userInfo.name }}</text>
+                                    </view>
+                                </template>
                                 <template #column-type="{ scope }">
                                     <block v-for="(i, idx) of scope.row.type" :key="idx">
                                         <el-tag size="mini" style="margin-left: 4px;" :class="'bg-'+articleO[i].color" effect="plain">
@@ -104,9 +104,9 @@
 
                                 <template #column-imgs="{ scope }">
                                     <template v-if="scope.row.imgs.length">
-										<block v-for="(i, idx) of scope.row.imgs" :key="idx">
-										    <el-image style="width: 60px; height: 60px" fit="cover" :src="i" :preview-src-list="scope.row.imgs"/>
-										</block>
+                                        <block v-for="(i, idx) of scope.row.imgs" :key="idx">
+                                            <el-image style="width: 60px; height: 60px" fit="cover" :src="i" :preview-src-list="scope.row.imgs" />
+                                        </block>
                                     </template>
                                 </template>
                                 <template #column-status="{ scope }">
@@ -136,9 +136,9 @@
             </div>
         </div>
 
-        <el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
+        <!-- <el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
             <zz-qrcode :url="shareUrl"></zz-qrcode>
-        </el-dialog>
+        </el-dialog> -->
 
         <zts-audit :tt="10" :cur="cur" @refresh="refresh()"></zts-audit>
 
@@ -181,14 +181,14 @@ export default {
                 dpids: this.dpids,
                 type: this.type,
                 status: this.status
-				
+
             });
         },
         onCrudLoad({ ctx, app }) {
             ctx.service(this.$service.zts.article).done();
             app.refresh({
-				ui: 1,
-				app: 1,
+                ui: 1,
+                app: 1,
                 page: 1,
                 isoDept: true
             });
@@ -201,10 +201,17 @@ export default {
             });
         },
 
+        // detail(e) {
+        // 	console.log(e);
+        //     this.preview = true
+        //     this.shareUrl = 'path=/pages/planning/article&id=' + e._id
+        // },
         detail(e) {
-			console.log(e);
-            this.preview = true
-            this.shareUrl = 'path=/pages/planning/article&id=' + e._id
+            this.zz.openWin({
+                url: 'https://' + (this.zz.isDev ? 'test' : 'zts') + '.5618.co/h5/#/pages/share?path=/pages/my/social/pushDetails&id=' + e._id,
+                w: 380,
+                h: 780
+            })
         },
         toAudit(e) {
             this.cur = {}
