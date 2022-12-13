@@ -270,17 +270,21 @@ export default {
                     tid: e.tid,  // 内容id，必传
                     commentId: e.pid // 主评论的id
                 }))
-                this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?v=${v}`
-                // this.iframeLink = `http://localhost:8081/h5/#${obj.path}?v=${v}`
-            } else {
-                this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
-                // this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
-                // this.iframeLink = `http://localhost:8081/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
-            }
 
+                console.log('vue 环境变量==============', process.env.NODE_ENV === "development")
+                if (process.env.NODE_ENV === "development") {
+                    this.iframeLink = `http://localhost:8081/h5/#${obj.path}?v=${v}`
+                } else {
+                    this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?v=${v}`
+                }
+            } else {
+                if (process.env.NODE_ENV === "development") {
+                    this.iframeLink = `http://localhost:8081/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
+                } else {
+                    this.iframeLink = `https://zts.5618.co/h5/#${obj.path}?id=${e.tid}&_id=${e.tid}`
+                }
+            }
             console.log("更新iframeLink", this.iframeLink)
-            // this.preview = true
-            // this.shareUrl = 'path=/pages/planning/article&id=' + e._id
         },
         toAudit(e) {
             this.cur = {}
