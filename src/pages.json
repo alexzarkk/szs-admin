@@ -39,7 +39,10 @@
 				{ "path": "article/edit" },
 				{ "path": "moment/list" },
 				{ "path": "moment/edit" },
-				{ "path": "blog/list" }
+				{ "path": "blog/list" },
+				{ "path": "home/banner"},
+				{ "path": "home/grid" },
+				{ "path": "home/hotLine" }
 			]
 		}
 	],
