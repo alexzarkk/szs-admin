@@ -1,39 +1,43 @@
 <template>
     <!-- 首页 - 轮播图管理 -->
-    <cl-layout>
-        <div class="system-user">
-            <div class="pane">
-                <div class="user">
-                    <cl-crud ref="crud" @load="onCrudLoad" boder>
-                        <el-row type="flex">
-                            <cl-refresh-btn />
-                            <cl-add-btn></cl-add-btn>
-                            <!-- <el-button size="mini" type="primary">新增</el-button> -->
-                            <cl-multi-delete-btn />
-                        </el-row>
-                        <el-row type="flex">
-                            <cl-table :columns="columns">
-                                <!-- 时间 -->
-                                <!-- <template #column-createTime="{ scope }">
-                                    {{ scope.row.updateTime }}
-                                </template> -->
-                            </cl-table>
-                        </el-row>
+    <!-- 
+        当前部门 + 
 
-                        <el-row type="flex">
-                            <cl-flex1 />
-                            <cl-pagination />
-                        </el-row>
-                        <!-- 轮播图编辑表单 -->
-                        <cl-upsert ref="upsert" v-bind="upsert.props" :items="upsert.items" :on-submit="onUpsertSubmit" @open="onUpsertOpen"></cl-upsert>
-                    </cl-crud>
-                </div>
-            </div>
-        </div>
+
+
+
+     -->
+    <cl-layout>
+        <!-- @load="onCrudLoad" -->
+        <cl-crud ref="crud" boder @load="onCrudLoad">
+            <el-row type="flex">
+                <cl-refresh-btn />
+                <cl-add-btn></cl-add-btn>
+                <!-- <el-button size="mini" type="primary">新增</el-button> -->
+                <cl-multi-delete-btn />
+            </el-row>
+            <el-row type="flex">
+                <cl-table :columns="columns">
+                    <!-- 时间 -->
+                    <template #column-isShow="{ scope }">
+                        {{ scope.row.isShow?'显示':'不显示' }}
+                    </template>
+                </cl-table>
+            </el-row>
+
+            <el-row type="flex">
+                <cl-flex1 />
+                <cl-pagination />
+            </el-row>
+            <!-- 轮播图编辑表单 -->
+            <cl-upsert ref="upsert" v-bind="upsert.props" :items="upsert.items"></cl-upsert>
+        </cl-crud>
     </cl-layout>
 </template>
 
 <script>
+
+import { paramsService } from './paramsHelp'
 
 export default {
     data() {
@@ -43,6 +47,11 @@ export default {
                     type: 'selection',
                     align: 'center',
                     width: '60'
+                },
+                {
+                    prop: 'id',
+                    label: '编号',
+                    align: 'center'
                 },
                 {
                     prop: 'title',
@@ -55,7 +64,7 @@ export default {
                     align: 'center'
                 },
                 {
-                    prop: 'remark',
+                    prop: 'isShow',
                     label: '是否加入轮播图展示',
                     align: 'center'
                 },
@@ -65,12 +74,12 @@ export default {
                     align: 'center'
                 },
                 {
-                    prop: 'cover',
+                    prop: 'pagePath',
                     label: '目标类型',  // 文章  /  专题 / 赛事  / 活动
                     align: 'center'
                 },
                 {
-                    prop: 'cover',
+                    prop: 'pageParams',
                     label: '指定编号',
                     align: 'center'
                 },
@@ -78,7 +87,7 @@ export default {
                     label: '操作',
                     align: 'center',
                     type: 'op',
-                    buttons: ['']
+                    buttons: ['edit']
                 }
             ],
             upsert: {
@@ -87,7 +96,28 @@ export default {
                         width: "1000px",
                         // "label-position": "top",
                         "label-width": "15em"
-                    }
+                    },
+                    onOpen: (isEdit, data, { done, submit, close }) => {
+                        console.log("cl-upsert 打开钩子", isEdit, data);
+                        this.$refs["upsert"].setProps("props", {
+                            disabled: isEdit
+                        });
+                    },
+
+                    onClose(done) {
+                        console.log("cl-upsert 关闭钩子");
+                        done();
+                    },
+
+                    onInfo(data, { next, done, close }) {
+                        console.log("cl-upsert 详情钩子", data);
+                        next(data);
+                    },
+
+                    onSubmit(isEdit, data, { next, close, done }) {
+                        console.log("cl-upsert 提交钩子", `是否编辑 ${isEdit}`, data);
+                        next(data);
+                    },
                 },
                 items: [
                     {
@@ -125,12 +155,23 @@ export default {
                             name: "cl-upload"
                         },
                         rules: {
-                            required: true
+                            // required: true
+                        }
+                    },
+                    {
+                        prop: "coverUrl",
+                        label: "封面图地址",
+                        span: 24,
+                        component: {
+                            name: "el-input"
+                        },
+                        rules: {
+                            // required: true
                         }
                     },
                     {
                         label: "轮播图类型",
-                        prop: "type",
+                        prop: "pagePath",
                         component: {
                             name: "el-select",
                             options: [
@@ -151,7 +192,7 @@ export default {
                     },
                     {
                         label: "传递编号",
-                        prop: "contentId",
+                        prop: "pageParams",
                         component: {
                             name: "el-input"
                         }
@@ -164,11 +205,17 @@ export default {
     mounted() {
     },
     methods: {
-        onUpsertOpen() {
-
-        },
-        onUpsertSubmit() {
-
+        onCrudLoad({ ctx, app }) {
+            ctx.service(paramsService)
+                .permission(() => {
+                    return {
+                        add: true,
+                        update: true,
+                        delete: true
+                    };
+                })
+                .done();
+            app.refresh({ size: 5 });
         }
     }
 };
