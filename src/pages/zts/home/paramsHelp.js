@@ -50,12 +50,25 @@ let list = [
 ]
 
 export const paramsService = {
-
     getList: () => {
+        // 拼接Key，banner_deptId 
+        // banner_330000
         return new Promise((resolve, reject) => {
             console.log("getList==========", list)
+            // 
+            // this.$service.
+
+
+
+
+
             resolve(list)
         })
+    },
+    // 把当前的list 提交到数据库，每次发生 修改的时候都提交一次
+    commitList: () => {
+
+
     },
 
     page: async (p) => {
@@ -84,7 +97,7 @@ export const paramsService = {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 let pageResult = {
-                    list:pageList,
+                    list: pageList,
                     pagination: {
                         page: p.page,
                         size: p.size,
@@ -124,7 +137,7 @@ export const paramsService = {
         return Promise.resolve();
     },
     update: (d) => {
-        
+
         console.log("POST[update]", d);
         let item = list.find((e) => e.id == d.id);
         Object.assign(item, d);
