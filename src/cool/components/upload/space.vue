@@ -253,7 +253,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters(["token"]),
+        ...mapGetters(['8C7D00B_token']),
 
         categoryList() {
             return this.category.list.filter((e) => e.name.includes(this.category.keyword));

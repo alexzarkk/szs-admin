@@ -137,7 +137,11 @@ export default {
 		this.dispose()
 		// #ifdef H5
 		if(this.isPc) {
-			document.removeEventListener('mousewheel')
+			try{
+				document.removeEventListener('mousewheel')
+			}catch(e){
+				//TODO handle the exception
+			}
 		}
 		// #endif
 	},

@@ -5,6 +5,7 @@ import store from "@/store"
 import { LoadService } from "@/cool"
 import App from "./App"
 import Layout from "@/components/layout"
+// import VueTianditu from "@/components/tdt"
 
 import zz from '@/comm/zz'
 
@@ -23,16 +24,16 @@ import "@/static/css/colorui/icon.scss"
 		DataV
  ==================== */
 
-import dataV from '@jiaminghi/data-view';
+import dataV from '@jiaminghi/data-view'
 // 引入全局css
-import './assets/scss/style.scss';
+import './assets/scss/style.scss'
 // 按需引入vue-awesome图标
-import Icon from 'vue-awesome/components/Icon';
-import 'vue-awesome/icons/chart-bar.js';
-import 'vue-awesome/icons/chart-area.js';
-import 'vue-awesome/icons/chart-pie.js';
-import 'vue-awesome/icons/chart-line.js';
-import 'vue-awesome/icons/align-left.js';
+import Icon from 'vue-awesome/components/Icon'
+import 'vue-awesome/icons/chart-bar.js'
+import 'vue-awesome/icons/chart-area.js'
+import 'vue-awesome/icons/chart-pie.js'
+import 'vue-awesome/icons/chart-line.js'
+import 'vue-awesome/icons/align-left.js'
 //引入echart
 //4.x 引用方式
 // import echarts from 'echarts'
@@ -42,13 +43,12 @@ import 'vue-awesome/icons/align-left.js';
 // Vue.prototype.$echarts = echarts
 
 
-
-
 LoadService({ store })
-Vue.component('VueIcon', Icon);
+Vue.component('VueIcon', Icon)
 Vue.component("cl-layout", Layout)
-Vue.use(dataV);
+Vue.use(dataV)
 Vue.use(ElementUI)
+// Vue.use(VueTianditu, { v: "4.0", tk: "70ede380913047ef13bc4dc92ff4f75b" })
 Vue.use(Crud, {
 	crud: {
 		dict: {
@@ -72,15 +72,13 @@ Vue.use(Crud, {
 	}
 });
 
-App.mpType = "app";
-Vue.config.productionTip = false;
+App.mpType = "app"
+Vue.config.productionTip = false
 Vue.prototype.zz = zz
 
 const loader = Loading.service({text: "加载配置中"})
-
 store.dispatch("appLoad").done(() => {
 	loader.close()
-
 	const app = new Vue({
 		store,
 		...App

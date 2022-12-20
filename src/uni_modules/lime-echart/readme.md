@@ -50,7 +50,7 @@ import * as echarts from 'echarts'
 //---or----------------------------------
 
 // 按需引入 开始
-import * as echarts from 'echarts/core';
+import * as echarts from 'echarts'
 import {LineChart, BarChart} from 'echarts/charts';
 import {TitleComponent,TooltipComponent,GridComponent, DatasetComponent, TransformComponent, LegendComponent } from 'echarts/components';
 // 标签自动布局，全局过渡动画等特性

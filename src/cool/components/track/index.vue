@@ -1,5 +1,5 @@
 <template>
-	<div class="system">
+	<div class="system" id="layoutChart">
 		<div class="pane">
 			<!-- chart -->
 			<div class="dept" v-loading="loading" @mouseup="mup">
@@ -90,6 +90,7 @@
 
 import { math, clone, getDist, calData } from '@/comm/geotools'
 import elDragDialog from "./el-dragDialog"
+
 import * as echarts from 'echarts'
 import { TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, DataZoomComponent } from 'echarts/components'
 import { LineChart } from 'echarts/charts'
@@ -192,15 +193,27 @@ export default {
 		// }
 	},
 	mounted() {
-		console.log('chart ..................');
+		// console.log('chart ..................');
 		// this.init()
+		document.addEventListener('resize', this.resize)
+	},
+	beforeDestroy() {
+		try{
+			document.removeEventListener('resize')
+		}catch(e){
+			//TODO handle the exception
+		}
 	},
 	methods: {
+		resize(){
+			let lc = document.getElementById('layoutChart'),
+				size = { width: lc.clientWidth-120, height: lc.clientHeight }
+				
+			this.$refs.chart.resize(size)
+		},
 		init(v){
 			if (!v) v = this.pm
-			console.log("获取到的placeMark",this.pm)
 			this.getSelect()
-			
 			this.option = {
 				darkMode: true,
 				grid: {
@@ -268,11 +281,7 @@ export default {
 				chart.on('datazoom', (e) => {
 					this.datazoom(e)
 				})
-				chart.on('mouseup', (e) => {
-					console.log('mouseupmouseup');
-				});
 			})
-			// console.log('海拔图初始化',JSON.parse(JSON.stringify(this.option)));
 		},
 		getSelect(){
 			if (this.selected&&this.selected.coord) {
@@ -301,11 +310,12 @@ export default {
 			this.select.end = e.end
 		},
 		mup(e) {
-			setTimeout(()=> { this.trunc() }, 111);
+			setTimeout(()=> { this.trunc() }, 33)
 		},
 		trunc() {
 			let pm = this.pm,
-				s = this.select;
+				s = this.select
+				
 			if (s.new.length > 0) {
 				if (s.old[0] != s.new[0] || s.old[1] != s.new[1]) {
 					let start = math(pm.info.dElv[s.new[0]][0], 0),
@@ -313,7 +323,7 @@ export default {
 						v = pm.coord,
 						len = 0,
 						c1,
-						coord = [];
+						coord = []
 					
 					s.range[0] = len
 					for (let i = 0; i < v.length; i++) {
@@ -414,7 +424,8 @@ export default {
 
 <style lang="scss" scoped>
 .system {
-	height: 100%;
+	// height: 100%;
+	height: calc(100% - 46px);
 	width: 100%;
 	.pane {
 		display: flex;
@@ -424,17 +435,12 @@ export default {
 	}
 
 	.dept {
-		// width: auto;
+		height: 100%;
 		flex: auto;
 		background-color: #f3f3f3;
-		.echarts {
-			// width: calc(100%);
-			// height: 100%;
-		}
 	}
 
 	.user {
-		height: 100%;
 		width: 120px;
 		min-width: 120px;
 		overflow-y: auto;
@@ -459,14 +465,13 @@ export default {
 				z-index:99;
 				
 			}
-		
 	}
 	
 
-	@media only screen and (max-width: 768px) {
-		.dept {
-			width: calc(100% - 100px);
-		}
-	}
+	// @media only screen and (max-width: 768px) {
+	// 	.dept {
+	// 		width: calc(100% - 100px);
+	// 	}
+	// }
 }
 </style>

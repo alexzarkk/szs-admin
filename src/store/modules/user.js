@@ -1,8 +1,8 @@
 import { md5 } from "@/comm/libs/md5"
 export default {
 	state: {
-		token: uni.getStorageSync("token") || null,
-		info: uni.getStorageSync("userInfo") || {},
+		token: uni.getStorageSync("8C7D00B_token") || null,
+		info: uni.getStorageSync("8C7D00B_user") || {},
 	},
 	actions: {
 		userLogin({ commit }, form) {
@@ -42,22 +42,22 @@ export default {
 	mutations: {
 		SET_USERINFO(state, val) {
 			state.info = val
-			uni.setStorageSync("userInfo", val)
+			uni.setStorageSync("8C7D00B_user", val)
 		},
 
 		SET_TOKEN(state, { token }) {
 			state.token = token
-			uni.setStorageSync("token", token)
+			uni.setStorageSync("8C7D00B_token", token)
 		},
 
 		CLEAR_TOKEN(state) {
 			state.token = null
-			uni.removeStorageSync("token")
+			uni.removeStorageSync("8C7D00B_token")
 		},
 
 		CLEAR_USER(state) {
 			state.info = {}
-			uni.removeStorageSync("userInfo")
+			uni.removeStorageSync("8C7D00B_user")
 		},
 	},
 }

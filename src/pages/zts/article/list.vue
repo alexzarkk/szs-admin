@@ -148,7 +148,7 @@
 </template>
 
 <script>
-import { dept, article, poi } from "@/comm/dict"
+import { dept, article, commSt } from "@/comm/dict"
 import { checkPerm } from "@/cool/permission"
 
 export default {
@@ -158,7 +158,7 @@ export default {
             article,  // 文章字典
             articleO: this.zz.toObj(article),
             depts: dept.getLabel(),  // 获取部门
-            st: poi.st,  // 字典
+            st: commSt,  // 字典
             type: '',  // 文章分类筛选
             status: '',  // 文章审核状态筛选
             // expand: this.$store.getters.userInfo.isLeaf,
@@ -204,11 +204,7 @@ export default {
         },
 
         detail(e) {
-            this.zz.openWin({
-                url: 'https://' + (this.zz.isDev ? 'test' : 'zts') + '.5618.co/h5/#/pages/share?path=/pages/planning/article&id=' + e._id,
-                w: 380,
-                h: 780
-            })
+			this.zz.preview({path:'/pages/planning/article', id:e._id})
         },
         toAudit(e) {
             this.cur = {}

@@ -17,7 +17,7 @@ Vue.component("cl-dept-tree", () => import("./dept/tree.vue"));
 Vue.component("cl-dept-move", () => import("./dept/move.vue"));
 
 Vue.component("cl-dept-cascader", () => import("./dept/cascader.vue"));
-// Vue.component("cl-dept-cascader2", () => import("./dept/cascader2.vue"));
+Vue.component("cl-dept-cascader2", () => import("./dept/cascader2.vue"));
 
 Vue.component("zts-track-chart", () => import("./track/index.vue"));
 // Vue.component("zts-direction", () => import("./direction/direction.vue"));

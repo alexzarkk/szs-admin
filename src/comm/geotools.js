@@ -4,7 +4,7 @@ const
 	eqCoord = (c1, c2) => { return cd2Str(c1) == cd2Str(c2) },
 	math = (v, t) => { return Math.round(v * Math.pow(10, t)) / Math.pow(10, t) },
 	fixNum = (n, l = 6) => { return Number(n.toFixed(l)) },
-	uniqId = (s = '') => { return s + ~~((Date.now()/11) + Math.floor(Math.random() * 123456)) },
+	uniqId = (s = '') => { return s + Math.random().toString(36).substr(4) },
 	reArr = (a, x = 10) => {
 		let _x = []
 		for (var i = 0; i < a.length; i++) {

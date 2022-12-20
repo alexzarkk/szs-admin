@@ -97,9 +97,6 @@ export default {
 				// 用户信息
 				await this.$store.dispatch('userInfo');
 				
-				// 系统参数
-				// await this.$store.dispatch('sysParam');
-
 				// 权限菜单
 				const [first] = await this.$store.dispatch('permMenu');
 

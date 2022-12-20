@@ -7,7 +7,7 @@ function veri({thiz,kml,user}) {
 	if(!thiz) thiz = this
 	
 	if(!user) user = thiz.userInfo
-	if(!kml) kml = thiz.cKml || thiz.kml.cur
+	if(!kml) kml = thiz.cKml || thiz.kml
 	
 	// console.log('thiz.veri ------------------',kml);
 	
@@ -120,10 +120,11 @@ const dict = {
 }
 
 function open({ thiz, act, pm }) {
+	if(!thiz) thiz = this
 	if(!veri({thiz})) return
 	
 	let isEdit = act === 'edit',
-		kml = thiz.kml.cur,
+		kml = thiz.kml,
 		select = thiz.cur.selectedTrack,
 		coord = select.coord,
 		tip = false,
@@ -214,7 +215,7 @@ console.log('pmCurd.open --------->',pm,act,select)
 							instance.confirmButtonText = '执行中...'
 							await delSection()
 							thiz.reset()
-							thiz.kmlRefresh()
+							thiz.kmlRefresh(1)
 							thiz.$message.success("操作成功")
 							instance.confirmButtonLoading = false
 							
@@ -551,7 +552,7 @@ console.log('pmCurd.open --------->',pm,act,select)
 				if(kml.status>=10) thiz.$service.zts.kml.createChart({ _id: kml._id })
 				
 				thiz.reset()
-				thiz.kmlRefresh()
+				thiz.kmlRefresh(1)
 				
 				thiz.cur.selectedTrack = {}
 				// thiz.$refs.mousetool.clear('markTool')
@@ -579,17 +580,17 @@ function del({ thiz, pm }) {
 		if (res === "confirm") {
 			let track = revDeepTree(thiz.kml.list),t10=0
 			for (let s of track) {if(s.t1==1&&s.t2==10)t10+=1}
-			if(thiz.kml.cur.type==9&&pm.t2==10&&t10<2) return thiz.$message.error("必须包含一条默认轨迹！")
+			if(thiz.kml.type==9&&pm.t2==10&&t10<2) return thiz.$message.error("必须包含一条默认轨迹！")
 			
-			thiz.$service.zts.placemark.delete({ ids: pm._id, delImg: thiz.kml.cur.type == 9 })
+			thiz.$service.zts.placemark.delete({ ids: pm._id, delImg: thiz.kml.type == 9 })
 				.then((res) => {
 					thiz.$message.success("删除成功");
 					
 					thiz.reset()
 					
-					thiz.kmlRefresh(false)
+					thiz.kmlRefresh(1)
 					
-					if(thiz.kml.cur.status>=10) thiz.$service.zts.kml.createChart({ _id: thiz.kml.cur._id })
+					if(thiz.kml.status>=10) thiz.$service.zts.kml.createChart({ _id: thiz.kml._id })
 					
 					// resolve(res);
 				})
@@ -681,12 +682,12 @@ function merge(){
 				await this.$service.zts.placemark.merge({
 					ids: [cur._id, target._id]
 				})
-				if(this.kml.cur.type==9 && this.kml.cur.status>=10) {
-					await this.$service.zts.kml.createChart({ _id: this.kml.cur._id })
+				if(this.kml.type==9 && this.kml.status>=10) {
+					await this.$service.zts.kml.createChart({ _id: this.kml._id })
 				}
 				this.reset()
 				this.$message.success("保存成功")
-				this.kmlRefresh()
+				this.kmlRefresh(1)
 				close()
 			},
 			close(done) {

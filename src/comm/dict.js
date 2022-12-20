@@ -248,6 +248,17 @@ ctSt = [
 	{ label: '预收款', value: 20, type: 'warning' },
 	{ label: '已结算', value: 30, type: 'danger' }
 ],
+commSt = [
+	{ label: '已作废', value: -1, type: 'danger' },
+	{ label: '草稿', value: 1, type: 'info' },
+	{ label: '待复核', value: 2, type: 'info' },
+	{ label: '待补充', value: 4, type: 'warning' },
+	{ label: '待审核', value: 6, type: 'primary' },
+	{ label: '已审核', value: 10, type: 'success' },
+	{ label: '已存档', value: 12, type: 'success' },
+	{ label: '精华', value: 80, type: 'success' },
+	{ label: '置顶', value: 92, type: 'success' }
+],
 poi = {
 	level: [
 		{ text: '自然景观', value: 1 },
@@ -322,15 +333,7 @@ poi = {
 		{ text: '各类地方特色项目', value: 6014 },
 		{ text: '地方民俗节庆活动及场所', value: 6020 },
 		{ text: '其它', value: 6099 }
-	],
-	st: {
-		0: { text: '待审核', type: 'info' },  //Todo: 确认?
-		1: { text: '草稿', type: 'warning' },
-		2: { text: '待审核', type: 'info' },
-		4: { text: '待补充', type: 'warning' },
-		10: { text: '已审核', type: 'success' },
-		12: { text: '已存档', type: 'success' }
-	}
+	]
 },
 serveCfg = [
 	{ label: '接待服务', value: 10 },

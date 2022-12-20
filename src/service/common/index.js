@@ -73,6 +73,22 @@ export default class extends BaseService {
 	}
 
 	/**
+	 * 系统参数
+	 *
+	 * @returns
+	 * @memberof CommonService
+	 */
+	sysDict(params) {
+		return this.request({
+			url: "/zz/dict",
+			method: "POST",
+			data: {
+				...params
+			}
+		})
+	}
+	
+	/**
 	 * 图片验证码 svg
 	 *
 	 * @param {*} { height, width }

@@ -31,6 +31,27 @@
 		    ]
 		},
 		{
+			"root": "pages/zts/declare",
+			"pages": [
+				{ "path": "layout/index" },
+				// { "path": "constr/index" },
+				{ "path": "constr/t0" },
+				{ "path": "constr/t1" },
+				{ "path": "constr/t10" },
+				{ "path": "resource/poi/list" },
+				{ "path": "resource/poi/edit" },
+				{ "path": "resource/station/list" },
+				{ "path": "resource/station/edit" },
+				{ "path": "resource/trail/list" },
+				{ "path": "resource/trail/edit" },
+				{ "path": "resource/trail/track/t60" },
+				{ "path": "resource/event/list" },
+				{ "path": "resource/event/edit" },
+				{ "path": "resource/industry/list" },
+				{ "path": "resource/industry/edit" }
+		    ]
+		},
+		{
 			"root": "pages/zts/",
 			"pages": [ 
 				{ "path": "map/map" },

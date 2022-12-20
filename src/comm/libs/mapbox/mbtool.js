@@ -41,7 +41,6 @@ fixAdd = (coord, dist = 12.2) =>{
 		let b1 = turf.bearing(c1, c2),
 			b2 = turf.bearing(to, c2)
 			
-		// console.log(td);
 		if (turf.dist(to, c2) > dist/2 && ~~(b1-b2)==0) {
 			add(to, c2)
 		}
@@ -155,9 +154,6 @@ htmlLine = (t, add)=>{
 },
 
 setActive = (map, pm, opt={}, loop) => {
-	
-	console.log(opt,'setActive');
-	
 	return new Promise((res, rej) => { 
 		if(!pm||!pm.coord) return
 		
@@ -197,8 +193,7 @@ setActive = (map, pm, opt={}, loop) => {
 		if(pm.id != 'selected') {
 			let color = ['#0000FF','#00aaff','#55ffff','#00FF00','#FFFF00','#FFA500','#FF0000','#8B0000'],
 				progress = [],
-				info = calData(reArr(coord),true),
-				// info = pm.info,
+				info = pm.info || calData(reArr(coord),true),
 				range = info.top - info.bottom
 				
 			if(range>50) {
@@ -251,7 +246,7 @@ setActive = (map, pm, opt={}, loop) => {
 			
 			map.zz.running = setTimeout(()=>{go(g,idx,count)}, 33)
 		}
-		go(geo.data, 0, Math.ceil(coord.length/opt.t||100))
+		go(geo.data, 0, Math.ceil(coord.length/(opt.t||160)))
 	})
 },
 

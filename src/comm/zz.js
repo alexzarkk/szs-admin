@@ -16,7 +16,13 @@ const
 		}
 		return a
 	},
-
+	toObj = (l) =>{
+		let o = {}
+		for (let s of l) {
+			o[s.value] = s
+		}
+		return o
+	},
 	scan = async (onlyFromCamera = true, scanType = ['qrCode']) => {
 		authCemera()
 		return new Promise((resolve, reject) => {
@@ -317,7 +323,7 @@ const
 			map = {}
 
 		list.forEach(e => {
-			map[e._id] = e
+			map[e._id||e.id] = e
 		})
 		
 		list.forEach(e => {
@@ -437,7 +443,6 @@ async function req(params = {}, loading = false, t = 9999) {
 		veri = params.$veri || false,
 		url = params.$url,
 		token = zz.getToken(),
-		// net = zz.hadNet(),
 		toLogin = () => {
 			uni.redirectTo({url: "/pages/index/index"})
 		}
@@ -452,104 +457,84 @@ async function req(params = {}, loading = false, t = 9999) {
 	}
 	console.info("requestPrams ===========", params, api[isDev] + fn)
 
-	// if (net) {
-		if (loading) uni.showLoading({ mask: true })
-		return new Promise((resolve, reject) => {
-			tim = setTimeout(() => { reject('timedout') }, 9999)
-			const success = (e) => {
+	if (loading) uni.showLoading({ mask: true })
+	return new Promise((resolve, reject) => {
+		tim = setTimeout(() => { reject('timedout') }, 9999)
+		const success = (e) => {
+			if (loading) uni.hideLoading()
+			clearTimeout(tim)
+			const { code, data, message } = e.data || e.result
+			switch (code) {
+				// 成功
+				case 1000:
+				// console.info(params,"....", data)
+					resolve(data)
+					break
+				// 登录失效
+				case 1002:
+					zz.logOut()
+					zz.toast(message)
+					// reject()
+					return toLogin()
+					break
+				// 失败
+				default:
+					zz.toast(message)
+					reject(e.data || e.result)
+			}
+		},
+			fail = (e) => {
 				if (loading) uni.hideLoading()
-				clearTimeout(tim)
-				const { code, data, message } = e.data || e.result
-				switch (code) {
-					// 成功
-					case 1000:
-						if (data) uni.setStorage(zz.key(fn + url + JSON.stringify(params)), data)
-						resolve(data)
-						break
-					// 登录失效
-					case 1002:
-						zz.logOut()
-						zz.toast(message)
-						// reject()
-						return toLogin()
-						break
-					// 失败
-					default:
-						zz.toast(message)
-						reject(e.data || e.result)
-				}
+				// zz.toast(e.message || e.data.message)
+				params.$fn = fn
+				params.$url = url
+				reject(e.message || e.data.message || '服务器错误！')
 			},
-				fail = (e) => {
-					if (loading) uni.hideLoading()
-					// zz.toast(e.message || e.data.message)
-					params.$fn = fn
-					params.$url = url
-					reject(e.message || e.data.message || '服务器错误！')
-				},
-				complete = (e) => {
-					params.$fn = fn
-					params.$url = url
-					// clearTimeout(tim)
-					// console.log(e);
-				}
-
-			// #ifdef H5-ZLB
-
-			// console.log("请求的内容",)
-			// console.log("当前isDev------------", isDev)
-			let header = {
-				// isTestUrl: isDev + '',
-				authorization: token,
-				clientinfo: JSON.stringify(uni.getStorageSync('clientInfo'))
+			complete = (e) => {
+				params.$fn = fn
+				params.$url = url
+				// clearTimeout(tim)
+				// console.log(e);
 			}
 
-			if (isDev) {
-				header.isTestUrl = 1
-			}
-			// console.log('header================================', header);
-			mgop({
-				api: 'mgop.zz.zts.' + fn, // 必填
-				host: 'https://mapi.zjzwfw.gov.cn/',
-				dataType: 'JSON',
-				type: 'POST',
-				appKey,
-				header,
-				data: params,
-				onSuccess: success,
-				onFail: fail
-			});
-			// #endif
+		// #ifdef H5-ZLB
 
-			// #ifndef H5-ZLB
-			// uni.request({
-			// 	url: api[isDev] + fn,
-			// 	timeout: 10000,
-			// 	header: {
-			// 		'content-type': 'application/json',
-			// 		authorization: token,
-			// 		clientinfo: JSON.stringify(uni.getStorageSync('clientInfo'))
-			// 	},
-			// 	data: params,
-			// 	method: 'POST',
-			// 	success,
-			// 	fail,
-			// 	complete
-			// })
-			delete params.$url
-			uniCloud.callFunction({
-				name: fn,
-				data: { url, params, token },
-				success,
-				fail,
-				complete
-			})
-			// #endif
+		// console.log("请求的内容",)
+		// console.log("当前isDev------------", isDev)
+		let header = {
+			// isTestUrl: isDev + '',
+			authorization: token,
+			clientinfo: JSON.stringify(uni.getStorageSync('clientInfo'))
+		}
+
+		if (isDev) {
+			header.isTestUrl = 1
+		}
+		// console.log('header================================', header);
+		mgop({
+			api: 'mgop.zz.zts.' + fn, // 必填
+			host: 'https://mapi.zjzwfw.gov.cn/',
+			dataType: 'JSON',
+			type: 'POST',
+			appKey,
+			header,
+			data: params,
+			onSuccess: success,
+			onFail: fail
+		});
+		// #endif
+
+		// #ifndef H5-ZLB
+		delete params.$url
+		uniCloud.callFunction({
+			name: fn,
+			data: { url, params, token },
+			success,
+			fail,
+			complete
 		})
-	// } else {
-	// 	let data = uni.getStorageSync(zz.key(fn + url + JSON.stringify(params)))
-	// 	if (!data) zz.toast("请求失败，没有网络！")
-	// 	return data
-	// }
+		// #endif
+	})
 }
 
 /*
@@ -575,10 +560,11 @@ async function req(params = {}, loading = false, t = 9999) {
 
 const zz = {
 	rndInt,
+	toArr,
+	toObj,
 	math,
 	isSame,
 	clone,
-	toArr,
 	isDev,
 	isArray,
 
@@ -616,16 +602,16 @@ const zz = {
 
 	now() { return Date.now() },
 	setAcc(u) {
-		uni.setStorageSync('userInfo', u)
+		uni.setStorageSync('8C7D00B_user', u)
 	},
-	getAcc() { return uni.getStorageSync('userInfo') },
+	getAcc() { return uni.getStorageSync('8C7D00B_user') },
 	setToken(tk) {
-		uni.setStorageSync('token', tk)
+		uni.setStorageSync('8C7D00B_token', tk)
 	},
-	getToken() { return uni.getStorageSync('token') },
+	getToken() { return uni.getStorageSync('8C7D00B_token') },
 	logOut() {
-		uni.removeStorageSync('userInfo')
-		uni.removeStorageSync('token')
+		uni.removeStorageSync('8C7D00B_user')
+		uni.removeStorageSync('8C7D00B_token')
 	},
 	async setDept() {
 		let { deptId, dept } = this.getDept()
@@ -745,16 +731,18 @@ const zz = {
 		let _,dPR=window.devicePixelRatio;if(!dPR)dPR=1
 		window.open(url+(id?'?id='+id:''),"_blank","left="+((screen.width-w)/2)+",height="+h*dPR+",width="+w*dPR+",top=1,center=1,resizable=1,toolbar=no, location=no, directories=no, status=no, menubar=no,channelmode=no");
 	},
+	preview({path,id}){
+		this.openWin({
+		    url: 'https://' + (isDev?'test':'zts') + '.5618.co/h5/#/pages/share?path='+path+'&iframe=1&id=' + id,
+		    w: 380,
+		    h: 780
+		})
+	},
 	profile(id) {
 		let d = uni.getStorageSync('sys_dict')
 		this.href(`/pages/my/profile/${d.sysUser[id] ? 'sysProfile' : 'profile'}?id=${id}`)
 	},
-	getParam(v) { return JSON.parse(decodeURI(v)) },
-	toObj(a){
-		let o = {}
-		for (let s of a) { o[s.value] = s }
-		return o
-	}
+	getParam(v) { return JSON.parse(decodeURI(v)) }
 }
 
 module.exports = zz

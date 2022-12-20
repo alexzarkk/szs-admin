@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import { dept, article, poi } from "@/comm/dict"
+import { dept, article, commSt } from "@/comm/dict"
 import { checkPerm } from "@/cool/permission"
 
 export default {
@@ -155,7 +155,7 @@ export default {
             article,
             articleO: this.zz.toObj(article),
             depts: dept.getLabel(),
-            st: poi.st,
+            st: commSt,
             type: '',
             status: '',
             expand: this.$store.getters.userInfo.isLeaf,

@@ -68,7 +68,7 @@
 		},
 		onShow: function () {
 			// console.log("App Show");
-			if (!uni.getStorageSync("token")) {
+			if (!uni.getStorageSync("8C7D00B_token")) {
 				// let url = this.$route.path
 				// if (!url.startsWith('/pages/demo')) {
 					uni.redirectTo({ url: "/pages/login/index" })

@@ -42,14 +42,12 @@ export default {
 		refresh() {
 			this.loading = true
 			this.$service.system.dept.list({load:true}).then((res) => {
-					this.list = this.zz.deepTree(res)
-					if(this.list.length==1) this.rowClick(this.list[0])
-					this.$emit("loaded", this.list)
-					
-					uni.setStorageSync('cur_dept_list', this.list)
-				}).done(() => {
-					this.loading = false;
-				});
+				this.list = this.zz.deepTree(res)
+				if(this.list.length==1) this.rowClick(this.list[0])
+				this.$emit("loaded", this.list)
+			}).done(() => {
+				this.loading = false;
+			})
 		},
 		rowClick(e) {
 			let ids = this.zz.revDeepTree(e.children).map((e) => e.id);

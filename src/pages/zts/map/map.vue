@@ -3,7 +3,7 @@
 		<div class="system-user" :style="winStyle">
 			<div class="pane">
 				<!-- 轨迹坐标 列表  可折叠 -->
-				<div class="kml scroller1" :class="[pm.expand ? '_expand' : '_collapse']">
+				<div class="kml" :class="[expand ? '_expand' : '_collapse']">
 					<div class="header solid flex align-center justify-between">
 						<!-- 采集 -->
 						<block v-if="kml.type == 9">
@@ -85,7 +85,7 @@
 					<!-- 树形结构 -->
 					<div class="container">
 						<div class="scroller">
-							<el-table v-loading="pm.loading"
+							<el-table v-loading="loading"
 								border
 								ref="table"
 								style="width: 100%"
@@ -141,8 +141,8 @@
 				<!-- 成员列表 -->
 				<div class="user">
 					<div class="header">
-						<div class="icon padding-left-xs" @click="pm.expand=!pm.expand">
-							<i class=" el-icon-arrow-left" v-if="pm.expand"></i>
+						<div class="icon padding-left-xs" @click="kmlExpand">
+							<i class=" el-icon-arrow-left" v-if="expand"></i>
 							<i class="el-icon-arrow-right" v-else></i>
 						</div>
 						<!-- 选择部门 -->
@@ -208,9 +208,8 @@
 						</span>
 					</div>
 					<div class="container">
-						<cl-crud ref="crud">
-							
-							<zz-map-draw v-if="!pm.loading"
+						<cl-crud ref="crud" v-loading="loading">
+							<zz-map-draw v-if="!loading"
 								ref="zmap"
 								:pms="pms"
 								:cur="acted"
@@ -219,46 +218,48 @@
 								@action="action"
 								:grid="false"></zz-map-draw>
 							
-							<el-collapse v-if="acted.info" v-model="activeName" accordion>
-								<el-collapse-item name="1">
-									<template slot="title">
-										<i class="header-icon el-icon-info"></i>
-										【{{ acted.name }}】
-										<text class="padding-left-xs text-grey">长度：</text>
-										<text class="text-orange text-bold">{{ acted.info.len }}m</text>
-
-										<text class="padding-left-xs text-grey">
-											海拔：
-											<text class="cuIcon-top"></text>
-										</text>
-										<text class="text-orange text-bold">{{ acted.info.top }}m</text>
-										<text class="text-grey"><text class="cuIcon-down"></text></text>
-										<text class="text-orange text-bold">{{ acted.info.bottom }}m</text>
-
-										<text class="padding-left-xs text-grey">
-											累计：
-											<i class="header-icon el-icon-top"></i>
-										</text>
-										<text class="text-orange text-bold">{{ acted.info.up }}m</text>
-										<text class="text-grey"><i class="header-icon el-icon-bottom"></i></text>
-										<text class="text-orange text-bold">{{ acted.info.down }}m</text>
-										
-										<block v-if="cur.sInfo.len">
-											<text class="padding-left-xs text-dark">
-												(已选取路段)
+							<view :style="{height: chartHight +'px'}">
+								<el-collapse v-if="acted.info" v-model="activeName" accordion>
+									<el-collapse-item name="1">
+										<template slot="title">
+											<i class="header-icon el-icon-info"></i>
+											【{{ acted.name }}】
+											<text class="padding-left-xs text-grey">长度：</text>
+											<text class="text-orange text-bold">{{ acted.info.len }}m</text>
+								
+											<text class="padding-left-xs text-grey">
+												海拔：
+												<text class="cuIcon-top"></text>
 											</text>
-										</block>
-									</template>
-									<div class="track-chart">
-										<zts-track-chart
-											:pm="acted"
-											:btn="['copy','cut','del', 'setStatus', 'setLevel', 'reverse', 'merge','ele', 'download']"
-											:selected="cur.selectedTrack"
-											@on="tcAction"
-										></zts-track-chart>
-									</div>
-								</el-collapse-item>
-							</el-collapse>
+											<text class="text-orange text-bold">{{ acted.info.top }}m</text>
+											<text class="text-grey"><text class="cuIcon-down"></text></text>
+											<text class="text-orange text-bold">{{ acted.info.bottom }}m</text>
+								
+											<text class="padding-left-xs text-grey">
+												累计：
+												<i class="header-icon el-icon-top"></i>
+											</text>
+											<text class="text-orange text-bold">{{ acted.info.up }}m</text>
+											<text class="text-grey"><i class="header-icon el-icon-bottom"></i></text>
+											<text class="text-orange text-bold">{{ acted.info.down }}m</text>
+											
+											<block v-if="cur.sInfo.len">
+												<text class="padding-left-xs text-dark">
+													(已选取路段)
+												</text>
+											</block>
+										</template>
+										<view :style="{height: (chartHight-40) +'px'}">
+											<zts-track-chart ref="tChart"
+												:pm="acted"
+												:btn="['copy','cut','del', 'setStatus', 'setLevel', 'reverse', 'merge','ele', 'download']"
+												:selected="cur.selectedTrack"
+												@on="tcAction"
+											></zts-track-chart>
+										</view>
+									</el-collapse-item>
+								</el-collapse>
+							</view>
 						</cl-crud>
 						<!-- 线路详情统计/更新 -->
 						<cl-dialog :width="'60%'" :height="lay.height - 42 + 'px'" :props="{ top: '0vh' }" :title="kml.name" :visible.sync="checking">
@@ -302,14 +303,15 @@ export default {
 			kml: {},
 			pms: [],
 			acted: {},
+			loading: false,
+			expand: true,
 			pm: {
 				list: [],
-				keys: ['10','2','3'],
-				loading: false,
-				expand: true
+				keys: ['10','2','3']
 			},
 			refKml:null,
 			activeLine:null,
+			
 			cur: {
 				pm: {},
 				sInfo:{},
@@ -359,18 +361,19 @@ export default {
 			t29: null,
 			t9: [],
 			
-			
-			
+			mapHeight: [0,0],
+			chartHight: 0
 			
 
 			
 		};
 	},
 	computed: {
-		...mapGetters(['lay', 'userInfo']),
-		mapHeight() {
-			return [this.lay.height - 460, this.lay.width - (this.pm.expand? 416:16)]
-		}
+		...mapGetters(['lay', 'userInfo'])
+	},
+	watch: {
+		lay() { this.setLay() },
+		activeName(){ this.setLay() }
 	},
 	activated() {
 		this.kmlRefresh()
@@ -394,15 +397,38 @@ export default {
 		this.kmlRefresh()
 	},
 	methods: {
-		exec(e){ this.$refs.zmap.exec(e) },
+		setLay(){
+			let h = 0
+			if(this.acted.info){
+				h = this.lay.height * 0.3
+				if(h>360) h = 360
+				if(h<240) h = 240
+				h = this.activeName? h : 40*2
+			}
+			this.chartHight = h
+			this.mapHeight = [this.lay.height - h, this.lay.width - (this.expand? 416:16)]
+			
+			console.log(h,this.mapHeight);
+			// setTimeout(()=>{ try{ this.$refs.tChart.resize() }catch(e){ } }, 333)
+			try{ this.$refs.tChart.resize() }catch(e){ }
+			try{ this.exec({m:'resize'}) }catch(e){ }
+		},
+		kmlExpand() {
+			this.expand = !this.expand
+			setTimeout(()=>{ this.setLay() }, 333)
+		},
 		rowClick(e,c){
 			if (c.property && e.children) {
 				this.$refs.table.toggleRowExpansion(e)
 			} else {
 				this.acted = e
+				// setTimeout(()=>{ this.acted = e }, 60)
 			}
-			console.log('rowClick',e,c);
+			setTimeout(()=>{ this.setLay() }, 200)
+			
+			console.log('rowClick',e)
 		},
+		exec(e){ this.$refs.zmap.exec(e) },
 		rowCheck(z){
 			const set = (d) =>{
 				if(d.children) {
@@ -413,28 +439,31 @@ export default {
 				}
 			}
 			set(z)
-			this.pm = this.zz.clone(this.pm)
+			// this.pm = this.zz.clone(this.pm)
 			this.setPms()
 			
-			console.log('line ----->', this.pms,this);
+			console.log('line ----->', this.pms)
 		},
 		reset() {
 			this.marker = []
 			this.polyline = []
 			this.activeLine = {}
-			this.refKml = null
-			this.kml.checked = []
+			// this.refKml = null
+			// this.kml.checked = []
 		},
 
-		async kmlRefresh(force=0) {
+		async kmlRefresh(init, force=0) {
+			
+			console.log('kmlRefresh ----->', force);
+			
 			let id = uni.getStorageSync('collect_check')
-			if (force || !this.kml._id || this.kml._id != id) {
-				this.pm.loading = true
+			if (init||force || !this.kml._id || this.kml._id != id) {
+				this.loading = true
 				let kml = await this.$service.zts.kml.info({ id, noChild: true })
 				
 				this.kml = kml
 				this.$service.zts.placemark.list({ kmlId: id, tree: true, force }).then(res => {
-					this.pm.loading = false
+					this.loading = false
 					let keys = [],
 						checked = []
 					
@@ -442,15 +471,15 @@ export default {
 						for(let s of res) {
 							s.checked = true
 							if(s.kmlId) {
-								if(s.t1==1) s.info = calData(s.coord,true)
+								if(s.t1==1) s.info = calData(s.coord, true)
 								checked.push(s)
 							}
 							// if(typeof s._id == 'number') keys.push(s._id+'')
 						}
 					}
-					this.pm.list = this.zz.deepTree(res)
+					this.$set(this.pm, 'list', this.zz.deepTree(res))
 					this.setPms()
-					console.log('获取到的标记点的信息placemark-list接口  ============', this.pms);
+					// console.log('获取到的标记点的信息placemark-list接口  ============', this.pms);
 				})
 				
 				if (kml.departmentId != 330000) {
@@ -471,7 +500,7 @@ export default {
 			}
 		},
 		setPms(){
-			this.pms = this.zz.revDeepTree(this.pm.list).filter(e=>e.coord!=undefined)
+			this.pms = this.zz.revDeepTree(this.pm.list).filter(e=>e.checked&&e.coord!=undefined)
 		},
 		
 		chartRefresh(time) {
@@ -482,10 +511,7 @@ export default {
 			}, time);
 		},
 
-		kmlExpand() {
-			this.kml.expand = !this.kml.expand;
-			this.chartRefresh(300);
-		},
+		
 		// 轨迹点击 展示动画
 		
 		
@@ -790,7 +816,8 @@ export default {
 				border-radius: 3px;
 				box-sizing: border-box;
 				overflow-x: hidden;
-				height: calc(100% - 10px);
+				// height: calc(100% - 4px);
+				height: 100%;
 			}
 			height: calc(100% - 36px);
 		}
@@ -839,7 +866,7 @@ export default {
 		}
 	}
 	.user {
-		width: calc(100% - 310px);
+		width: calc(100% - 400px);
 		flex: 1;
 
 		.header {
@@ -859,12 +886,9 @@ export default {
 			}
 		}
 		.container {
-			height: calc(100% - 40px);
-			padding: 0  6px ;
-			.tmap {
-				width: calc(100%);
-				height: calc(100%);
-			}
+			height: calc(100% - 36px);
+			padding: 0 0 0 4px ;
+			
 			.direct {
 				height: 500px;
 				width: 600px;
@@ -880,16 +904,17 @@ export default {
 		}
 	}
 	.track-chart {
-		height: calc(100vh - 1000px);
-		min-height: 204px;
-		max-height: 300px;
+		// height: calc(100vh - 1000px);
+		// min-height: 200px;
+		// max-height: 320px;
 		width: 100%;
+		height: 100%;
 	}
 
-	@media only screen and (max-width: 768px) {
-		.kml {
-			width: calc(100% - 100px);
-		}
-	}
+	// @media only screen and (max-width: 768px) {
+	// 	.kml {
+	// 		width: calc(100% - 100px);
+	// 	}
+	// }
 }
 </style>

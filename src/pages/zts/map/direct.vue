@@ -26,8 +26,8 @@
 import { clone } from '@/cool/utils';
 // import { math } from '@/cool/utils/ztool';
 
-// import VChart, { THEME_KEY } from 'vue-echarts';
-// import * as echarts from 'echarts/core';
+// //import VChart, { THEME_KEY } from 'vue-echarts';
+// import * as echarts from 'echarts'
 // import { GaugeChart } from 'echarts/charts';
 // import { CanvasRenderer } from 'echarts/renderers';
 

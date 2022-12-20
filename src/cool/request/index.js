@@ -10,14 +10,13 @@ export function LoadService({ store }) {
 	Vue.prototype.$service = modules;
 	store.$service = modules;
 
-	const promises = files
-		.keys()
-		.filter((e) => !ignore.includes(e))
-		.map((e) => {
+	const promises = files.keys().filter((e) => !ignore.includes(e)).map((e) => {
+		
+		// console.log('LoadService>>>>>>>>>',e);
+		
 			if (e.includes("--ignore")) {
 				return false;
 			}
-
 			return new Promise((resolve) => {
 				const list = e.substr(2).split("/");
 				const parents = list.slice(0, list.length - 1);

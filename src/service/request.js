@@ -6,7 +6,7 @@ import { req } from "@/comm/zz"
 
 export default function (options) {
 	return new Promise((resolve, reject) => {
-		// const token = uni.getStorageSync("token") || "";
+		// const token = uni.getStorageSync("8C7D00B_token") || "";
 
 		if (options.method == "POST") {
 			options.params = options.data;

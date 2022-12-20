@@ -1,6 +1,8 @@
 export default {
 	// 应用信息
 	app: (state) => state.app.info,
+	// 系统参数
+	dict: (state) => state.param.dict,
 	// 浏览器信息
 	browser: (state) => state.app.browser,
 	// 窗口列表
@@ -20,8 +22,7 @@ export default {
 	token: (state) => state.user.token,
 	// 用户信息
 	userInfo: (state) => state.user.info,
-	// 系统参数
-	sysParam: (state) => state.param.info,
+	
 	// 权限列表
 	permission: (state) => state.menu.permission
 };
