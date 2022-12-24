@@ -1,8 +1,12 @@
 export default {
 	// 应用信息
 	app: (state) => state.app.info,
-	// 系统参数
+	
+	// list
 	dict: (state) => state.param.dict,
+	// Obj
+	dictObj: (state) => state.param.dictObj,
+	
 	// 浏览器信息
 	browser: (state) => state.app.browser,
 	// 窗口列表
@@ -24,5 +28,7 @@ export default {
 	userInfo: (state) => state.user.info,
 	
 	// 权限列表
-	permission: (state) => state.menu.permission
+	permission: (state) => state.menu.permission,
+	// 部门权限
+	dept: (state) => state.menu.dept
 };

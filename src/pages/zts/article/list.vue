@@ -138,11 +138,7 @@
             </div>
         </div>
 
-        <!-- <el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
-            <zz-qrcode :url="shareUrl"></zz-qrcode>
-        </el-dialog> -->
-
-        <zts-audit :tt="10" :cur="cur" @refresh="refresh()"></zts-audit>
+		<zts-audit :tt="$store.getters.dict.ue.article" :cur="cur" @refresh="refresh()"></zts-audit>
 
     </cl-layout>
 </template>

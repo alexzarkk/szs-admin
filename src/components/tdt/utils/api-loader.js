@@ -43,6 +43,8 @@ export default class ApiLoader {
 			script.src = './static/tdt-api.js';
 			this._document.body.appendChild(script);
 			script.onload = () => {
+				window.geoCoder = new T.Geocoder()
+				
 				if (this._config.plugins && this._config.plugins.length) {
 					this.loadPlugins().then(resolve);
 				} else {

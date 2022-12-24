@@ -361,7 +361,7 @@ export default class TerrainControl extends Base {
 		})
 		
 		for (let k in this) {
-			if(this[k].node) {
+			if(this[k] && this[k].node) {
 				this.addButton(this[k])
 			}
 		}

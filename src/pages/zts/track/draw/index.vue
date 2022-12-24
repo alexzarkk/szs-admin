@@ -4,7 +4,7 @@
 			<div class="pane">
 				<!-- 部门区域 -->
 				<div class="dept" :class="[!expand ? '_expand' : '_collapse']">
-					<cl-dept-tree :deptId="userInfo.dept.id" @loaded="deptLoaded" @check="deptSet"></cl-dept-tree>
+					<cl-dept-tree :init="true" @check="deptSet"></cl-dept-tree>
 				</div>
 				<!-- 规划列表 -->
 				<div class="body">

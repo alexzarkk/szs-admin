@@ -15,13 +15,19 @@ export default {
 		collapse: false,
 		// 权限列表
 		permission: [],
+		// 部门权限
+		dept: [],
+		// 页面布局
 		lay: {}
 	},
 	actions: {
-		permMenu({ commit, state }) {
-			return new Promise((resolve, reject) => {
-				this.$service.common.permMenu().then((res) => {
-					// console.log('permMenu',  res);
+		async permMenu({ commit, state }) {
+			const dept = this.$service.system.dept.list({load:true}).then((res) => {
+				// 设置部门权限
+				commit("SET_DEPT", res)
+			})
+			
+			const menu = this.$service.common.permMenu().then((res) => {
 						if (!isArray(res.menus)) {
 							console.error(
 								"Invalid menus. Expected Array",
@@ -29,7 +35,7 @@ export default {
 							)
 							res.menus = []
 						}
-
+						
 						if (!isArray(res.perms)) {
 							console.error(
 								"Invalid perms. Expected Array",
@@ -37,7 +43,7 @@ export default {
 							)
 							res.perms = []
 						}
-
+						
 						const routes = res.menus.filter((e) => e.type != 2).map((e) => {
 								return {
 									id: e._id,
@@ -56,10 +62,10 @@ export default {
 									children: [],
 								}
 							})
-
+						
 						// 格式化菜单
 						const menuGroup = deepTree(routes)
-
+						
 						// 设置权限
 						commit("SET_PERMIESSION", res.perms)
 						// 设置菜单组
@@ -71,16 +77,17 @@ export default {
 						)
 						// 设置菜单
 						commit("SET_MENU_LIST", state.index)
-
-						resolve(menuGroup)
-					})
-					.catch((err) => {
+						
+						// resolve(menuGroup)
+					}).catch((err) => {
 						console.error("菜单加载异常", err)
 						Message.error("菜单加载异常")
 						uni.navigateTo({url: "/pages/login/index"})
-						reject(err)
+						// reject(err)
 					})
-			})
+				
+			await Promise.all([dept,menu])
+			return state.group
 		},
 	},
 	mutations: {
@@ -110,6 +117,10 @@ export default {
 		SET_PERMIESSION(state, list) {
 			state.permission = list
 			uni.setStorageSync("permission", list)
+		},
+		SET_DEPT(state, list) {
+			state.dept = deepTree(list)
+			uni.setStorageSync("permission_dept", list)
 		},
 		
 		COLLAPSE_MENU(state, val = false) {

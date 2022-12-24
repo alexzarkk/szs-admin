@@ -7,11 +7,10 @@
 			<el-tree
 				node-key="id"
 				highlight-current
-				:default-expanded-keys="[deptId]"
+				:default-expanded-keys="[did]"
 				:data="list"
 				:props="{ label: 'name' }"
 				:expand-on-click-node="false"
-				v-loading="loading"
 				@node-click="rowClick"
 			>
 			</el-tree>
@@ -23,34 +22,24 @@
 export default {
 	name: "cl-dept-tree",
 	props: {
-		deptId: {
-			type: Number,
-			default: 330000
+		init: {
+			type: Boolean,
+			default: false
 		}
 	},
 	data() {
 		return {
-			list: [],
-			loading: true
+			list: this.$store.getters.dept,
+			did: this.$store.getters.userInfo.dept.id+'',
 		};
 	},
-	created() {
-		this.refresh()
+	mounted() {
+		if(this.init) this.rowClick(this.list[0])
 	},
 
 	methods: {
-		refresh() {
-			this.loading = true
-			this.$service.system.dept.list({load:true}).then((res) => {
-				this.list = this.zz.deepTree(res)
-				if(this.list.length==1) this.rowClick(this.list[0])
-				this.$emit("loaded", this.list)
-			}).done(() => {
-				this.loading = false;
-			})
-		},
 		rowClick(e) {
-			let ids = this.zz.revDeepTree(e.children).map((e) => e.id);
+			let ids = this.zz.revDeepTree(e.children).map((e) => e.id)
 			ids.unshift(e.id)
 			this.$emit("check", ids)
 		}

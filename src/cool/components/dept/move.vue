@@ -19,12 +19,12 @@ export default {
 	},
 	mounted() {
 		console.log(this.ids);
-		let dept = uni.getStorageSync('cur_dept_list')
+		let dept = this.$store.getters.dept
 		
 		this.$refs["dept-move"].open({
 			props: {
 				title: "部门转移",
-				width: "600px",
+				width: "500px",
 				"label-width": "80px"
 			},
 			items: [

@@ -12,15 +12,6 @@
                     </el-col>
                 </el-row>
 
-                <!-- 待补充 -->
-                <!-- <el-row>
-					<el-col>
-						<el-form-item label="待补充">
-							<el-input v-model="examineObj.remark" type="textarea" :rows="1" placeholder="请输入不合规项(如有)">
-							</el-input>
-						</el-form-item>
-					</el-col>
-				</el-row> -->
                 <!-- 审核结果   退回，通过  退回原因-->
                 <el-row>
                     <el-col>
@@ -32,6 +23,14 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+				<el-row v-if="examineObj.status==10">
+				   	<el-col>
+				   		<el-form-item label="整体评分" prop="trackRate">
+				   			<el-rate v-model="examineObj.rate" :colors="['#ffaa7f', '#ffa14f', '#ff5500']"></el-rate>
+				   		</el-form-item>
+				   	</el-col>
+				</el-row>
+				
                 <el-row v-if="examineObj.status==4">
                     <el-col>
                         <el-form-item label="退回原因" prop="reject">
@@ -90,14 +89,14 @@ export default {
         return {
             loading: false,
             examineVisible: false, // 审核对话框的显示控制
-            examineObj: { // 审核内容
-                remark: '', // 补充内容
-                status: false, // 审核结果
-                reject: '', // 退回原因
-                pics: '', // 照片
-                mutiPic: [] // 多张照片的时候
-
-            },
+            examineObj: {
+				remark: '', // 补充内容
+				status: '10', // 审核结果
+				rate: 0,
+				reject: '', // 退回原因
+				pics: '', // 照片
+				mutiPic: [] // 多张照片的时候
+			},
             rules: {
                 reject: [
                     {
@@ -117,7 +116,8 @@ export default {
                 if (v._id) {
                     this.examineObj = {
                         remark: '', // 补充内容
-                        status: false, // 审核结果
+                        status: '10', // 审核结果
+						rate: 0,
                         reject: '', // 退回原因
                         pics: '', // 照片
                         mutiPic: [] // 多张照片的时候
@@ -164,4 +164,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+	::v-deep .el-form-item {
+		display: flex;
+		margin-bottom: 22px;
+		align-items: center;
+	}
 </style>

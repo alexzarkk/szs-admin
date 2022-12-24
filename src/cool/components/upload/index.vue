@@ -26,18 +26,22 @@
 		<div v-else>
 			<el-row type="flex" class="row-bg" justify="left">
 				<el-col :span="24">
-					<template v-if="list.length">
-						<template v-if="fileType=='video'">
-							<video :src="list[0].url"></video>
+					<view class="flex align-center">
+						
+						<template v-if="list.length">
+							<template v-if="fileType=='video'">
+								<video :src="list[0].url"></video>
+							</template>
+							<template v-else>
+								<el-link class="padding-right-sm" type="info">{{ list[0].url }}</el-link>
+							</template>
+							<el-button class="margin-left-xs" type="danger" size="small" icon="el-icon-delete" :loading="list[0].loading" @click.stop="removeFile(0)">删除</el-button>
 						</template>
 						<template v-else>
-							<el-link class="padding-right-sm" type="info">{{ list[0].url }}</el-link>
+							<el-button type="primary" size="small" plain @click="chooseImage">文件上传<i class="el-icon-upload el-icon--right"></i></el-button>
 						</template>
-						<el-button type="danger" icon="el-icon-delete" plain circle :loading="list[0].loading" @click.stop="removeFile(0)"></el-button>
-					</template>
-					<template v-else>
-						<el-button type="primary" size="small" plain @click="chooseImage">文件上传<i class="el-icon-upload el-icon--right"></i></el-button>
-					</template>
+						
+					</view>
 				</el-col>
 			</el-row>
 		</div>
@@ -45,7 +49,7 @@
 </template>
 
 <script>
-import { uploadFile } from "../../utils/upload.js";
+import { uploadFile } from "../../utils/upload"
 
 export default {
 	props: {
@@ -110,7 +114,6 @@ export default {
 				if(value) list = value.split(",")
 			}
 			this.list = list.map(url => {return {url}})
-			console.log(this.list,this.fileType)
 		},
 
 		// 回调
@@ -122,7 +125,6 @@ export default {
 
 		// 上传成功
 		onUploadSuccess(url, filePath) {
-			console.log(url, filePath);
 			// debugger
 			let x = this.list.find(e=>e.filePath&&e.filePath==filePath)
 			x.loading = false
@@ -175,7 +177,7 @@ export default {
 
 		// 选择图片
 		chooseImage() {
-			let ext = [];
+			let ext = [], isImg = this.fileType == 'image'
 			switch (this.fileType) {
 				case "kml":
 					ext = ['kml','kmz','gpx'];
@@ -198,35 +200,43 @@ export default {
 				type: this.fileType,
 				extension: ext,
 				success: (res) => {
-					for (let s of res.tempFilePaths) {
-						this.que ++
-						this.list.push({filePath: s, loading: true })
+					console.log(res);
+					for (var i = 0; i < res.tempFiles.length; i++) {
+						if(!isImg && this.zz.math(res.tempFiles[i].size/1024/1024,0)>100) {
+							this.$message.error('文件不得大于100m')
+						}else {
+							this.que ++
+							this.list.push({filePath: res.tempFilePaths[i], loading: true })
+						}
+					}
+					
+					const next = (e) => {
+						return new Promise((resolve, reject) => {
+							uploadFile({
+								filePath: e.path,
+								fileType: e.type,
+								cloudPath: e.name
+							}).then((url) => {
+								this.onUploadSuccess(url, e.path)
+								resolve(url)
+							}).catch((err) => {
+								reject(err)
+							})
+						})
 					}
 					
 					res.tempFiles.forEach((e, i) => {
-						const next = (name) => {
-							return new Promise((resolve, reject) => {
-								uploadFile({
-									filePath: res.tempFilePaths[i],
-									cloudPath: name || e.name
-								}).then((url) => {
-										this.onUploadSuccess(url, res.tempFilePaths[i])
-										resolve(url)
-									}).catch((err) => {
-										reject(err)
-									})
-							})
-						}
-
-						const done = (item) => {
-							if(item) item.loading = false
-						}
-						if (this.onUpload) {
-							this.list = [{ url: e.name }]
-							this.$emit("input", e.name)
-							this.onUpload(e, { next, done })
-						} else {
-							next()
+						if(!isImg && this.zz.math(e.size/1024/1024,0)<100) {
+							const done = (item) => {
+								if(item) item.loading = false
+							}
+							if (this.onUpload) {
+								this.list = [{ url: e.name }]
+								this.$emit("input", e.name)
+								this.onUpload(e, { next, done })
+							} else {
+								next(e)
+							}
 						}
 					})
 				}

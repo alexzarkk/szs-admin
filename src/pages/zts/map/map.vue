@@ -148,7 +148,7 @@
 						<!-- 选择部门 -->
 						<el-tooltip class="item" effect="dark" content="设定当前地图的区域范围和边界线" placement="top">
 							<span class="padding-left-xs">
-								<cl-dept-cascader :size="'mini'" @input="deptChange" />
+								<cl-dept-cascader :value="[kml.departmentId]" :size="'mini'" @input="deptChange" />
 							</span>
 						</el-tooltip>
 						<span class="padding-left-xs">
@@ -790,7 +790,7 @@ export default {
 		
 		
 		deptChange(event) {
-			// console.log('获取到的部门的信息', event);
+			return console.log('获取到的部门的信息', event);
 			let deptNum = event[event.length -1]; // 当前选择的部门
 			// console.log("当前选择的部门",deptNum)
 			if(deptNum){

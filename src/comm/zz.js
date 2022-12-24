@@ -23,6 +23,23 @@ const
 		}
 		return o
 	},
+	deptCids = (list, id)=>{
+		let arr = [id * 1]
+		for (let s of list) {
+			if (s.pid == id) {
+				arr.push(s.id)
+			}
+		}
+		return arr
+	},
+	deptParent = (list, pid)=>{
+		for (let s of list) {
+			if (s.id == pid) {
+				return s
+			}
+		}
+		return null
+	},
 	scan = async (onlyFromCamera = true, scanType = ['qrCode']) => {
 		authCemera()
 		return new Promise((resolve, reject) => {
@@ -562,6 +579,8 @@ const zz = {
 	rndInt,
 	toArr,
 	toObj,
+	deptCids,
+	deptParent,
 	math,
 	isSame,
 	clone,
@@ -743,6 +762,7 @@ const zz = {
 		this.href(`/pages/my/profile/${d.sysUser[id] ? 'sysProfile' : 'profile'}?id=${id}`)
 	},
 	getParam(v) { return JSON.parse(decodeURI(v)) }
+	
 }
 
 module.exports = zz

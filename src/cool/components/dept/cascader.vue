@@ -1,13 +1,14 @@
 <template>
 	<div>
 		 <el-cascader
-			ref="cascader"
-			placeholder="请选择部门区域"
-			filterable
+			ref="tree"
+			:placeholder="title"
 			:size="size"
+			v-model="checked"
 			:options="list"
 			:props="props"
 			@change="change"
+			filterable
 			clearable>
 		</el-cascader>
 	</div>
@@ -17,8 +18,11 @@
 export default {
 	name: "cl-dept-cascader",
 	props: {
-		value: Array,
-		title: String,
+		value: [Array,String],
+		title: {
+			type: String,
+			default: '请选择部门区域'
+		},
 		size: {
 			type: String,
 			default: 'medium'
@@ -26,77 +30,50 @@ export default {
 	},
 	data() {
 		return {
-			list: [],
+			list: this.$store.getters.dept,
 			checked: [],
 			keyword: "",
 			props: {
 				label: "name",
+				value: "_id",
 				children: "children",
 				checkStrictly: true 
-			},
-			loading: false
-		};
+			}
+		}
 	},
 	watch: {
 		keyword(val) {
-			this.$refs["tree"].filter(val);
+			this.$refs["tree"].filter(val)
 		},
 		value(val) {
-			this.refreshTree(val);
+			this.refreshTree(val)
 		}
 	},
 	mounted() {
-		// console.log(this.props)
-		this.refresh();
+		this.refreshTree(this.value)
 	},
 	methods: {
 		refreshTree(val) {
 			if (!val) {
-				this.checked = [];
+				this.checked = []
 			}
-			let ids = [];
-			// 处理半选状态
-			let fn = (list) => {
-				list.forEach((e) => {
-					
-					e.label = e.name
-					e.value = e.id
-					
-					if (e.children) {
-						fn(e.children);
-					} else {
-						ids.push(e._id);
-					}
-				});
-			};
-			fn(this.list);
+			let ids = [],
+				list = this.zz.revDeepTree(this.list),
+				fn = (cur) => {
+					ids.unshift(cur._id)
+					let p = list.find(e=>e._id==cur.parentId)
+					if(p) fn(p)
+				}
 			
-			this.checked = ids.filter((id) => (val || []).includes(id));
-		// console.log(this.checked)
-		},
-		refresh() {
-			this.$service.system.dept
-				.list({load:true})
-				.then((res) => {
-					this.list = this.zz.deepTree(res);
-					this.refreshTree(this.value);
-				})
-				.catch((err) => {
-					this.$message.error(err);
-				});
+			fn(list.find(e=>e._id==val))
+			this.checked = ids
 		},
 		filterNode(val, data) {
 			if (!val) return true;
 			return data.name.includes(val);
 		},
 		change(e) {
-			// console.log(e)
 			this.$emit("input", e);
-			// const cascader = this.$refs["cascader"];
-			// 选中的节点
-			// const checked = cascader.getCheckedNodes();
-			// 半选中的节点
-			// console.log(checked[0].data)
 		}
 	}
 };

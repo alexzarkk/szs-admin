@@ -5,7 +5,7 @@ import store from "@/store"
 import { LoadService } from "@/cool"
 import App from "./App"
 import Layout from "@/components/layout"
-// import VueTianditu from "@/components/tdt"
+import VueTianditu from "@/components/tdt"
 
 import zz from '@/comm/zz'
 
@@ -48,7 +48,7 @@ Vue.component('VueIcon', Icon)
 Vue.component("cl-layout", Layout)
 Vue.use(dataV)
 Vue.use(ElementUI)
-// Vue.use(VueTianditu, { v: "4.0", tk: "70ede380913047ef13bc4dc92ff4f75b" })
+Vue.use(VueTianditu, { v: "4.0", tk: "70ede380913047ef13bc4dc92ff4f75b" })
 Vue.use(Crud, {
 	crud: {
 		dict: {

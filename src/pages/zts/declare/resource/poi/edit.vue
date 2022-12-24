@@ -13,7 +13,7 @@
 					</el-row>
 					<el-form-item label="属地" prop="region">
 						<block v-if="cid.length>1">
-							<cl-dept-cascader2 v-if="timTimer" :id="cur.deptId" @input="setRegion"></cl-dept-cascader2>
+							<cl-dept-cascader v-if="timTimer" :value="form.deptId" @input="setRegion"/>
 						</block>
 						<el-checkbox-group v-model="form.region" @change="regionChange">
 							<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">
@@ -21,12 +21,8 @@
 							</el-checkbox>
 						</el-checkbox-group>
 					</el-form-item>
+					
 					<el-row v-if="form.deptId">
-						<el-col :span="12">
-							<el-form-item label="电话" prop="phone">
-								<el-input size="small" v-model="form.phone" placeholder="如有请输入"></el-input>
-							</el-form-item>
-						</el-col>
 						<el-col :span="12">
 							<el-form-item label="地址" prop="coord">
 								<view  @click="visible = true">
@@ -34,6 +30,11 @@
 										<el-input size="small" v-model="form.addr" disabled placeholder="请选择..."></el-input>
 									</el-tooltip>
 								</view>
+							</el-form-item>
+						</el-col>
+						<el-col :span="12">
+							<el-form-item label="电话" prop="phone">
+								<el-input size="small" v-model="form.phone" placeholder="如有请输入"></el-input>
 							</el-form-item>
 						</el-col>
 					</el-row>
@@ -55,17 +56,17 @@
 					</el-form-item>
 
 					<el-form-item label="封面照片" prop="cover">
-						<cl-upload :value="form.cover" @input="onUpload"></cl-upload>
+						<cl-upload :value="form.cover" @input="onUpload" :limit="1"></cl-upload>
 					</el-form-item>
 					
-					<tool-tip></tool-tip>
 					
 					<el-form-item label="视频">
-						<cl-upload :value="form.video.url" @input="setVideo" :fileType="'video'" is-space></cl-upload>
+						<cl-upload :value="form.video.url" @input="setVideo" :limit="1" :fileType="'video'"></cl-upload>
+						<!-- <cl-upload :value="form.video.url" @input="setVideo" :fileType="'video'" is-space></cl-upload> -->
 						<view v-if="form.video.url">
-							<video id="myVideo" :src="form.video.url" controls></video>
+							<el-input size="small" v-model="form.video.desc" placeholder="视频说明"></el-input>
 						</view>
-						<el-input size="small" v-model="form.video.desc" placeholder="视频说明"></el-input>
+						
 					</el-form-item>
 
 					<el-form-item label="简介" prop="desc">
@@ -73,26 +74,27 @@
 					</el-form-item>
 
 					<el-form-item label="详情" prop="content">
-						<cl-editor-tinymce v-if="timTimer" v-model="form.content" :options="{height:600}"></cl-editor-tinymce>
+						<!-- <view class="sticky-box" style="top: 160px;"> -->
+						<cl-editor-tinymce v-if="timTimer" v-model="form.content" @uploaded="uploaded" :options="{height:600}"></cl-editor-tinymce>
+						<!-- </view> -->
 					</el-form-item>
 
 				</el-form>
 			</div>
-			<view class="flex justify-center align-start">
+			<view class="flex justify-center align-center">
 				<view class="flex-twice">
-					<block v-if="updateTime">
-						<el-link type="info">自动保存：{{updateTime}}</el-link>
-					</block>
+					<el-link v-if="updateTime" type="info">自动保存：{{updateTime}}</el-link>
 				</view>
-				<view class="flex-twice padding-tb-xs">
-					<el-button type="info" @click="back('view')">返 回</el-button>
-					<el-button type="success" @click="submitForm('view')">预 览</el-button>
-					<el-button type="primary" @click="submitForm('save')">保 存</el-button>
+				<view class="flex-twice padding-top-xs">
+					<el-button size="small" type="info" @click="back('view')">返 回</el-button>
+					<el-button size="small" type="success" @click="submitForm('view')">预 览</el-button>
+					<el-button size="small" type="primary" @click="submitForm('save')">保 存</el-button>
+					<!-- <el-button size="small" type="warning" @click="submitForm('audit')">递交审核</el-button> -->
 				</view>
 			</view>
 		</div>
-		<cl-dialog :title="form.addr||'位置坐标'" :height="'600px'" :width="'880px'" :controls="['close']" :visible.sync="visible">
-			<!-- <tdt-map :center="form.coord||center" :zoom="13" @init="initTdt">
+		<cl-dialog :title="form.addr||'位置坐标'" :props="{fullscreen:false}" :width="'800px'" :height="'600px'" :controls="['close']" :visible.sync="visible">
+			<tdt-map :center="form.coord||center" :zoom="13" @init="initTdt">
 				<block v-if="form.coord">
 					<tdt-marker :position="form.coord" :dragging="true" :edit="true" @dragend="marked"></tdt-marker>
 				</block>
@@ -105,45 +107,36 @@
 						:extData="pm"
 					></tdt-polyline>
 				</block>
-				<tdt-mousetool ref="mousetool" :markTool="{follow:true}" :polygonTool="{showLabel:true}"
-					:polylineTool="{showLabel:true, color:'#d80000'}" @markend="marked" @polyline-draw="lineDrawed"
-					@polygon-draw="gonDrawed">
-				</tdt-mousetool>
-			</tdt-map> -->
-		</cl-dialog>
-		<cl-dialog :title="'扫码预览'" :height="'200px'" :width="'240px'" :controls="['close']" :visible.sync="preview">
-			<image style="width: 200px; height: 200px;" mode="aspectFill" :src="svg"></image>
+				<tdt-mousetool ref="mousetool" :markTool="{follow:true}" @markend="marked"/>
+				
+			</tdt-map>
 		</cl-dialog>
 	</cl-layout>
 </template>
 
 <script>
-	//var QRCode = require("qrcode-svg");
-	import { mapGetters } from 'vuex';
-	import { poi } from "@/cool/utils/dict.js"
-	import { getLable, getCids } from "@/config/dict";
-	import { timeToDate } from "@/cool/utils/index.js";
 
 	export default {
 		data() {
 			return {
 				cid: [],
-				poi: poi,
+				poi: this.$store.getters.dict.poi,
+				dept: this.$store.getters.dictObj.deps,
+				userInfo: this.$store.getters.userInfo,
+				refKml: [],
 				visible: false,
 				center: [120.15, 30.28],
-				refKml: [],
 				region: [],
 				loading: true,
 				timTimer: null,
 				updateTime: '',
-				preview: false,
-				svg: 'https://zts.5618.co/static/loadding.gif',
-				cur:{},
 				form: {
 					region: [],
 					type: [],
 					video:{},
+					content:''
 				},
+				imgs: [],
 				rules: {
 					name: [{
 						required: true,
@@ -198,9 +191,6 @@
 				}
 			};
 		},
-		computed: {
-			...mapGetters(['lay', 'userInfo'])
-		},
 		activated() {
 			this.init()
 		},
@@ -209,14 +199,15 @@
 		},
 		mounted() {
 			// this.gd = new T.Geocoder()
-			this.cid = getCids(this.userInfo.departmentId)
+			console.log(this.$store.getters.dictObj);
+			this.cid = this.zz.deptCids(this.$store.getters.dict.deps, this.userInfo.departmentId)
 			this.init()
 		},
 		methods: {
 			async init() {
 				this.form = {
 					name: '',
-					deptId: '',
+					deptId: this.userInfo.departmentId,
 					level: 1,
 					region: [],
 					type: [],
@@ -236,7 +227,7 @@
 					this.setRegion(this.cid)
 				}
 				this.loading = true
-				let id = this.$route.query._id
+				let id = uni.getStorageSync('poi_edit')
 				if (!id) {
 					await this.$service.zts.poi.page({ userId: this.userInfo._id, status: 1 }).then(res => {
 						if (res.list.length) { 
@@ -250,29 +241,28 @@
 							this.form._id = e.id
 						})
 					}
-					if (this.form.deptId) {
-						this.getRegions(this.form.deptId)
-					}
-					
 				} else {
-					this.cur = await this.$service.zts.poi.info({id})
-					this.form = this.cur
+					this.form = await this.$service.zts.poi.info({id})
 				}
+				this.getRegions(this.form.deptId)
 				this.autoUpdate()
 				this.loading = false
+				this.form.content.split('img src=').forEach((s,i)=>{
+					if(i>0) this.imgs.push(s.split('"')[1])
+				})
+				console.log(this.imgs)
 			},
 			autoUpdate() {
-				return console.log('.........autoUpdate');
+				// this.timTimer = true
+				// return console.log('.........autoUpdate', this.form);
 				if (this.timTimer) this.clearTim()
 				this.timTimer = setInterval(() => {
-					this.updateTime = timeToDate()
-					this.$service.zts.poi.update({ ...this.form })
-				}, 40000);
+					this.save()
+				}, 40000)
 			},
 			clearTim() {
+				console.log('clearTim .............',this.timTimer);
 				clearInterval(this.timTimer)
-				this.timTimer = null
-				this.updateTime = ''
 			},
 			initTdt(e) {
 				this.map = e
@@ -292,26 +282,25 @@
 				if (pid) {
 					this.form.deptId = pid + ''
 					this.region = await this.$service.system.dept.list({pid})
-					this.gd.getPoint(getLable(pid), e => {
-						console.log(getLable(pid),[e.location.lon, e.location.lat, 0], e);
+					// this.center = await this.zz.req({$url:'/admin/zz/geoGon', code: pid, center:1})
+					window.geoCoder.getPoint(this.dept[pid].name, e => {
+						console.log(this.dept[pid].name,[e.location.lon, e.location.lat, 0], e);
 						this.center = [e.location.lon, e.location.lat, 0]
 						this.onNear()
 					})
 				}
 			},
 			regionChange(e) {
-				// console.log("属地单选",e)
 				if (e.length) {
 					for (let s of this.region) {
 						if (s.id == e[e.length - 1]) {
-							this.gd.getPoint(s.name, x => {
+							window.geoCoder.getPoint(s.name, x => {
 								this.center = [x.location.lon, x.location.lat, 0]
 							})
 						}
 					}
 				}
 			},
-			
 			async onNear(){
 				let e = await this.$service.zts.layout.around({deptId:this.form.deptId, coord:[this.center]}),
 					prop = {
@@ -328,7 +317,7 @@
 							}
 				}
 				this.refKml = e.line
-				// console.log("获取到的当前属地的信息.onNear",e.line)
+				console.log("获取到的当前属地的信息.onNear",e.line)
 			},
 			marked(e) {
 				let coord
@@ -342,7 +331,7 @@
 					var addressComponent = e.getAddressComponent();
 					this.form.addr = addressComponent.address
 				}
-				this.gd.getLocation(new T.LngLat(coord[0], coord[1]), searchResult);
+				window.geoCoder.getLocation(new T.LngLat(coord[0], coord[1]), searchResult);
 			},
 			setLevel(e) {
 				this.form.type = []
@@ -353,67 +342,44 @@
 			setVideo(e) {
 				console.log('setVideo:', e);
 				this.form.video.url = e },
+				
+			// uploaded(e){ this.imgs.push(e) },
+			async save(){
+				
+				// let img = []
+				// this.form.content.split('img src=').forEach((s,i)=>{
+				// 	if(i>0) img.push(s.split('"')[1])
+				// })
+				// for (let s of this.imgs) {
+				// 	if(img.findIndex(p=>p==s)==-1) {
+				// 		await this.$service.space.info.delete({url: s})
+				// 	}
+				// }
+				// this.imgs = img
+				
+				await this.$service.zts.poi.update({ ...this.form })
+				this.updateTime = this.zz.time2Date()
+			},
 			async submitForm(tar) {
-				let veri = false
-				this.$refs.form.validate((valid) => {
-					if (valid) {
-						// alert('submit!');
-						veri = true
-					} else {
-						console.log('error submit!!');
-						return false;
-					}
-				});
+				let veri = await this.$refs.form.validate()
 				if (veri) {
+					
 					this.loading = true
-					if (this.form.status == 1) this.form.status = 2
-					// console.log("提交的内容",this.form)
-					await this.$service.zts.poi.update({
-						...this.form
-					}).done(() => {
-						this.loading = false;
-
-						if (tar == 'view') {
-							// console.log('预览', this.form)
-							if (!this.preview) {
-								this.preview = true
-								let qrcode = new QRCode({
-									content: "https://zts.5618.co/build/#/pages/share?path=/pages/planning/poi?id=" +
-										this.form._id,
-									join: true
-								});
-								let svg = qrcode.svg();
-								this.$service.zts.poi.preview({
-									file: svg
-								}).then(e => {
-									this.svg = e
-								})
-								let t = this
-								setTimeout(function() {
-									t.$service.space.info.delete({
-										url: t.svg
-									})
-								}, 3000);
-							}
-						}
-						if (tar == 'save') { // 保存
-							this.$message.success("保存成功");
-							// uni.removeStorageSync('zts_poi_edit')
-							// setTimeout(() => {
-							// 	// this.$router.back();
-							// 	this.$router.push({
-							// 		path:'/pages/zts/poi/list',
-							// 		query:{
-							// 			refresh:true
-							// 		}
-							// 	})
-							// }, 500)
-						}
-					});
+					await this.save()
+					this.loading = false
+					
+					//预览
+					if (tar == 'view') {
+						this.zz.preview({path:'/pages/planning/poi', id: this.form._id})
+					}
+					// 保存
+					if (tar == 'save') { 
+						this.$message.success("保存成功")
+					}
 				}
 			},
 			back(){
-				this.$router.back();
+				this.$router.back()
 			}
 		}
 	};
@@ -428,7 +394,7 @@
 
 			box-sizing: border-box;
 			overflow-x: hidden;
-			height: calc(100% - 52px);
+			height: calc(100% - 46px);
 		}
 
 		height: calc(100%);

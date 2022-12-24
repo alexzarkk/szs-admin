@@ -4,33 +4,32 @@
 			<div class="pane">
 				<!-- 部门区域 -->
 				<div class="dept" :class="[!expand ? '_expand' : '_collapse']">
-					<cl-dept-tree :deptId="$store.getters.userInfo.dept.id" @check="deptSet"></cl-dept-tree>
+					<cl-dept-tree @check="deptSet"></cl-dept-tree>
 				</div>
 				<!-- 资源列表 -->
 				<div class="user">
 					<cl-crud ref="crud" @load="onCrudLoad" boder>
 						<el-row type="flex">
 							<view class="flex align-center">
-								<div class="icon padding-lr-xs" @click="deptExpand">
+								<div class="icon padding-lr-xs" @click="expand = !expand">
 									<i class="cursor el-icon-arrow-right" v-if="expand"></i>
 									<i class="cursor el-icon-arrow-left" v-else></i>
 								</div>
 							</view>
 							<cl-refresh-btn />
 							<el-button size="mini" type="primary" @click="edit(false)">新增</el-button>
-							<!-- <el-button size="mini" :loading="epxorting" class="filter-item" type="primary" icon="el-icon-download" @click="download">
-									导出 Excel
-								</el-button> -->
 							<cl-multi-delete-btn />
 							<cl-flex1 />
+							
 							<cl-filter label="状态">
 								<el-select size="mini" v-model="status" @change="refresh()">
-									<el-option value="" label="全部"></el-option>
-									<el-option :value="1" label="草稿"></el-option>
-									<el-option :value="2" label="待审核"></el-option>
-									<el-option :value="10" label="已审核"></el-option>
+									<el-option :value="0" label="全部"></el-option>
+									<block v-for="(st, idx) in commSt" :key="idx">
+										<el-option :value="st.value" :label="st.label"></el-option>
+									</block>
 								</el-select>
 							</cl-filter>
+							
 							<cl-filter label="等级">
 								<el-select size="mini" v-model="level" @change="refresh()">
 									<el-option :value="0" label="全部"></el-option>
@@ -72,6 +71,11 @@
 											align: 'center'
 										},
 										{
+											prop: 'cover',
+											label: '封面',
+											align: 'center'
+										},
+										{
 											prop: 'level',
 											label: '类型',
 											align: 'center'
@@ -96,9 +100,16 @@
 											label: '操作',
 											align: 'center',
 											type: 'op',
-											buttons: ['slot-edit', 'slot-detail', 'slot-veri']
+											buttons: ['slot-btn']
 										}
 									]">
+									
+								<template #column-cover="{ scope }">
+									<template v-if="scope.row.cover">
+										<el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover" :preview-src-list="[scope.row.cover]"/>
+									</template>
+								</template>
+									
 								<!-- 时间 -->
 								<template #column-updateTime="{ scope }">
 									{{ scope.row.updateTime.substring(0, 16) }}
@@ -120,22 +131,20 @@
 								</template>
 
 								<template #column-status="{ scope }">
-									<el-tag size="small" effect="dark" :type="poi.st[scope.row.status].type">
-										{{ poi.st[scope.row.status].text }}
+									<el-tag size="small" effect="dark" :type="commStO[scope.row.status].type">
+										{{ commStO[scope.row.status].label }}
 									</el-tag>
 								</template>
-
-								<template #slot-edit="{ scope }">
-									<el-button type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
-								</template>
-								<template #slot-detail="{ scope }">
-									<el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button>
-								</template>
-								<template #slot-veri="{ scope }">
-									<el-button type="text" size="mini"
-										v-if="scope.row.status!==4&&scope.row.status!==10"
-										 @click="toAudit(scope.row)" 
-										 v-permission="$service.zts.kml.permission.verify">审核</el-button>
+								
+								<template #slot-btn="{ scope }">
+									<block v-if="scope.row.status>0&&scope.row.status<10">
+										<el-button v-if="scope.row.status<6" type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status<6" @click="toSubmit(scope.row,6)">递交审核</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status==6" @click="toSubmit(scope.row,4)">撤回审核</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status==6" @click="toAudit(scope.row)" 
+											v-permission="$service.zts.kml.permission.verify">审核</el-button>
+									</block>
+									<el-button type="text" size="mini" @click="preview(scope.row)">预览</el-button>
 								</template>
 							</cl-table>
 						</el-row>
@@ -149,47 +158,29 @@
 				</div>
 			</div>
 		</div>
-
-		<cl-dialog :title="'扫码预览'" :height="'200px'" :width="'240px'" :controls="['close']" :visible.sync="preview">
-			<image style="width: 200px; height: 200px;" mode="aspectFill" :src="svg"></image>
-			<!-- <zz-qrcode :url="shareUrl"></zz-qrcode> -->
-		</cl-dialog>
 		
-		<zts-audit :tar="'poi'" :type="'资源信息'" :cur="cur" @refresh="refresh"></zts-audit>
+		<zts-audit :tt="$store.getters.dict.ue.poi" :cur="cur" @refresh="refresh()"></zts-audit>
 		
 	</cl-layout>
-	<!-- </cl-layout> -->
 </template>
 
 <script>
-	//var QRCode = require("qrcode-svg");
-	import { poi } from "@/cool/utils/dict.js"
-	import { checkPerm } from "@/cool/permission"
-
 	export default {
 		data() {
 			return {
 				poi: this.$store.getters.dict.poi,
+				commSt: this.$store.getters.dict.commSt,
+				commStO: this.$store.getters.dictObj.commSt,
 				dept: this.$store.getters.deptLabel,
-				level: 0,
-				status: '',
-				winStyle: '',
 				expand: this.$store.getters.userInfo.isLeaf,
 				
-				preview: false,
-				svg: 'https://zts.5618.co/static/loadding.gif',
-				epxorting: false,
+				level: 0,
+				status: 0,
+				dpids: [],
 				cur: {}
 			};
 		},
-		async mounted() {
-			console.log(this.poi);
-			
-		},
 		methods: {
-			deptExpand() {
-				this.expand = !this.expand;
-			},
 			deptSet(e) {
 				this.dpids = e
 				this.refresh()
@@ -200,7 +191,7 @@
 					dpids: this.dpids,
 					status: this.status,
 					level: this.level? this.level: [1,2,3,4,5,6]
-				});
+				})
 			},
 			onCrudLoad({ ctx, app }) {
 				ctx.service(this.$service.zts.poi).done();
@@ -208,27 +199,38 @@
 					page: 1,
 					isoDept: true,
 					level: [1,2,3,4,5,6]
-				});
+				})
 			},
-			poiType(value) {
-				let v = ''
+			poiType(val) {
 				for (let k in this.poi) {
 					for (let s of this.poi[k]) {
-						if(s.value==value) return s.text
+						if(s.value==val) return s.text
 					}
 				}
-				return v
+				return ''
 			},
-			edit(e) {
-				if(e && e.userId != this.$store.getters.userInfo._id && (!checkPerm(this.$service.zts.kml.permission.superEdit))) return this.$message.error(`无法更新他人数据！`);
-				this.$router.push({
-					path: '/pages/zts/declare/resource/poi/edit',
-					query: {_id:e? e._id:0}
-				});
+			preview(e) {
+				this.zz.preview({path:'/pages/planning/poi', id:e._id})
 			},
-			detail(e) {
-				this.zz.preview({path:'/pages/planning/poi',id:e._id})
+			
+			async edit(e) {
+				if(await this.$store.dispatch('hasPerm', {obj: e, perms: [this.$service.zts.kml.permission.superEdit]})) {
+					uni.setStorageSync('poi_edit', e?e._id:0)
+					this.$router.push('/pages/zts/declare/resource/poi/edit')
+				}
 			},
+			
+			
+			//递交/撤回审核
+			async toSubmit(e,status){
+				if(await this.$store.dispatch('hasPerm', {obj:e})) {
+					let load = this.$loading()
+					await this.$service.zts.poi.update({ _id: e._id, status })
+					load.close()
+					this.refresh()
+				}
+			},
+			
 			toAudit(e){
 				this.cur = {}
 				setTimeout(()=> {this.cur = e}, 10)
@@ -243,7 +245,6 @@
 			height: 100%;
 			position: relative;
 		}
-
 		.dept {
 			height: 100%;
 			width: 200px;
@@ -259,7 +260,6 @@
 				width: 0;
 			}
 		}
-
 		.user {
 			width: calc(100% - 310px);
 			flex: 1;

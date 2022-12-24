@@ -127,7 +127,7 @@
 
 <script>
 import { upload } from '@/cool/utils/uploadKml.js';
-import { dept } from "@/comm/dict"
+// import { dept } from "@/comm/dict"
 // import { prop } from "@/cool/utils/dict"
 // import { openWin } from "@/cool/utils"
 
@@ -137,7 +137,7 @@ export default {
 	data() {
 		return {
 			// CodeToText,
-			dept: dept.getLabel(),
+			dept: this.$store.getters.deptLabel,
 			name: '',
 			selected:[],
 			epxorting: false,
@@ -162,7 +162,7 @@ export default {
 		}
 	},
 	mounted() {
-		
+		console.log(this.$store.getters.userInfo);
 	},
 	
 	methods: {

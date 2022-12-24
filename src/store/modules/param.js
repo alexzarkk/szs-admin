@@ -1,6 +1,8 @@
 export default {
 	state: {
-		dict: uni.getStorageSync("8C7D00B_dict") || {v:0}
+		dict: uni.getStorageSync("8C7D00B_dict") || {v:0},
+		dictObj: uni.getStorageSync("8C7D00B_dictObj") || {}
+		
 	},
 	actions: {
 		async sysDict({ commit, state }) {
@@ -8,37 +10,6 @@ export default {
 				console.log('SET_SYS_DICT ================>',e)
 				if(state.dict.v < e.v) commit("SET_SYS_DICT", e)
 			})
-		},
-		
-		getCids({ state },id) {
-			let arr = [id * 1]
-			for (let s of state.dict.deps) {
-				if (s.pid == id) {
-					arr.push(s.id)
-				}
-			}
-			return arr
-		},
-		getParent({ state },pid) {
-			for (let s of state.dict.deps) {
-				if (s.id == pid) {
-					return s
-				}
-			}
-			return null
-		},
-		deptObj({ state }) {
-			let d = {}
-			for (let s of state.dict.deps) {
-				d[s.id] = s
-			}
-			return d
-		},
-		getDept({ state },o) {
-			for (let s of state.dict.deps) {
-				if (s.id == o || s.name == o) return s
-			}
-			return {}
 		}
 	},
 	getters: {
@@ -52,13 +23,36 @@ export default {
 				})
 			}
 			return arr
-		},
-		
+		}
 	},
 	mutations: {
 		SET_SYS_DICT(state, val) {
+			let o = {}
+			const toObj = (k, e) => {
+				if(!o[k]) o[k] = {}
+				if((e instanceof Array)) {
+					for (let s of e) {
+						o[k][s.value||s.id] = s
+					}
+				} else {
+					for (let k2 in e) {
+						if(e[k2] instanceof Array) {
+							toObj(k+'_'+k2, e[k2])
+						} else {
+							o[k][k2] = e[k2]
+						}
+					}
+				}
+			}
+			for (let k in val) {
+				toObj(k, val[k])
+			}
+			
 			state.dict = val
+			state.dictObj = o
+			
 			uni.setStorageSync("8C7D00B_dict", val)
+			uni.setStorageSync("8C7D00B_dictObj", o)
 		},
 		CLEAR_SYS_DICT(state) {
 			state.dict = val

@@ -40,7 +40,7 @@ export default {
 		lay: {
 			deep: true,
 			handler(v) {
-				this.resize()
+				// this.resize()
 			}
 		}
 	},
@@ -155,7 +155,7 @@ export default {
 			if (!map) return
 			if (!map.init) return this.init(self, option, center, isf)
 			
-			// console.log('map.inited...')
+			console.log('map.inited...')
 			// console.log('updateData:=======================', center,point,line);
 			// console.log('updateData.old:====',ov);
 			

@@ -46,7 +46,7 @@
 			AMapLoader.load({
 				key: amapKey,
 				version: "2.0",
-				plugins:['AMap.Geolocation']
+				plugins:['AMap.Geolocation','AMap.Geocoder']
 			}).then(e=>{
 				console.log('AMap.Geolocation.loaded ..................');
 				window.amapGeo = new AMap.Geolocation({
@@ -99,5 +99,17 @@
 </script>
 
 <style lang="scss">
-@import "@/static/css/index.scss"
+@import "@/static/css/index.scss";
+
+.sticky-box {
+    /* #ifndef APP-PLUS-NVUE */
+    position: -webkit-sticky;
+    /* #endif */
+    position: sticky;
+    top: var(--window-top);
+    z-index: 888;
+    margin: 0px;
+    padding: 0px;
+}
+
 </style>
