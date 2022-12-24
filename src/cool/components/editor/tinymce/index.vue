@@ -14,7 +14,6 @@ export default {
 	components: { TinymceVue },
 	props: {
 		value: null,
-		
 		options: Object
 	},
 	data() {

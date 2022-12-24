@@ -349,10 +349,25 @@ export default {
 	methods: {
 		async mytest(){
 			
-			let tk = await this.zz.req({$fn: 'app', $url: '/admin/comm/loginGov', ticketId: 'debug_tk_e4a0dc3fcc8d464ba336b9bcb1ba2072' })
+			let list = await this.zz.req({$url: '/admin/zts/station/batch' })
 			
-			console.log('lgoinformwx ------------>',tk);
+			console.log('lgoinformwx ------------>',list);
+			for (let s of list) {
+				delete s.userInfo
+				delete s.user
+				delete s.avatar
+				s.cover = ''
+				if(s.imgs&&s.imgs.length) {
+					s.cover = s.imgs[0]
+					delete s.imgs
+				}
+				s.content = ''
+				
+				await this.zz.req({$url: '/admin/zts/station/add', ...s })
+			}
 			
+			
+			await this.zz.req({$url: '/admin/zts/poi/delete', ids: list.map(e=>e._id) })
 		},
 		openForm() {
 			this.$refs["form"].open({

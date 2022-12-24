@@ -100,16 +100,4 @@
 
 <style lang="scss">
 @import "@/static/css/index.scss";
-
-.sticky-box {
-    /* #ifndef APP-PLUS-NVUE */
-    position: -webkit-sticky;
-    /* #endif */
-    position: sticky;
-    top: var(--window-top);
-    z-index: 888;
-    margin: 0px;
-    padding: 0px;
-}
-
 </style>

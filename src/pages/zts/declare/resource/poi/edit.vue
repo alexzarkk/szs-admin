@@ -136,7 +136,6 @@
 					video:{},
 					content:''
 				},
-				imgs: [],
 				rules: {
 					name: [{
 						required: true,
@@ -198,8 +197,6 @@
 			this.clearTim()
 		},
 		mounted() {
-			// this.gd = new T.Geocoder()
-			console.log(this.$store.getters.dictObj);
 			this.cid = this.zz.deptCids(this.$store.getters.dict.deps, this.userInfo.departmentId)
 			this.init()
 		},
@@ -207,6 +204,7 @@
 			async init() {
 				this.form = {
 					name: '',
+					userId: this.userInfo._id,
 					deptId: this.userInfo.departmentId,
 					level: 1,
 					region: [],
@@ -220,8 +218,7 @@
 					video:{},
 					desc: '',
 					content: '',
-					status: 1,
-					userId: this.userInfo._id
+					status: 1
 				}
 				if (this.cid.length == 1) {
 					this.setRegion(this.cid)
@@ -247,10 +244,10 @@
 				this.getRegions(this.form.deptId)
 				this.autoUpdate()
 				this.loading = false
-				this.form.content.split('img src=').forEach((s,i)=>{
-					if(i>0) this.imgs.push(s.split('"')[1])
-				})
-				console.log(this.imgs)
+				// this.form.content.split('img src=').forEach((s,i)=>{
+				// 	if(i>0) this.imgs.push(s.split('"')[1])
+				// })
+				// console.log(this.imgs)
 			},
 			autoUpdate() {
 				// this.timTimer = true
