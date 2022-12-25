@@ -9,17 +9,22 @@
 								<el-input size="small" v-model="form.name" placeholder="请输入标题名称"></el-input>
 							</el-form-item>
 						</el-col>
+						<el-col :span="12"/>
 					</el-row>
-					<el-form-item label="属地" prop="region">
-						<block v-if="cid.length>1">
-							<cl-dept-cascader2 v-if="timTimer" :id="cur.deptId" @input="setRegion"></cl-dept-cascader2>
-						</block>
-						<el-checkbox-group v-model="form.region" @change="regionChange">
-							<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">
-								{{ item.name }}
-							</el-checkbox>
-						</el-checkbox-group>
-					</el-form-item>
+					
+					<el-row>
+						<el-form-item label="属地" prop="region">
+							<block v-if="userInfo.deptChild.length>1">
+								<cl-dept-cascader v-if="timTimer" :value="form.deptId" @input="setRegion"/>
+							</block>
+							<el-checkbox-group v-model="form.region" @change="regionChange">
+								<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">
+									{{ item.name }}
+								</el-checkbox>
+							</el-checkbox-group>
+						</el-form-item>
+					</el-row>
+					
 					<el-row>
 						<el-col>
 							<el-form-item label="线路轨迹" prop="kml">
@@ -71,12 +76,6 @@
 							</el-form-item>
 						</el-col>
 					</el-row>
-					<!-- <el-form-item label="预计耗时" prop="desc">
-						<el-date-picker placeholder="选择时间" v-model="form.ondate" type="daterange" size="small"
-										value-format="yyyy-MM-dd"
-										start-placeholder="开建日期"
-										end-placeholder="完成日期"></el-date-picker>
-					</el-form-item> -->
 					
 					<el-divider><i class="el-icon-collection-tag" ></i></el-divider>
 				
@@ -119,15 +118,15 @@
 					</el-form-item>
 					<el-form-item label="景观元素" prop="element">
 						<el-checkbox-group size="small" v-model="form.element">
-							<el-checkbox v-for="(item, idx) in trail.viewElement" :key="idx" :label="item.value">
-								{{ item.text }}
+							<el-checkbox v-for="(item, idx) in trail.element" :key="idx" :label="item.value">
+								{{ item.label }}
 							</el-checkbox>
 						</el-checkbox-group>
 					</el-form-item>
 					<el-form-item label="基础设施" prop="serve">
 						<el-checkbox-group size="small" v-model="form.serve">
 							<el-checkbox v-for="(item, idx) in trail.serverPoi" :key="idx" :label="item.value">
-								{{ item.text }}
+								{{ item.label }}
 							</el-checkbox>
 						</el-checkbox-group>
 					</el-form-item>
@@ -136,8 +135,8 @@
 						<el-col>
 							<el-form-item label="印象评分">
 								<el-descriptions title="" :column="2"  border>
-									<block v-for="(k, i) of ip" :key="i">
-										<el-descriptions-item :label="k.name">
+									<block v-for="(k, i) of trail.ip" :key="i">
+										<el-descriptions-item :label="k.label">
 											<el-rate v-model="form.ip[i]" :colors="ipcolor"></el-rate>
 										</el-descriptions-item>
 									</block>
@@ -146,28 +145,42 @@
 						</el-col>
 					</el-row>
 					
+					<el-form-item label="封面照片" prop="cover">
+						<cl-upload :value="form.cover" @input="onUpload" :limit="1"></cl-upload>
+					</el-form-item>
+					
 					<el-row>
 						<el-col>
 							<el-form-item label="轮播照片" prop="imgs">
-								<cl-upload v-model="form.imgs" is-space></cl-upload>
+								<cl-upload v-model="form.imgs" is-space :limit="12"></cl-upload>
 								<cl-pics :pics="form.imgs" @updatePic="updatePic"></cl-pics>
 							</el-form-item>
 						</el-col>
 					</el-row>
 						
-					<el-form-item label="封面照片" prop="cover">
-						<cl-upload :value="form.cover" @input="onUpload"></cl-upload>
-					</el-form-item>
-					
-					<tool-tip></tool-tip>
-					
-					<el-form-item label="视频">
-						<cl-upload :value="form.video.url" @input="setVideo" :fileType="'video'"></cl-upload>
-						<view v-if="form.video.url">
-							<video id="myVideo" :src="form.video.url" controls></video>
-						</view>
-						<el-input size="small" v-model="form.video.desc" placeholder="视频说明"></el-input>
-					</el-form-item>
+					<el-row>
+						<el-col :span="form.video.url?16:8">
+							<el-form-item label="视频">
+								<cl-upload :value="form.video.url" @input="setVideo" :limit="1" :fileType="'video'"></cl-upload>
+								<view v-if="form.video.url">
+									<el-input size="small" v-model="form.video.desc" placeholder="视频说明"></el-input>
+								</view>
+							</el-form-item>
+						</el-col>
+						<el-col v-if="!form.video.url" :span="form.video.url?8:16">
+							<view class="flex align-center">
+								<text class="text-red">*</text>
+								<text class="text-gray text-sm">照片或视频请在本地进行压缩后再上传
+									<text class="padding-left-xs"></text>
+									<el-link type="primary" href="https://zts.5618.co/repo/JPEGResizer.zip" target="_blank">照片压缩工具下载</el-link>
+									<text class="padding-left-xs"></text>
+									<el-link type="primary" href="https://zts.5618.co/repo/HandBrake-1.3.3-x86_64-Win_GUI.exe" target="_blank">视频压缩工具下载</el-link>
+									<text class="padding-left-xs"></text>
+									<el-link type="primary" href="https://vvideo.vip" target="_blank">视频网站搬运解码</el-link>
+								</text>
+							</view>
+						</el-col>
+					</el-row>
 					
 					
 					<el-form-item label="简介" prop="desc">
@@ -180,45 +193,37 @@
 
 				</el-form>
 			</div>
-			<view class="flex justify-center align-start">
+			<view class="flex justify-center align-center">
 				<view class="flex-twice">
-					<block v-if="updateTime">
-						<el-link type="info">自动保存：{{updateTime}}</el-link>
-					</block>
+					<el-link v-if="updateTime" type="info">自动保存：{{updateTime}}</el-link>
 				</view>
-				<view class="flex-twice padding-tb-xs">
-					<el-button type="info" @click="back('view')">返 回</el-button>
-					<el-button type="success" @click="submitForm('view')">预 览</el-button>
-					<el-button type="primary" @click="submitForm('save')">保 存</el-button>
+				<view class="flex-twice padding-top-xs">
+					<el-button size="small" type="info" @click="back('view')">返 回</el-button>
+					<el-button size="small" type="success" @click="submitForm('view')">预 览</el-button>
+					<el-button size="small" type="primary" @click="submitForm('save')">保 存</el-button>
 				</view>
 			</view>
 		</div>
-		<cl-dialog :title="'扫码预览'" :height="'200px'" :width="'240px'" :controls="['close']" :visible.sync="preview">
-			<image style="width: 200px; height: 200px;" mode="aspectFill" :src="svg"></image>
-		</cl-dialog>
 		
 		<!-- 添加路线 -->
-		<cl-dialog title="选取轨迹" :width="'80%'" :height="lay.height - 42 + 'px'" :props="{ top: '0vh' }" :visible.sync="showKml">
-			<cList :height="lay.height" @add="addKml"></cList>
+		<cl-dialog title="选取轨迹" :width="'80%'" :props="{fullscreen:false,top: '0vh'}" :height="lay.height - 42 + 'px'" :visible.sync="showKml">
+			<cList :height="lay.height" :kmlId="form.kmlId" @add="addKml"></cList>
 		</cl-dialog>
 	</cl-layout>
 </template>
 
 <script>
-	//var QRCode = require("qrcode-svg");
-	import { mapGetters } from 'vuex';
-	import { trail,impression } from "@/cool/utils/dict.js"
-	import { getLable, getCids } from "@/config/dict";
+	import {dist} from '@/comm/geotools.js'
 	
+	import { mapGetters } from 'vuex';
 	import cList from './t10.vue';
 
 	export default {
 		components: { cList },
 		data() {
 			return {
-				cid: [],
-				ip: impression,
-				trail: trail,
+				dept: this.$store.getters.dictObj.deps,
+				trail: this.$store.getters.dict.trail,
 				visible: false,
 				center: [120.15, 30.28],
 				region: [],
@@ -252,7 +257,7 @@
 					imgs: [],
 					video:{},
 					ip:[0,0,0,0,0,0],
-					condition:[0,0,0,0],
+					condition:[0,0,0,0]
 				},
 				rules: {
 					name: [{
@@ -338,15 +343,14 @@
 			this.clearTim()
 		},
 		mounted() {
-			this.gd = new T.Geocoder()
-			this.cid = getCids(this.userInfo.departmentId)
 			this.init()
 		},
 		methods: {
 			async init() {
 				this.form = {  
 					name: '',
-					deptId: '',
+					userId: this.userInfo._id,
+					deptId: this.userInfo.departmentId,
 					level: 1,
 					region: [],
 					path: [],
@@ -365,52 +369,34 @@
 					desc: '',
 					content: '',
 					status: 1,
-					imgs: [],
-					userId: this.userInfo._id
+					imgs: []
 				}
 				this.kml = null
-				if (this.cid.length == 1) {
-					this.setRegion(this.cid)
+				if (this.userInfo.deptChild.length == 1) {
+					this.setRegion(this.userInfo.deptChild)
 				}
 				this.loading = true
-				let id = this.$route.query._id
-				if (!id) {  // 没有前面传过来的数据   新增模式
-					try {
-						await this.$service.zts.trail.page({  // 获取自动保存的数据
-							userId: this.userInfo._id,
-							status: 1
-						}).then(res => {
-							if (res.list.length) { 
-								this.form = res.list[0]
-							}
-						}).catch(e => {
-							// console.log("请求发生了error", e)
-						})
-
-						if (!this.form._id) {  // 没有id 就添加一个id
-							await this.$service.zts.trail.add({
-								...this.form
-							}).then(e => {
-								this.form._id = e.id
-							})
+				let id = uni.getStorageSync('trail_edit')
+				if (!id) {
+					await this.$service.zts.trail.page({ userId: this.userInfo._id, status: 1 }).then(res => {
+						if (res.list.length) { 
+							Object.assign(this.form, res.list[0])
 						}
-					} catch (e) {
-						// console.log("发生了error", e)
+					})
+					if (!this.form._id) {
+						await this.$service.zts.trail.add({
+							...this.form
+						}).then(e => {
+							this.form._id = e.id
+						})
 					}
-					
-					if (this.form.deptId) {  // 根据deptId获取街道信息
-						this.getRegions(this.form.deptId)
-					}
-					
 				} else {
-					this.cur = await this.$service.zts.trail.info({id})
-					this.form = this.cur
-					if(this.cur.kmlId) {
-						this.addKml(this.cur.kmlId)
+					Object.assign(this.form, await this.$service.zts.trail.info({id}))
+					if(this.form.kmlId) {
+						this.addKml(this.form.kmlId)
 					}
-					// this.form.serve = []
-					console.log(this.form);
 				}
+				this.getRegions(this.form.deptId)
 				this.haveCondition()
 				this.autoUpdate()
 				this.loading = false;
@@ -418,8 +404,7 @@
 			autoUpdate() {
 				if (this.timTimer) this.clearTim()
 				this.timTimer = setInterval(() => {
-					this.updateTime = this.zz.timeToDate()
-					this.$service.zts.trail.update({ ...this.form })
+					this.save()
 				}, 40000);
 			},
 			clearTim() {
@@ -428,16 +413,15 @@
 				this.updateTime = ''
 			},
 			addKml(id){
-				// console.log('addKml ------->', id);
+				console.log('addKml ------->', id);
 				this.$service.zts.kml.info({id, plain:true, info:true}).then(e=>{
 					let t10 = e.children.find(x=>x.t2==10),
 						start = t10.coord[0],
 						end = t10.coord[t10.coord.length-1]
 						
-					// e.info = t10.info
 					this.form.kml = {
 						name: e.name,
-						loop: this.zz.geo.getDist(start[0],start[1], end[0],end[1]),
+						loop: dist(start, end),
 						start,
 						end,
 						...t10.info
@@ -446,7 +430,7 @@
 					this.showKml = false
 				})
 			},
-			setRegion(e) {  // 设置 地区信息
+			setRegion(e) {
 				this.region = []
 				if (e.length) {
 					let id = e[e.length - 1]
@@ -456,38 +440,27 @@
 					this.getRegions(id)
 				}
 			},
-			getRegions(pid) {  // 获取当前的 街道信息，加入默认的departmentId信息
+			async getRegions(pid) {
 				if (pid) {
 					this.form.deptId = pid + ''
-					// console.log("当前只有一个cid，添加deptId",this.form)
-					this.regionLoading = true;
-					this.$service.system.dept.list({
-						pid
-					}).then(res => {
-						this.region = res
-						console.log("获取到的街道的信息",this.region)
-						// this.form = this.zz.geo.clone(this.form)
-					}).done(() => {
-						this.regionLoading = false;
-					});
-					this.gd.getPoint(getLable(pid), (e) => {
+					this.region = await this.$service.system.dept.list({pid})
+					window.geoCoder.getPoint(this.dept[pid].name, e => {
 						this.center = [e.location.lon, e.location.lat, 0]
 					})
 				}
 			},
 			regionChange(e) {
-				// console.log("属地单选",e)
 				if (e.length) {
 					for (let s of this.region) {
 						if (s.id == e[e.length - 1]) {
-							// console.log("获取到的当前属地的信息",s)
-							this.gd.getPoint(s.name, (e) => {
+							window.geoCoder.getPoint(s.name, (e) => {
 								this.center = [e.location.lon, e.location.lat, 0]
 							})
 						}
 					}
 				}
 			},
+			
 			
 			haveCondition(){
 				this.conditionble = false
@@ -497,24 +470,24 @@
 			},
 			increase(idx) {
 				this.form.condition[idx] += 2
-				this.form = this.zz.geo.clone(this.form)
+				this.form = this.zz.clone(this.form)
 			},
 			decrease(idx) {
 				this.form.condition[idx] -= 2
-				this.form = this.zz.geo.clone(this.form)
+				this.form = this.zz.clone(this.form)
 			},
 			showInput() {
 				this.pathVisible = true
 				this.$nextTick(_ => {
-				  this.$refs.saveTagInput.$refs.input.focus();
+				  this.$refs.saveTagInput.$refs.input.focus()
 				});
 			},
 			handleInputConfirm() {
 				let pathValue = this.pathValue
 				if (pathValue) {
-				  this.form.path.push(pathValue)
+					this.form.path.push(pathValue)
 				}
-				this.pathVisible = false;
+				this.pathVisible = false
 				this.pathValue = ''
 			},
 			onUpload(e) {
@@ -522,64 +495,32 @@
 			},
 			setVideo(e) { this.form.video.url = e },
 			updatePic(picData){
-				console.log('remove.updatePic -------------', picData);
 				this.form.imgs = picData.pic
 			},
+			
+			async save(){
+				await this.$service.zts.trail.update({ ...this.form })
+				this.updateTime = this.zz.time2Date()
+			},
 			async submitForm(tar) {
-				let veri = false
-				this.$refs.form.validate((valid) => {
-					if (valid) {
-						veri = true
-					} else {
-						console.log('error submit!!');
-						return false;
-					}
-				});
-				if(this.conditionble) {
-					let c = this.form.condition
-					if((c[0]+c[1]+c[2]+c[3])!=100) this.$message.error("请设置路况！")
-				}
-				
+				let veri = await this.$refs.form.validate()
 				if (veri) {
+					if(this.conditionble) {
+						let c = this.form.condition
+						if((c[0]+c[1]+c[2]+c[3])!=100) return this.$message.error("请设置路况！")
+					}
 					this.loading = true
-					if (this.form.status == 1) this.form.status = 2
-					// console.log("提交的内容",this.form)
-					await this.$service.zts.trail.update({
-						...this.form,
-					}).done(() => {
-						this.loading = false;
-
-						if (tar == 'view') {
-							// console.log('预览', this.form)
-							if (!this.preview) {
-								this.preview = true
-								let qrcode = new QRCode({
-									content: "https://zts.5618.co/build/#/pages/share?path=/pages/planning/detail&id=" +
-										this.form._id,
-									join: true
-								});
-								let svg = qrcode.svg();
-								this.$service.zts.trail.preview({
-									file: svg
-								}).then(e => {
-									this.svg = e
-								})
-								let t = this
-								setTimeout(function() {
-									t.$service.space.info.delete({
-										url: t.svg
-									})
-								}, 3000);
-							}
-						}
-						if (tar == 'save') { // 保存
-							this.$message.success("保存成功");
-							// uni.removeStorageSync('zts_trail_edit')
-							// setTimeout(() => {
-							// 	this.$router.back();
-							// }, 100)
-						}
-					});
+					await this.save()
+					this.loading = false
+					
+					//预览
+					if (tar == 'view') {
+						this.zz.preview({path:'/pages/planning/detail', id: this.form._id})
+					}
+					// 保存
+					if (tar == 'save') { 
+						this.$message.success("保存成功")
+					}
 				}
 			},
 			back(){

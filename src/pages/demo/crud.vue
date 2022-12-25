@@ -38,6 +38,7 @@
 				</cl-filter>
 				<el-button size="mini" @click="openForm">自定义测试表单</el-button>
 				<el-button size="mini" @click="mytest">test</el-button>
+				<el-button size="mini" @click="updataBlog">updataBlog</el-button>
 				<cl-flex1></cl-flex1>
 				<cl-search-key
 					field="name"
@@ -368,6 +369,16 @@ export default {
 			
 			
 			await this.zz.req({$url: '/admin/zts/poi/delete', ids: list.map(e=>e._id) })
+		},
+		async updataBlog(){
+			
+			let list = await this.zz.req({$url: '/admin/zts/blog/batch' })
+			
+			console.log('updataBlog ------------>',list);
+			
+			for (let s of list) {
+				await this.zz.req({$url: '/admin/zts/blog/updateTT', ...s })
+			}
 		},
 		openForm() {
 			this.$refs["form"].open({

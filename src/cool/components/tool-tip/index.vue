@@ -10,7 +10,7 @@
 						<text class="padding-left-xs"></text>
 						<el-link type="primary" href="https://zts.5618.co/repo/HandBrake-1.3.3-x86_64-Win_GUI.exe" target="_blank">视频压缩工具下载</el-link>
 						<text class="padding-left-xs"></text>
-						<el-link type="primary" href="http://v.ranks.xin/" target="_blank">视频网站搬运解码</el-link>
+						<el-link type="primary" href="https://vvideo.vip" target="_blank">视频网站搬运解码</el-link>
 					</text>
 				</el-col>
 			</el-row>

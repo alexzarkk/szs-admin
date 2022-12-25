@@ -1,10 +1,10 @@
 import { kml2Geo } from "@/cool/utils/kml2Geo"
-import { kmlNet, kmlGrade, pmSt } from "@/comm/dict.js"
+// import {store} from
 
 export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"}) {
 	// console.log(kt)
-	// console.log(this.userInfo);
-	
+	console.log(this.userInfo,this.$store.getters.dict);
+	let dict = this.$store.getters.dict
 	let items = fn?[] : form?form:[{
 								prop: 'name',
 								label: '名称',
@@ -40,7 +40,7 @@ export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"})
 		items.unshift({
 			label: "属地部门",
 			prop: "departmentId",
-			value: kml? [kml.departmentId]:[],
+			value: kml? kml.departmentId : '',
 			component: {
 				name: "cl-dept-cascader",
 				methods: {
@@ -153,7 +153,7 @@ export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"})
 							attrs: {
 								placeholder: "请选择等级"
 							},
-							options: kmlGrade
+							options: dict.kmlGrade
 						},
 						rules: [
 							{
@@ -171,27 +171,8 @@ export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"})
 							attrs: {
 								placeholder: "请选择路段"
 							},
-							options: kmlNet
+							options: dict.kmlNet
 						},
-					},
-					{
-						prop: "status",
-						label: "状态",
-						span: 12,
-						value: 1,
-						component: {
-							name: "el-select",
-							attrs: {
-								placeholder: "请选择状态"
-							},
-							options: pmSt
-						},
-						rules: [
-							{
-								required: true,
-								message: "状态不能为空"
-							}
-						]
 					},
 					{
 						label: '编号',
@@ -258,11 +239,18 @@ export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"})
 						//如果是申报路线
 						if(data.type==3||data.type==4) data.stauts = 6
 						
-						const _id = await this.$service.zts.kml.add({
+						const kmlId = await this.$service.zts.kml.add({
 							...data,
-							user: this.userInfo.name,
-							placemark: [...pm1,...pm2]
+							// user: this.userInfo.name,
 						})
+						
+						for(let pm of [...pm1,...pm2]) {
+							await this.$service.zts.placemark.add({
+								...pm,
+								kmlId
+							})
+						}
+						
 					} else {
 						await this.$service.zts.kml.update({
 							...data,

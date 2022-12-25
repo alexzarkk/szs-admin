@@ -63,14 +63,14 @@
                             size="mini"
                             @click="chooseImage"
                             :loading="file.loading.uploadImage"
-                        >选择图片</el-button>
+                        >上传照片</el-button>
 
                         <el-button
                             type="primary"
                             size="mini"
                             @click="chooseVideo"
                             :loading="file.loading.uploadVideo"
-                        >选择视频</el-button>
+                        >上传视频</el-button>
                     </div>
 
                     <!-- 文件区域 -->

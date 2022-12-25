@@ -1,6 +1,11 @@
 <template>
 	<div>
-		<div id="qrcodezz" :style="'width: '+width+'px;height:'+height+'px;position:relative;'"></div>
+		<view class="flex justify-center">
+			<view id="qrcodezz" :style="'width: '+width+'px;height:'+height+'px;position:relative;'"></view>
+			<view v-if="h5" style="position: absolute; top: 266px;">
+				<el-link type="primary" @click="hview">H5预览</el-link>
+			</view>
+		</view>
 	</div>
 </template>
 
@@ -22,7 +27,7 @@
 		    },
 		    height: {
 		        type: Number,
-		        default: 190
+		        default: 200
 		    },
 			size: {
 		        type: Number,
@@ -32,6 +37,10 @@
 		        type: String,
 		        default: 'https://zts.5618.co/repo/logoIcon.png'
 		    },
+			h5: {
+		        type: Boolean,
+		        default: true
+		    }
 		},
 		mounted() {
 			var qr = new UQRCode();
@@ -61,7 +70,11 @@
 			}
 			document.getElementById('qrcodezz').innerHTML = qrHtml;
 		},
-		methods: {}
+		methods: {
+			hview(){
+				this.zz.openWin({url:this.baseUrl+this.url,w:380,h:780})
+			}
+		}
 	};
 </script>
 

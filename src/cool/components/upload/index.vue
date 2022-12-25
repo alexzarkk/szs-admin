@@ -8,7 +8,7 @@
         <!-- 默认上传 -->
         <div v-else-if="fileType=='image'" class="cl-upload" :class="{ 'is-multiple': list.length < limit }">
             <div v-for="(item, index) in list" :key="index" :style="style" class="cl-upload__item" v-loading="item.loading">
-				<template v-if="item.url">					<img class="cl-upload__image" :src="item.url"/>
+				<template v-if="item.url">					<img class="cl-upload__image" :src="item.url" @click="preview(index)"/>
 					<i class="el-icon-close" @click.stop="removeFile(index)"/>				</template>
 				<template v-else>
 					<i class="el-icon-picture"/>
@@ -114,6 +114,9 @@ export default {
 				if(value) list = value.split(",")
 			}
 			this.list = list.map(url => {return {url}})
+		},
+		preview(i) {
+			this.zz.viewIMG(this.list.map(e=>e.url), i)
 		},
 
 		// 回调
@@ -226,7 +229,7 @@ export default {
 					}
 					
 					res.tempFiles.forEach((e, i) => {
-						if(!isImg && this.zz.math(e.size/1024/1024,0)<100) {
+						if(isImg || (!isImg && this.zz.math(e.size/1024/1024,0)<100)) {
 							const done = (item) => {
 								if(item) item.loading = false
 							}

@@ -2,11 +2,11 @@ import { md5 } from "@/comm/libs/md5"
 import { checkPerm } from "@/cool/permission"
 import { Message } from 'element-ui'
 
+
 export default {
 	state: {
 		token: uni.getStorageSync("8C7D00B_token") || null,
-		info: uni.getStorageSync("8C7D00B_user") || {},
-		
+		info: uni.getStorageSync("8C7D00B_user") || {}
 	},
 	actions: {
 		userLogin({ commit }, form) {

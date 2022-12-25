@@ -161,20 +161,18 @@ export default {
 			}
 		}
 	},
-	mounted() {
-		console.log(this.$store.getters.userInfo);
-	},
 	
 	methods: {
-		refresh(params) {
-			this.openMove = false
+		refresh() {
+			
 			this.$refs['crud'].refresh({
 				dpids: this.ids,
 				page: 1,
 				name: this.name,
 				children: false,
 				type: 2
-			});
+			})
+			
 		},
 		onCrudLoad({ ctx, app }) {
 			ctx.service(this.$service.zts.kml).done();
@@ -182,7 +180,7 @@ export default {
 				children: false,
 				isoDept: true,
 				type: 2
-			});
+			})
 		},
 		deptExpand(e){
 			this.$emit('update:expand',!this.expand)
@@ -191,24 +189,17 @@ export default {
 			this.selected = e
 		},
 		edit(kml) {
-			upload.call(this, { kml , e:{coord:false, ids: dept.getCids(this.userInfo.departmentId)}, kt: [{label:"绘制草稿", value:2}] })
+			upload.call(this, { kml , e:{ coord:false, ids: this.userInfo.deptChild }, kt: [{label:"绘制草稿", value:2}] })
 		},
 		draw(e) {
 			uni.setStorageSync('collect_check', e._id)
 			this.$router.push('/pages/zts/map/map')
-			// openWin("./draw/index?&id="+e._id)
 		},
 		detail(e){
 			uni.setStorageSync('kml_draw', e._id);
 			this.$router.push('/pages/zts/track/detail');
 		},
-		desc(e){  // 跳转到线路详情编辑  富文本
-			this.$router.push({
-				path:'/pages/zts/track/draw/desc',
-				params:{name:'zhangsan'}
-			});
-		},
-		async share(e) {
+		share(e) {
 			this.preview = true
 			this.shareUrl = 'path=/pages/comm/kml&_id=' + e._id
 		},

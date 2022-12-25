@@ -24,7 +24,7 @@
 							<cl-filter label="状态">
 								<el-select size="mini" v-model="status" @change="refresh()">
 									<el-option :value="0" label="全部"></el-option>
-									<block v-for="(st, idx) in commSt" :key="idx">
+									<block v-for="(st, idx) in $store.getters.dict.commSt" :key="idx">
 										<el-option :value="st.value" :label="st.label"></el-option>
 									</block>
 								</el-select>
@@ -58,7 +58,7 @@
 											prop: 'deptId',
 											label: '部门',
 											align: 'center',
-											dict: dept
+											dict: $store.getters.deptLabel
 										},
 										{
 											prop: 'user',
@@ -88,7 +88,8 @@
 										{
 											prop: 'status',
 											label: '状态',
-											align: 'center'
+											align: 'center',
+											dict: $store.getters.dict.commSt
 										},
 										{
 											prop: 'updateTime',
@@ -114,14 +115,17 @@
 								<template #column-updateTime="{ scope }">
 									{{ scope.row.updateTime.substring(0, 16) }}
 								</template>
+								
 								<template #column-user="{ scope }">
 									{{ scope.row.userInfo.name }}
 								</template>
+								
 								<template #column-level="{ scope }">
 									<block v-for="(i, idx) of poi.level" :key="idx">
 										<el-tag v-if="i.value==scope.row.level" size="mini" style="margin-left: 4px;" effect="plain">{{ i.text }}</el-tag>
 									</block>
 								</template>
+								
 								<template #column-type="{ scope }">
 									<block v-for="(i, idx) of scope.row.type" :key="idx">
 										<el-tag size="mini" style="margin-left: 4px;" effect="plain" type="success">
@@ -130,12 +134,6 @@
 									</block>
 								</template>
 
-								<template #column-status="{ scope }">
-									<el-tag size="small" effect="dark" :type="commStO[scope.row.status].type">
-										{{ commStO[scope.row.status].label }}
-									</el-tag>
-								</template>
-								
 								<template #slot-btn="{ scope }">
 									<block v-if="scope.row.status>0&&scope.row.status<10">
 										<el-button v-if="scope.row.status<6" type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
@@ -159,7 +157,7 @@
 			</div>
 		</div>
 		
-		<zts-audit :tt="$store.getters.dict.ue.poi" :cur="cur" @refresh="refresh()"></zts-audit>
+		<zts-audit :tt="'poi'" :cur="cur" @refresh="refresh()"></zts-audit>
 		
 	</cl-layout>
 </template>
@@ -169,9 +167,6 @@
 		data() {
 			return {
 				poi: this.$store.getters.dict.poi,
-				commSt: this.$store.getters.dict.commSt,
-				commStO: this.$store.getters.dictObj.commSt,
-				dept: this.$store.getters.deptLabel,
 				expand: this.$store.getters.userInfo.isLeaf,
 				
 				level: 0,

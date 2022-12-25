@@ -15,6 +15,7 @@ export default {
 		collapse: false,
 		// 权限列表
 		permission: [],
+		
 		// 部门权限
 		dept: [],
 		// 页面布局
@@ -44,7 +45,7 @@ export default {
 							res.perms = []
 						}
 						
-						const routes = res.menus.filter((e) => e.type != 2).map((e) => {
+						const routes = res.menus.filter((e) => e.type != 2 && e.platform).map((e) => {
 								return {
 									id: e._id,
 									parentId: e.parentId,

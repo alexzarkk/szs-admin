@@ -1,41 +1,32 @@
 <template>
-	<!-- 
-			@name:资源类查看/审核页面
-			@desc：
-			@date：2021-09-10
-			@author: ZK
-	 -->
 	<cl-layout>
-		<div class="system-user" :style="winStyle">
+		<div class="system-user">
 			<div class="pane">
 				<!-- 部门区域 -->
 				<div class="dept" :class="[!expand ? '_expand' : '_collapse']">
-					<cl-dept-tree :deptId="$store.getters.userInfo.dept.id" @check="deptSet"></cl-dept-tree>
+					<cl-dept-tree @check="deptSet"></cl-dept-tree>
 				</div>
 				<!-- 资源列表 -->
 				<div class="user">
 					<cl-crud ref="crud" @load="onCrudLoad" boder>
 						<el-row type="flex">
 							<view class="flex align-center">
-								<div class="icon padding-lr-xs" @click="deptExpand">
+								<div class="icon padding-lr-xs" @click="expand = !expand">
 									<i class="cursor el-icon-arrow-right" v-if="expand"></i>
 									<i class="cursor el-icon-arrow-left" v-else></i>
 								</div>
 							</view>
 							<cl-refresh-btn />
 							<el-button size="mini" type="primary" @click="edit(false)">新增</el-button>
-							<!-- <el-button size="mini" :loading="epxorting" class="filter-item" type="primary" icon="el-icon-download" @click="download">
-									导出 Excel
-								</el-button> -->
 							<cl-multi-delete-btn />
 							<el-button size="mini" type="success" @click="track">轨迹管理</el-button>
 							<cl-flex1 />
 							<cl-filter label="状态">
-								<el-select size="mini" v-model="queryParams.status" @change="refresh()">
-									<el-option value="" label="全部"></el-option>
-									<el-option :value="1" label="草稿"></el-option>
-									<el-option :value="2" label="待审核"></el-option>
-									<el-option :value="10" label="已审核"></el-option>
+								<el-select size="mini" v-model="status" @change="refresh()">
+									<el-option :value="0" label="全部"></el-option>
+									<block v-for="(st, idx) in $store.getters.dict.commSt" :key="idx">
+										<el-option :value="st.value" :label="st.label"></el-option>
+									</block>
 								</el-select>
 							</cl-filter>
 							<cl-search-key />
@@ -58,7 +49,7 @@
 											prop: 'deptId',
 											label: '部门',
 											align: 'center',
-											dict: dept
+											dict: $store.getters.deptLabel
 										},
 										{
 											prop: 'user',
@@ -71,6 +62,11 @@
 											align: 'center'
 										},
 										{
+											prop: 'cover',
+											label: '封面',
+											align: 'center'
+										},
+										{
 											prop: 'type',
 											label: '类型',
 											align: 'center'
@@ -78,7 +74,8 @@
 										{
 											prop: 'status',
 											label: '状态',
-											align: 'center'
+											align: 'center',
+											dict: $store.getters.dict.commSt
 										},
 										{
 											prop: 'updateTime',
@@ -90,45 +87,38 @@
 											label: '操作',
 											align: 'center',
 											type: 'op',
-											buttons: ['slot-edit', 'slot-detail', 'slot-veri']
+											buttons: ['slot-btn']
 										}
 									]">
 								<!-- 时间 -->
 								<template #column-updateTime="{ scope }">
 									{{ scope.row.updateTime.substring(0, 16) }}
 								</template>
-								
+								<template #column-cover="{ scope }">
+									<template v-if="scope.row.cover">
+										<el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover" :preview-src-list="[scope.row.cover]"/>
+									</template>
+								</template>
 								<template #column-user="{ scope }">
 									{{ scope.row.userInfo.name }}
 								</template>
 								<template #column-type="{ scope }">
 									<block v-for="(i, idx) of scope.row.type" :key="idx">
 										<el-tag size="mini" style="margin-left: 4px;" effect="plain" type="success">
-											{{ trailObj[i].label }}
+											{{ $store.getters.dictObj.trail_type[i].label }}
 										</el-tag>
 									</block>
 								</template>
 
-								<template #column-status="{ scope }">
-									<el-tag size="small" effect="dark" :type="st[scope.row.status].type">
-										{{ st[scope.row.status].text }}
-									</el-tag>
-								</template>
-
-								<template #slot-edit="{ scope }">
-									<el-button type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
-								</template>
-								<template #slot-detail="{ scope }">
-									<el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button>
-								</template>
-								<template #slot-veri="{ scope }">
-									<el-button 
-									v-if="scope.row.status!==4&&scope.row.status!==10"
-									type="text" size="mini" @click="toAudit(scope.row)"
-										v-permission="$service.zts.kml.permission.verify"
-										>审核</el-button>
-									<!-- <el-button type="text" size="mini" @click="clFormShow(scope.row)"
-											v-permission="$service.zts.kml.permission.verify">审核</el-button> -->
+								<template #slot-btn="{ scope }">
+									<block v-if="scope.row.status>0&&scope.row.status<10">
+										<el-button v-if="scope.row.status<6" type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status<6" @click="toSubmit(scope.row,6)">递交审核</el-button>
+										<el-button type="text" size="mini" v-else @click="toSubmit(scope.row,4)">撤回审核</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status==6" @click="toAudit(scope.row)" 
+											v-permission="$service.zts.kml.permission.verify">审核</el-button>
+									</block>
+									<el-button type="text" size="mini" @click="preview(scope.row)">预览</el-button>
 								</template>
 							</cl-table>
 						</el-row>
@@ -143,103 +133,71 @@
 			</div>
 		</div>
 
-		<cl-dialog :title="'扫码预览'" :height="'200px'" :width="'240px'" :controls="['close']" :visible.sync="preview">
-			<image style="width: 200px; height: 200px;" mode="aspectFill" :src="svg"></image>
-		</cl-dialog>
-		
-		<zts-audit :tar="'trail'" :type="'特色路线'" :cur="cur" @refresh="refresh"></zts-audit>
+		<zts-audit :tt="'trail'" :cur="cur" @refresh="refresh()"></zts-audit>
 		
 	</cl-layout>
-	<!-- </cl-layout> -->
 </template>
 
 <script>
-	//var QRCode = require("qrcode-svg");
-	import { getLable, getCids } from "@/config/dict";
-	import { trail,poi } from "@/cool/utils/dict.js"
 
 	export default {
 		data() {
 			return {
-				trail,
-				trailObj: this.zz.toObj(trail.type),
-				st: poi.st,
-				queryParams: {
-					level: 0,
-					status: '',
-					isoDept: true,
-					page: 1
-				},
-				winStyle: '',
 				expand: this.$store.getters.userInfo.isLeaf,
-				dept: getLable(),
-				preview: false,
-				svg: 'https://zts.5618.co/static/loadding.gif',
-				epxorting: false,
+				
+				status: '',
 				cur: {}
 			};
 		},
-		watch: {
-			lay: {
-				deep: true,
-				handler(v) {
-					this.winStyle = `width:${this.lay.width}px; height:${this.lay.height}px;`
-				}
-			}
-		},
 		methods: {
-			deptExpand() {
-				this.expand = !this.expand;
-			},
 			deptSet(e) {
-				this.queryParams.dpids = e
+				this.dpids = e
 				this.refresh()
 			},
 			refresh() {
-				this.$refs['crud'].refresh(this.queryParams);
+				this.$refs['crud'].refresh({
+					page: 1,
+					dpids: this.dpids,
+					status: this.status,
+				})
 			},
 			onCrudLoad({ ctx, app }) {
-				
-				console.log(this.trailObj);
-				
-				ctx.service(this.$service.zts.trail).done();
-				app.refresh(this.queryParams);
+				ctx.service(this.$service.zts.trail).done()
+				app.refresh({
+					page: 1,
+					isoDept: true
+				})
 			},
-			edit(e) {
-				this.$router.push({
-					path: '/pages/zts/declare/resource/trail/edit',
-					query: {_id:e? e._id:0}
-				});
+			preview(e) {
+				this.zz.preview({path:'/pages/planning/detail', id:e._id})
+			},
+			
+			async edit(e) {
+				if(await this.$store.dispatch('hasPerm', {obj: e, perms: [this.$service.zts.kml.permission.superEdit]})) {
+					uni.setStorageSync('trail_edit', e?e._id:'')
+					this.$router.push('/pages/zts/declare/resource/trail/edit')
+				}
+			},
+			
+			//递交/撤回审核
+			async toSubmit(e,status){
+				if(await this.$store.dispatch('hasPerm', {obj:e})) {
+					let load = this.$loading()
+					await this.$service.zts.trail.update({ _id: e._id, status })
+					load.close()
+					this.refresh()
+				}
+			},
+			
+			toAudit(e){
+				this.cur = {}
+				setTimeout(()=> {this.cur = e}, 10)
 			},
 			track(){
 				this.$router.push({
 					path: '/pages/zts/declare/resource/trail/track/t60',
 					query: {}
-				});
-			},
-			async detail(e) {
-				if (!this.preview) {
-					this.preview = true
-					let qrcode = new QRCode({
-						content: "https://zts.5618.co/h5/#/pages/share?path=/pages/planning/detail&id=" + e._id,
-						join: true
-					});
-					let svg = qrcode.svg();
-
-					await this.$service.zts.trail.preview({
-						file: svg
-					}).then(e => {
-						this.svg = e
-					})
-					let t = this
-					setTimeout(function() {
-						t.$service.space.info.delete({ url: t.svg })
-					}, 3000)
-				}
-			},
-			toAudit(e){
-				this.cur = {}
-				setTimeout(()=> {this.cur = e}, 10)
+				})
 			}
 		}
 	};

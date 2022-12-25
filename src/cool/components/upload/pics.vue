@@ -42,16 +42,15 @@ export default {
 	},
 
 	methods: {
-		// 上传成功
-		removeFile(k) {
+		removeFile(idx) {
 			let t = this.zz.clone(this.list)
 			let x = []
 			for (var i = 0; i < t.length; i++) {
-				if(i!=k){
+				if(i!=idx){
 					x.push(t[i])
 				}
 			}
-			this.$emit("updatePic", {pic: _.isArray(this.pics)?x:x.map((e) => e).join(",") , idx: this.idx});
+			this.$emit("updatePic", {pic: _.isArray(this.pics)?x:x.map((e) => e).join(",") , idx})
 		},
 	}
 };

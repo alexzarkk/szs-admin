@@ -7,18 +7,11 @@
 					<el-form-item label="名称" prop="name">
 						<el-input size="small" v-model="form.name" placeholder="请输入标题名称"></el-input>
 					</el-form-item>
-					<!-- <block v-if="cid.length>1 && t.open"> -->
+					<block v-if="userInfo.deptChild.length>1">
 						<el-form-item label="属地" prop="deptId">
 							<cl-dept-cascader :value="form.deptId" @input="setRegion"/>
 						</el-form-item>
-					<!-- </block> -->
-					<!-- <el-form-item label="地址" prop="addr">
-						<view @click="visible = true">
-							<el-tooltip effect="dark" content="点击地图选择" placement="top">
-								<el-input size="small" v-model="form.addr" disabled placeholder="请选择..."></el-input>
-							</el-tooltip>
-						</view>
-					</el-form-item> -->
+					</block>
 					<el-row>
 						<el-col :span="12">
 							<el-form-item label="地址" prop="coord">
@@ -111,7 +104,7 @@
 
 					<el-form-item label="详情" prop="content">
 						<!-- <view class="sticky-box" style="top: 160px;"> -->
-						<cl-editor-tinymce v-if="timTimer" v-model="form.content" @uploaded="uploaded" :options="{height:600}"></cl-editor-tinymce>
+						<cl-editor-tinymce v-if="timTimer" v-model="form.content" :options="{height:600}"></cl-editor-tinymce>
 						<!-- </view> -->
 					</el-form-item>
 
@@ -125,7 +118,6 @@
 					<el-button size="small" type="info" @click="back('view')">返 回</el-button>
 					<el-button size="small" type="success" @click="submitForm('view')">预 览</el-button>
 					<el-button size="small" type="primary" @click="submitForm('save')">保 存</el-button>
-					<!-- <el-button size="small" type="warning" @click="submitForm('audit')">递交审核</el-button> -->
 				</view>
 			</view>
 		</div>
@@ -155,7 +147,6 @@
 	export default {
 		data() {
 			return {
-				cid: [],
 				poi: this.$store.getters.dict.poi,
 				dept: this.$store.getters.dictObj.deps,
 				userInfo: this.$store.getters.userInfo,
@@ -229,7 +220,6 @@
 			this.clearTim()
 		},
 		mounted() {
-			this.cid = this.zz.deptCids(this.$store.getters.dict.deps, this.userInfo.departmentId)
 			this.init()
 		},
 		methods: {
@@ -253,8 +243,8 @@
 					content: '',
 					status: 1
 				}
-				if (this.cid.length == 1) {
-					this.setRegion(this.cid)
+				if (this.userInfo.deptChild.length == 1) {
+					this.setRegion(this.userInfo.deptChild)
 				}
 				this.loading = true
 				let id = uni.getStorageSync('station_edit')

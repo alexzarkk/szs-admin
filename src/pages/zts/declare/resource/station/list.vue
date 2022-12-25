@@ -24,7 +24,7 @@
 							<cl-filter label="状态">
 								<el-select size="mini" v-model="status" @change="refresh()">
 									<el-option :value="0" label="全部"></el-option>
-									<block v-for="(st, idx) in commSt" :key="idx">
+									<block v-for="(st, idx) in $store.getters.dict.commSt" :key="idx">
 										<el-option :value="st.value" :label="st.label"></el-option>
 									</block>
 								</el-select>
@@ -58,7 +58,7 @@
 											prop: 'deptId',
 											label: '部门',
 											align: 'center',
-											dict: dept
+											dict: $store.getters.deptLabel
 										},
 										{
 											prop: 'user',
@@ -68,6 +68,11 @@
 										{
 											prop: 'name',
 											label: '名称',
+											align: 'center'
+										},
+										{
+											prop: 'cover',
+											label: '封面',
 											align: 'center'
 										},
 										{
@@ -94,7 +99,8 @@
 										{
 											prop: 'status',
 											label: '填报状态',
-											align: 'center'
+											align: 'center',
+											dict: $store.getters.dict.commSt
 										},
 										{
 											label: '操作',
@@ -106,6 +112,11 @@
 								<!-- 时间 -->
 								<template #column-updateTime="{ scope }">
 									{{ scope.row.updateTime.substring(0, 16) }}
+								</template>
+								<template #column-cover="{ scope }">
+									<template v-if="scope.row.cover">
+										<el-image style="width: 70px; height: 70px" fit="cover" :src="scope.row.cover" :preview-src-list="[scope.row.cover]"/>
+									</template>
 								</template>
 								<template #column-level="{ scope }">
 									<block v-for="(i, idx) of tar" :key="idx">
@@ -128,10 +139,8 @@
 									</block>
 								</template>
 								
-								<template #column-status="{ scope }">
-									<el-tag size="small" effect="dark" :type="commStO[scope.row.status].type">
-										{{ commStO[scope.row.status].label }}
-									</el-tag>
+								<template #column-user="{ scope }">
+									{{ scope.row.userInfo.name }}
 								</template>
 								
 								<template #slot-btn="{ scope }">
@@ -158,7 +167,7 @@
 			</div>
 		</div>
 		
-		<zts-audit :tt="$store.getters.dict.ue.poi" :cur="cur" @refresh="refresh()"></zts-audit>
+		<zts-audit :tt="'station'" :cur="cur" @refresh="refresh()"></zts-audit>
 		
 	</cl-layout>
 </template>
@@ -167,10 +176,6 @@
 	export default {
 		data() {
 			return {
-				poi: this.$store.getters.dict.poi,
-				commSt: this.$store.getters.dict.commSt,
-				commStO: this.$store.getters.dictObj.commSt,
-				dept: this.$store.getters.deptLabel,
 				expand: this.$store.getters.userInfo.isLeaf,
 				
 				tar: [{text: '驿站',type:'primary',value: 4004}, {text: '户外营地',type:'success',value: 4006}],
@@ -207,6 +212,15 @@
 				if(await this.$store.dispatch('hasPerm', {obj: e, perms: [this.$service.zts.kml.permission.superEdit]})) {
 					uni.setStorageSync('station_edit', e?e._id:0)
 					this.$router.push('/pages/zts/declare/resource/station/edit')
+				}
+			},
+			//递交/撤回审核
+			async toSubmit(e,status){
+				if(await this.$store.dispatch('hasPerm', {obj:e})) {
+					let load = this.$loading()
+					await this.$service.zts.station.update({ _id: e._id, status })
+					load.close()
+					this.refresh()
 				}
 			},
 			

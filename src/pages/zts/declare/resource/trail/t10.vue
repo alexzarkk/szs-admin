@@ -3,11 +3,11 @@
 		<div class="pane">
 			<!-- 部门区域 -->
 			<div class="dept " :class="[expand ? '_expand' : '_collapse']">
-				<cl-dept-tree :deptId="330000" @check="deptSet"></cl-dept-tree>
+				<cl-dept-tree @check="deptSet"></cl-dept-tree>
 			</div>
 			<!-- 规划列表 -->
 			<div class="user solid">
-				<cList v-if="ids.length" :ids="ids" @add="add" :expand.sync="expand"></cList>
+				<cList :ids="ids" @add="add" :expand.sync="expand"></cList>
 			</div>
 		</div>
 	</div>
@@ -18,6 +18,9 @@ import cList from './list10.vue';
 
 export default {
 	components: { cList },
+	props: {
+		kmlId: { type: String }
+	},
 	data() {
 		return {
 			expand: true,

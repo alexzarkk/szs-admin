@@ -15,17 +15,17 @@
                             <cl-multi-delete-btn />
                             <cl-flex1 />
                             <cl-filter label="状态">
-                                <el-select size="mini" v-model="status" @change="refresh()">
-                                    <el-option value="" label="全部"></el-option>
-                                    <el-option :value="1" label="草稿"></el-option>
-                                    <el-option :value="2" label="待审核"></el-option>
-                                    <el-option :value="10" label="已审核"></el-option>
-                                </el-select>
+                            	<el-select size="mini" v-model="status" @change="refresh()">
+                            		<el-option :value="0" label="全部"></el-option>
+                            		<block v-for="(t, idx) in $store.getters.dict.commSt" :key="idx">
+                            			<el-option :value="t.value" :label="t.label"></el-option>
+                            		</block>
+                            	</el-select>
                             </cl-filter>
                             <cl-filter label="类型">
                                 <el-select size="mini" v-model="type" @change="refresh()">
                                     <el-option :value="0" label="全部"></el-option>
-                                    <block v-for="(t, index) in article" :key="index">
+                                    <block v-for="(t, index) in $store.getters.dict.article" :key="index">
                                         <el-option :value="t.value" :label="t.label"></el-option>
                                     </block>
                                 </el-select>
@@ -49,7 +49,7 @@
 											prop: 'deptId',
 											label: '部门',
 											align: 'center',
-											dict: depts
+											dict: dept
 										},
 										{
 											prop: 'author',
@@ -75,7 +75,8 @@
 										{
 											prop: 'status',
 											label: '状态',
-											align: 'center'
+											align: 'center',
+											dict: $store.getters.dict.commSt
 										},
 										{
 											prop: 'createTime',
@@ -87,45 +88,39 @@
 											label: '操作',
 											align: 'center',
 											type: 'op',
-											buttons: ['slot-edit', 'slot-detail', 'slot-veri']
+											buttons: ['slot-btn']
 										}
 									]">
                                 <!-- 时间 -->
                                 <template #column-createTime="{ scope }">
-                                    {{ scope.row.updateTime }}
+                                    {{ scope.row.createTime.substring(0, 16) }}
                                 </template>
                                 <template #column-type="{ scope }">
                                     <block v-for="(i, idx) of scope.row.type" :key="idx">
-                                        <el-tag size="mini" style="margin-left: 4px;" :class="'bg-'+articleO[i].color" effect="plain">
-                                            {{ articleO[i].label }}
+                                        <el-tag size="mini" style="margin-left: 4px;" :class="'bg-'+$store.getters.dictObj.article[i].color" effect="plain">
+                                            {{ $store.getters.dictObj.article[i].label }}
                                         </el-tag>
                                     </block>
                                 </template>
 
                                 <template #column-cover="{ scope }">
                                     <template v-if="scope.row.cover">
-                                        <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover.url" :preview-src-list="[scope.row.cover.url]">
-                                        </el-image>
+                                        <el-image style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover.url" :preview-src-list="[scope.row.cover.url]"/>
                                     </template>
                                 </template>
-                                <template #column-status="{ scope }">
-                                    <el-tag size="small" effect="dark" :type="st[scope.row.status].type">
-                                        {{ st[scope.row.status].text }}
-                                    </el-tag>
-                                </template>
 
-                                <template #slot-edit="{ scope }">
-                                    <el-button type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
-                                </template>
-                                <template #slot-detail="{ scope }">
-                                    <!-- <el-button type="text" size="mini" @click="detail(scope.row)">预览</el-button> -->
-                                    <el-button type="text" size="mini" @click="detail(scope.row)">预览内容</el-button>
-                                </template>
-                                <template #slot-veri="{ scope }">
-                                    <el-button v-if="scope.row.status!==4&&scope.row.status!==10" type="text" size="mini" @click="toAudit(scope.row)" v-permission="$service.zts.article.permission.audit">审核</el-button>
-                                </template>
+								<template #slot-btn="{ scope }">
+									<block v-if="scope.row.status>0&&scope.row.status<10">
+										<el-button v-if="scope.row.status<6" type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status<6" @click="toSubmit(scope.row,6)">递交审核</el-button>
+										<el-button type="text" size="mini" v-else @click="toSubmit(scope.row,4)">撤回审核</el-button>
+										<el-button type="text" size="mini" v-if="scope.row.status==6" @click="toAudit(scope.row)" 
+											v-permission="$service.zts.kml.permission.verify">审核</el-button>
+									</block>
+									<el-button type="text" size="mini" @click="preview(scope.row)">预览</el-button>
+								</template>
+								
                             </cl-table>
-                            <!-- <zz-iframe :iframeLink="iframeLink"></zz-iframe> -->
                         </el-row>
 
                         <el-row type="flex">
@@ -138,38 +133,24 @@
             </div>
         </div>
 
-		<zts-audit :tt="$store.getters.dict.ue.article" :cur="cur" @refresh="refresh()"></zts-audit>
+		<zts-audit :tt="'article'" :cur="cur" @refresh="refresh()"></zts-audit>
 
     </cl-layout>
 </template>
 
 <script>
-import { dept, article, commSt } from "@/comm/dict"
-import { checkPerm } from "@/cool/permission"
 
 export default {
     data() {
         return {
-            iframeLink: 'https://zts.5618.co/h5/#/pages/planning/article?deptId=&id=63082d66971f250001f891a9', // H5显示的内容的链接
-            article,  // 文章字典
-            articleO: this.zz.toObj(article),
-            depts: dept.getLabel(),  // 获取部门
-            st: commSt,  // 字典
+			dept: this.$store.getters.deptLabel,
             type: '',  // 文章分类筛选
             status: '',  // 文章审核状态筛选
-            // expand: this.$store.getters.userInfo.isLeaf,
-
-            // preview: false,  // 扫码预览的modal控制
-            // shareUrl: '',
-
             cur: {}  // 当前正在审核的部分
         };
     },
     mounted() { },
     methods: {
-        // deptExpand() {
-        //     this.expand = !this.expand;
-        // },
         deptSet(e) {
             this.dpids = e
             this.refresh()
@@ -180,26 +161,31 @@ export default {
                 dpids: this.dpids,
                 type: this.type,
                 status: this.status
-
-            });
+            })
         },
         onCrudLoad({ ctx, app }) {
-            ctx.service(this.$service.zts.article).done();
+            ctx.service(this.$service.zts.article).done()
             app.refresh({
                 pc: 1,
                 page: 1,
                 isoDept: true
-            });
+            })
         },
-        edit(e) {
-            if (e && e.userId != this.$store.getters.userInfo._id && (!checkPerm(this.$service.zts.kml.permission.superEdit))) return this.$message.error(`无法更新他人数据！`);
-            this.$router.push({
-                path: '/pages/zts/article/edit',
-                query: { _id: e ? e._id : 0 }
-            });
-        },
-
-        detail(e) {
+		async edit(e) {
+			if(await this.$store.dispatch('hasPerm', {obj: e, perms: [this.$service.zts.kml.permission.superEdit]})) {
+				uni.setStorageSync('article_edit', e?e._id:0)
+				this.$router.push('/pages/zts/article/edit')
+			}
+		},
+		async toSubmit(e,status){
+			if(await this.$store.dispatch('hasPerm', {obj:e})) {
+				let load = this.$loading()
+				await this.$service.zts.article.update({ _id: e._id, status })
+				load.close()
+				this.refresh()
+			}
+		},
+        preview(e) {
 			this.zz.preview({path:'/pages/planning/article', id:e._id})
         },
         toAudit(e) {

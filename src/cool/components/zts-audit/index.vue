@@ -68,7 +68,7 @@ export default {
         },
         // 审核资源对应的请求的内容
         tt: {
-            type: Number,
+            type: String,
             require: true
         },
         // 发短信使用的type
@@ -137,19 +137,17 @@ export default {
         },
         // 审核通过
         async onSubmit() {
+			let ue = this.$store.getters.dict.ue.tt.find(e=>e.k==this.tt)
+			
             const vali = await this.$refs.examineForm.validate()
-            console.log("审核结果=======", this.examineObj, this.cur)
-            console.log("修改的表======", this.tar)
 
-            if (!vali) {
-
-            } else {
+            if (vali) {
                 if (this.onDo) {  // 使用自定义函数来处理审核结果
                     await this.onDo(this.examineObj)
                 } else {
                     await this.$service.system.audit.add({
                         ...this.examineObj,
-                        tt: this.tt,
+                        tt: ue.value,
                         tid: this.cur._id,
                         status: Number(this.examineObj.status)
                     })

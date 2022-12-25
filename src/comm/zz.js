@@ -23,15 +23,7 @@ const
 		}
 		return o
 	},
-	deptCids = (list, id)=>{
-		let arr = [id * 1]
-		for (let s of list) {
-			if (s.pid == id) {
-				arr.push(s.id)
-			}
-		}
-		return arr
-	},
+	
 	deptParent = (list, pid)=>{
 		for (let s of list) {
 			if (s.id == pid) {
@@ -579,7 +571,7 @@ const zz = {
 	rndInt,
 	toArr,
 	toObj,
-	deptCids,
+	// deptCids,
 	deptParent,
 	math,
 	isSame,

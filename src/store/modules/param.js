@@ -2,7 +2,6 @@ export default {
 	state: {
 		dict: uni.getStorageSync("8C7D00B_dict") || {v:0},
 		dictObj: uni.getStorageSync("8C7D00B_dictObj") || {}
-		
 	},
 	actions: {
 		async sysDict({ commit, state }) {

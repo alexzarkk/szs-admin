@@ -35,6 +35,7 @@ export default {
 			this.expand = !this.expand
 		},
 		deptSet(e) {
+			console.info(this.$store.getters.deptLabel)
 			this.ids = e
 		},
 		deptLoaded(e){

@@ -79,9 +79,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getLable } from '@/config/dict';
 import { upload } from "@/cool/utils/uploadKml.js"
-import { getCids } from "@/config/dict"
 export default {
 	data() {
 		return {
@@ -90,7 +88,7 @@ export default {
 			onStatus: 10,
 			name: '',
 			selected: [],
-			dept: getLable(),
+			dept: this.$store.getters.deptLabel,
 			loading: false,
 		};
 	},
@@ -127,10 +125,9 @@ export default {
 			this.$emit('update:expand',!this.expand)
 		},
 		edit(kml) {
-			upload.call(this, { kml, e:{coord:false, ids: this.ids}, kt:[{label:"推荐路线", value:60}]});
+			upload.call(this, { kml, e:{ coord:'', ids: this.userInfo.deptChild }, kt:[{label:"推荐路线", value:60}]})
 		},
 		async add(e) {
-			console.log('added,', e);
 			this.$emit('add', e._id)
 		},
 		async detail(e) {

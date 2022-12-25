@@ -1,11 +1,11 @@
 <template>
 	<div>
 		 <el-cascader
-			ref="tree"
+			ref="cascader"
 			:placeholder="title"
 			:size="size"
 			v-model="checked"
-			:options="list"
+			:options="tree"
 			:props="props"
 			@change="change"
 			filterable
@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import menu from '../../../store/modules/menu'
+	
 export default {
 	name: "cl-dept-cascader",
 	props: {
@@ -30,7 +32,8 @@ export default {
 	},
 	data() {
 		return {
-			list: this.$store.getters.dept,
+			tree: this.zz.clone(menu.state.dept),
+			list: [],
 			checked: [],
 			keyword: "",
 			props: {
@@ -43,30 +46,33 @@ export default {
 	},
 	watch: {
 		keyword(val) {
-			this.$refs["tree"].filter(val)
+			this.$refs["cascader"].filter(val)
 		},
 		value(val) {
 			this.refreshTree(val)
 		}
 	},
 	mounted() {
+		this.list = this.zz.revDeepTree(this.tree)
 		this.refreshTree(this.value)
 	},
 	methods: {
 		refreshTree(val) {
 			if (!val) {
-				this.checked = []
+				return this.checked = []
 			}
-			let ids = [],
-				list = this.zz.revDeepTree(this.list),
-				fn = (cur) => {
-					ids.unshift(cur._id)
-					let p = list.find(e=>e._id==cur.parentId)
-					if(p) fn(p)
-				}
-			
-			fn(list.find(e=>e._id==val))
-			this.checked = ids
+			if(val.length==1) {
+				let ids = [],
+					list = this.list,
+					fn = (cur) => {
+						ids.unshift(cur._id)
+						let p = list.find(e=>e._id==cur.parentId)
+						if(p) fn(p)
+					}
+				
+				fn(list.find(e=>e._id==val))
+				this.checked = ids
+			}
 		},
 		filterNode(val, data) {
 			if (!val) return true;

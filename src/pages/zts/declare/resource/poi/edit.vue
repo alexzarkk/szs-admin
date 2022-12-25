@@ -11,16 +11,19 @@
 							</el-form-item>
 						</el-col>
 					</el-row>
-					<el-form-item label="属地" prop="region">
-						<block v-if="cid.length>1">
-							<cl-dept-cascader v-if="timTimer" :value="form.deptId" @input="setRegion"/>
-						</block>
-						<el-checkbox-group v-model="form.region" @change="regionChange">
-							<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">
-								{{ item.name }}
-							</el-checkbox>
-						</el-checkbox-group>
-					</el-form-item>
+					
+					<el-row>
+						<el-form-item label="属地" prop="region">
+							<block v-if="userInfo.deptChild.length>1">
+								<cl-dept-cascader v-if="timTimer" :value="form.deptId" @input="setRegion"/>
+							</block>
+							<el-checkbox-group v-model="form.region" @change="regionChange">
+								<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">
+									{{ item.name }}
+								</el-checkbox>
+							</el-checkbox-group>
+						</el-form-item>
+					</el-row>
 					
 					<el-row v-if="form.deptId">
 						<el-col :span="12">
@@ -75,7 +78,7 @@
 
 					<el-form-item label="详情" prop="content">
 						<!-- <view class="sticky-box" style="top: 160px;"> -->
-						<cl-editor-tinymce v-if="timTimer" v-model="form.content" @uploaded="uploaded" :options="{height:600}"></cl-editor-tinymce>
+						<cl-editor-tinymce v-if="timTimer" v-model="form.content" :options="{height:600}"></cl-editor-tinymce>
 						<!-- </view> -->
 					</el-form-item>
 
@@ -119,7 +122,6 @@
 	export default {
 		data() {
 			return {
-				cid: [],
 				poi: this.$store.getters.dict.poi,
 				dept: this.$store.getters.dictObj.deps,
 				userInfo: this.$store.getters.userInfo,
@@ -197,7 +199,6 @@
 			this.clearTim()
 		},
 		mounted() {
-			this.cid = this.zz.deptCids(this.$store.getters.dict.deps, this.userInfo.departmentId)
 			this.init()
 		},
 		methods: {
@@ -220,15 +221,15 @@
 					content: '',
 					status: 1
 				}
-				if (this.cid.length == 1) {
-					this.setRegion(this.cid)
+				if (this.userInfo.deptChild.length == 1) {
+					this.setRegion(this.userInfo.deptChild)
 				}
 				this.loading = true
 				let id = uni.getStorageSync('poi_edit')
 				if (!id) {
 					await this.$service.zts.poi.page({ userId: this.userInfo._id, status: 1 }).then(res => {
 						if (res.list.length) { 
-							this.form = res.list[0]
+							Object.assign(this.form, res.list[0])
 						}
 					})
 					if (!this.form._id) {
@@ -239,7 +240,7 @@
 						})
 					}
 				} else {
-					this.form = await this.$service.zts.poi.info({id})
+					Object.assign(this.form, await this.$service.zts.poi.info({id}))
 				}
 				this.getRegions(this.form.deptId)
 				this.autoUpdate()
@@ -279,9 +280,7 @@
 				if (pid) {
 					this.form.deptId = pid + ''
 					this.region = await this.$service.system.dept.list({pid})
-					// this.center = await this.zz.req({$url:'/admin/zz/geoGon', code: pid, center:1})
 					window.geoCoder.getPoint(this.dept[pid].name, e => {
-						console.log(this.dept[pid].name,[e.location.lon, e.location.lat, 0], e);
 						this.center = [e.location.lon, e.location.lat, 0]
 						this.onNear()
 					})
@@ -314,7 +313,7 @@
 							}
 				}
 				this.refKml = e.line
-				console.log("获取到的当前属地的信息.onNear",e.line)
+				// console.log("获取到的当前属地的信息.onNear",e.line)
 			},
 			marked(e) {
 				let coord
