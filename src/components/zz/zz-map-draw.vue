@@ -5,17 +5,20 @@
 	import comm from '@/comm/comm'
 	import icon from '@/comm/libs/icon'
 	import { CompassControl, TerrainControl, GridControl, RulerControl } from '@/comm/libs/mapbox/ctrl/index.js'
-	import { calData, fixNum, trans } from '@/comm/geotools.js'
+	import { calData, uniqId, fixNum, trans } from '@/comm/geotools.js'
 	import { amapKey } from '@/comm/bd'
 	
 	import '@/comm/libs/mapbox/mapbox.css'
 	import '@/comm/libs/mapbox/draw/mapbox-gl-draw.css'
+	
+	const mapid = uniqId()
 	
 export default {
 	data() {
 		return {
 			map: null,
 			self: null,
+			mapid,
 			
 			key: {
 				mb: 'pk.eyJ1IjoiYWxleHphcmtrIiwiYSI6ImNrcWdzNXdrcjI3NmEyb3F0cmVzd291amcifQ.tPuMJfthzboYHg3MzbKtKw',
@@ -25,7 +28,7 @@ export default {
 			
 			settings: {
 				style: 'mapbox://styles/alexzarkk/ckqt2gqrc650n17nw67q4glqu',
-				container: 'mbContainer',
+				container: mapid,
 				center: [120.109913, 29.181466],
 				zoom: 15,
 				minZoom: 3,
@@ -41,15 +44,20 @@ export default {
 		window.mbAct = this.mbAct
 		this.newMb()
 	},
+	beforeDestroy() {
+		console.log('map.beforeDestroy')
+		this.map = null
+		window.mbAct = null
+	},
 	methods: {
 		fixNum,
 		resize(){
-			let ct = document.getElementById('mbContainer')
+			let ct = document.getElementById(this.mapid)
 			if(ct) {
 				// ct.style.width = this.lay.width-10+'px'
 				// ct.style.height = this.lay.height-10+'px'
 			}
-			this.map.resize()
+			if(this.map) this.map.resize()
 		},
 		newMb(){
 			let map = new mapboxgl.Map(this.settings)
@@ -120,7 +128,12 @@ export default {
 			
 			
 			//simple_select direct_select  draw_line_string  draw_polygon  draw_point
-			this.mdraw = new MapboxDraw({ displayControlsDefault: false })
+			this.mdraw = new MapboxDraw({ 
+					keybindings: true,
+					clickBuffer: 5,
+					displayControlsDefault: true, 
+					controls:{ trash: true, point:false, line_string:false, polygon:false, combine_features:false, uncombine_features:false }
+				})
 			for (let s of ['create', 'delete', 'update']) {
 				map.on('draw.'+s, e => {
 					this.noti = {name:this.noti.name}
@@ -165,14 +178,17 @@ export default {
 				padding: {top:50, bottom:50, left: 50, right: 50}
 			})
 		},
-		remove(){
+		remove({ids}){
 			let m = this.map
 			clearTimeout(m.zz.running)
+			mbtool.removeObj(m, 'selected')
 			mbtool.removeObj(m, 'active_running')
 			for(let k in m.zz.pm) {
-				mbtool.removeObj(m, k, m.zz.pm[k].t1==2?'_':'')
+				if(!ids||(ids.includes(k))) {
+					mbtool.removeObj(m, k, m.zz.pm[k].t1==2?'_':'')
+					delete m.zz.pm[k]
+				}
 			}
-			m.zz.pm = {}
 		},
 		setPms(e) {
 			let map = this.map,
@@ -190,6 +206,7 @@ export default {
 				}
 			}
 		},
+		
 		doDraw(e){
 			let m = this.map
 			try { m.zz.pp.remove() } catch (e) {}
@@ -239,9 +256,9 @@ export default {
 				this.map.setLayoutProperty(e.pm._id, 'visibility', 'visible')
 			}
 		},
-		calNoti(){
-			
-		},
+		
+		
+		
 		runx(e){ mbtool.run(this.map,e) },
 		getAround(e){ mbtool.getAround(this.map,null,e) },
 		onGrid(){mbtool.on(this.map,1)},
@@ -258,12 +275,11 @@ export default {
 
 <template>
     <view>
-        <view id="mbContainer" :style="{ height: lay[0] + 'px', width: lay[1] + 'px' }" :prop="mb" :change:prop="_mapbox.updateData"></view>
+        <view :id="mapid" :style="{ height: mapLay[0] + 'px', width: (mapLay[1]-extraW) + 'px' }" :prop="mb" :change:prop="_mapbox.updateData"></view>
         
 		<!-- <view class="dept-select">
 			<cl-dept-cascader :size="'mini'" @input="deptChange" />
-		</view>
-		 -->
+		</view> -->
 		
 		<view v-if="noti" class="calculation-box flex flex-direction">
 			<text class="text-df text-blue">{{noti.title}}</text>
@@ -291,19 +307,55 @@ export default {
                <video v-if="video" id="myVideo" :src="video" controls></video>
             </view>
         </view>
+		
+		<!-- :class="cur.info?'animation-slide-bottom':'animation-slide-top'" -->
+		<view :style="{height: mapLay[2] +'px'}">  
+			<el-collapse v-if="cur.info" v-model="activeName" accordion>
+				<el-collapse-item name="1">
+					<template slot="title">
+						<i class="header-icon el-icon-info"></i>
+						【{{ cur.name }}】
+						<text class="padding-left-xs text-grey">长度：</text>
+						<text class="text-orange text-bold">{{ cur.info.len }}m</text>
+			
+						<text class="padding-left-xs text-grey">
+							海拔：
+							<text class="cuIcon-top"></text>
+						</text>
+						<text class="text-orange text-bold">{{ cur.info.top }}m</text>
+						<text class="text-grey"><text class="cuIcon-down"></text></text>
+						<text class="text-orange text-bold">{{ cur.info.bottom }}m</text>
+			
+						<text class="padding-left-xs text-grey">
+							累计：
+							<i class="header-icon el-icon-top"></i>
+						</text>
+						<text class="text-orange text-bold">{{ cur.info.up }}m</text>
+						<text class="text-grey"><i class="header-icon el-icon-bottom"></i></text>
+						<text class="text-orange text-bold">{{ cur.info.down }}m</text>
+						
+						<block v-if="sInfo.len">
+							<text class="padding-left-xs text-dark">
+								(已选取路段)
+							</text>
+						</block>
+					</template>
+					<view :style="{height: (mapLay[2]-40) +'px'}">
+						<zts-track-chart ref="tChart" :pm="cur" @on="tcAction"></zts-track-chart>
+					</view>
+				</el-collapse-item>
+			</el-collapse>
+		</view>
+		
+		
+		
     </view>
 </template>
 <script>
-// import { Image } from 'element-ui' // 按需引入
-// console.log(Image) // 观察下面截图的打印
-// Image组件components内有一个小组件ImageViewer
-// 小组件ImageViewer是Image组件的预览组件
-// 获取小组件ImageViewer，vue注册， 这样就可以单独使用了
-// Vue.component('el-image-viewer', Image.components.ImageViewer)
-
-
+import { mapGetters } from 'vuex'
+import { calData, isSame } from '@/comm/geotools';
 export default {
-    name: 'zzMap',
+    name: 'zzMapDraw',
     data() {
         return {
 			mdone: false,
@@ -311,69 +363,42 @@ export default {
 			ver: 0,
 			sysInfo: {},
 			
+			// draw
+			geo: null,
+			drawing: false,
+			drawed: null,
+			drawPm: null,
+			lookingEle: false,
+			
+			// chart
+			sInfo: {},
+			activeName:'1',
+			
+			// lay
+			mapLay: [0,0],
+			chartHight: 0,
+			
 			video: null
         }
     },
+	computed: { ...mapGetters(['lay']) },
     props: {
-		pms: {
-            type: Array,
-            default: () => {
-                return []
-            }
-        },
-        line: {
-            type: Array,
-            default: () => {
-                return []
-            }
-        },
-        point: {
-            type: Array,
-            default: () => {
-                return []
-            }
-        },
-        gon: {
-        	type: Array,
-        	default: () => {
-        	    return []
-        	}
-        },
-		center: {
-		    type: Array,
-		    default: () => {
-		        return []
-		    }
-		},
-		cur: {
-		    type: Object,
-		    default: () => {
-		        return {}
-		    }
-		},
-		refKml: {
-		    type: Object,
-		    default: () => {
-		        return {}
-		    }
-		},
+		pms: 	{ type: Array, default: () => { return [] } },
+        line: 	{ type: Array, default: () => { return [] } },
+        point: 	{ type: Array, default: () => { return [] } },
+        gon: 	{ type: Array, default: () => { return [] } },
+		refKml: { type: Object, default: () => { return {} } },
+		cur: 	{ type: Object, default: () => { return {} } },
 		
+		
+		btn: 	{ type: Array, default: () => { return null } },
 		
 		// 组网路线
-		grid: {
-            type: Boolean,
-            default: true
-        },
+		grid: { type: Boolean, default: true },
 		// dept
-		dept: {
-		    type: Number,
-		    default: 330000
-		},
+		dept: { type: Number, default: 330000 },
 		// 屏幕布局
-        lay: {
-            type: Array,
-            default: () => { return [0,0] }
-        }
+		extraW: { type: Number, default: 0 },
     },
     watch: {
         line(e, o) {
@@ -385,23 +410,47 @@ export default {
         gon(e, o) {
             if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.setProp()
         },
+		refKml(e, o) {
+		    if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.mb = { exec: {m:'setKml', e} }
+		},
+		pms(e, o) {
+			this.exec({m:'setPms', e:{pms:e}})
+		},
         cur(e, o) {
-            this.exec({m:'fit', e:{pm:e}})
-        },
-        refKml(e, o) {
-            if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.mb = { exec: {m:'setKml', e} }
+			console.log('cur .....................',e,o);
+			this.calLay()
+			setTimeout(()=>{this.exec({m:'fit', e:{pm:e}})}, 200)
         },
 		
-        pms(e, o) {
-			this.exec({m:'setPms', e:{pms:e}})
-        },
+		activeName(){ this.calLay() },
+		extraW(e,o) { 
+			console.log('extraW .....................',e,o);
+			
+			this.calLay() },
+		lay(e,o) { 
+			console.log('lay .....................',e,o);
+			this.calLay() }
+		
     },
-	
+	created(){ this.calLay() },
     mounted() {
 		this.sysInfo = uni.getStorageSync('szsSys')
         this.setProp()
     },
     methods: {
+		calLay(){
+			let h = 0
+			if(this.cur.info){
+				h = this.lay.height * 0.3
+				if(h>360) h = 360
+				if(h<240) h = 240
+				h = this.activeName? h : 40*2
+			}
+			this.mapLay = [this.lay.height - h, this.lay.width, h]
+			try{ this.$refs.tChart.resize() }catch(e){ }
+			try{ this.exec({m:'resize'}) }catch(e){ }
+			console.log(this.lay.height,this.lay.width ,'---', this.mapLay, ' ........this.mapLay',this.cur);
+		},
         setProp() {
 			if(this.mdone) {
 				if(this.pms.length) {
@@ -438,17 +487,6 @@ export default {
             this.$emit('mapDone', true)
         },
 		
-		// toDraw(e){
-		// 	console.log(e);
-			
-		// 	this.exec({m:'doDraw', e})
-		// },
-		// onDraw(e){
-		// 	console.log('onDraw', e)
-		// 	this.$emit('action', e)
-		// },
-		
-		
 		
 		mbClick(e) {
 			// console.log('mapbox.mbClick: ',e);
@@ -457,6 +495,29 @@ export default {
 		mbEvent(e){
 			// console.log('mapbox.mbEvent: ',e);
 		},
+		//从chart中返回的事件
+		tcAction({ select, act }) {
+			if (act == 'select') {
+				if (this.activeLine) {
+					let coord
+					// 尾部相等
+					if (isSame(this.activeLine.coord[this.activeLine.coord.length - 1],select.coord[select.coord.length - 1])) {
+						coord = select.coord[0]
+					} else if (isSame(this.activeLine.coord[0],select.coord[0])) {
+						coord = select.coord[select.coord.length - 1]
+					}
+					setTimeout(()=>{
+						if(coord) this.exec({m:'fly', e: {coord}})
+					}, 1200)
+				}
+				this.activeLine = {id: 'selected', coord: select.coord}
+				this.exec({m:'fit', e:{pm:this.activeLine,opt:{t:30}}})
+				return this.sInfo = calData(select.coord)
+			}
+			
+			this.$emit('tcAction', { select, act })
+		},
+		
 		mapDo(e) {
 			console.log('mapDo ------ >', e)
 			switch (e.act){
@@ -478,6 +539,7 @@ export default {
 					this.zz.toast(e.e, 3000, 'success')
 					setTimeout(()=> {this.setProp()}, 1000)
 					break;
+				
 				default:
 					this.$emit('action', e)
 					break;
@@ -488,5 +550,5 @@ export default {
 </script>
 
 <style lang="scss">
-	
+
 </style>

@@ -61,7 +61,7 @@ export default {
 			if (!val) {
 				return this.checked = []
 			}
-			if(val.length==1) {
+			if(val.length==1&&val[0]) {
 				let ids = [],
 					list = this.list,
 					fn = (cur) => {
@@ -70,7 +70,7 @@ export default {
 						if(p) fn(p)
 					}
 				
-				fn(list.find(e=>e._id==val))
+				fn(list.find(e=>e._id==val[0]))
 				this.checked = ids
 			}
 		},

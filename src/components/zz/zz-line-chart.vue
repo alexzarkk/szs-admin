@@ -2,43 +2,19 @@
 	<div class="system" id="layoutChart">
 		<div class="pane">
 			<!-- chart -->
-			<div class="dept" @mouseup="mup">
+			<div class="dept" v-loading="loading" @mouseup="mup">
 				<l-echart ref="chart" @finished="init"></l-echart>
 			</div>
 
 			<!-- 菜单 -->
-			<div class="user scroller" >
-				<el-menu default-active="0" size="mini"
-						class="el-menu-vertical-demo"
-						background-color="#2f3447"
-						text-color="#dadada"
-						@select="on"
-						>
-					<el-submenu index="1">
-				        <template slot="title"><span>片段操作</span></template>
-				          <el-menu-item v-if="btn.includes('copy')" index="1-1"><i class="el-icon-copy-document"></i>复制</el-menu-item>
-				          <el-menu-item v-if="btn.includes('cut')" index="1-2"><i class="el-icon-scissors"></i>剪切</el-menu-item>
-						  <el-menu-item v-if="btn.includes('del')" index="1-3"><i class="el-icon-delete"></i>删除</el-menu-item>
-						  <!-- <el-menu-item v-if="btn.includes('setStatus')" index="1-4">路况设定</el-menu-item>
-						  <el-menu-item v-if="btn.includes('setLevel')" index="1-5">路级设定</el-menu-item> -->
-					</el-submenu>
-					<el-menu-item index="2" v-if="btn.includes('reverse')">
-				        <i class="el-icon-refresh"></i>
-				        <span slot="title">反转方向</span>
-					</el-menu-item>
-					<el-menu-item index="3" v-if="btn.includes('merge')">
-				        <i class="el-icon-connection"></i>
-				        <span slot="title">轨迹拼接</span>
-					</el-menu-item>
-					<el-menu-item index="4" v-if="btn.includes('ele')">
-				        <i class="el-icon-sort"></i>
-				        <span slot="title">重设海拔</span>
-					</el-menu-item>
-					<el-menu-item index="5" v-if="btn.includes('download')">
-					    <i class="el-icon-download"></i>
-					    <span slot="title">下载</span>
-					</el-menu-item>
-				</el-menu>
+			<div class="user scroller" v-if="btn&&btn.length>0">
+				<block v-for="(e,i) of act" :key="i">
+					<el-row type="flex" class="padding-top-xxs" justify="center">
+						<block v-for="(x,j) of btn" :key="'_'+j">
+							<el-link v-if="x==e.on" :type="e.type" @click="on(i)">{{e.text}}</el-link>
+						</block>
+					</el-row>
+				</block>
 			</div>
 		</div>
 		
@@ -137,19 +113,69 @@ export default {
 	components: { LEchart },
 	directives: { elDragDialog },
 	props: {
-		pm: { type: Object },
-		btn: {
-			type: Array,
-			default: ()=> {
-				return ['copy','cut','del', 'setStatus', 'setLevel', 'reverse', 'merge','ele', 'download']
-			}
-		}
+		pm: { type: Object },//坐标数组。
+		btn: {type: Array },
+		loading: { type: Boolean, default: false },
+		selected: { type: Object }
+		
 	},
 	data() {
 		return {
 			select: {open:false,len:0,range:[0, this.pm.info.len]},
-			option: null
-		}
+			option: null,
+			act: [
+				{
+					on: 'copy',
+					text:'复制片段',
+					type: 'success',
+					able: true
+				},
+				{
+					on: 'cut',
+					text:'剪切片段',
+					type: 'warning',
+					able: true
+				},
+				{
+					on: 'del',
+					text:'删除片段',
+					type: 'danger',
+					able: true
+				},
+				{
+					on: 'setStatus',
+					text:'路况设定',
+					type: 'success',
+					able: true
+				},
+				{
+					on: 'setLevel',
+					text:'路级设定',
+					type: 'warning',
+					able: true
+				},
+				{
+					on: 'reverse',
+					text:'反转方向',
+					type: 'primary'
+				},
+				{
+					on: 'merge',
+					text:'轨迹拼接',
+					type: 'warning'
+				},
+				{
+					on: 'ele',
+					text:'重设海拔',
+					type: 'info'
+				},
+				{
+					on: 'download',
+					text:'下载',
+					type: 'info'
+				}
+			]
+		};
 	},
 	watch: {
 		pm: {
@@ -160,9 +186,15 @@ export default {
 					this.init(v)
 				}
 			}
-		}
+		},
+		// selected: {
+		// 	handler(v) {
+		// 		this.getSelect()
+		// 	}
+		// }
 	},
 	mounted() {
+		// console.log('chart ..................');
 		// this.init()
 		document.addEventListener('resize', this.resize)
 	},
@@ -182,16 +214,7 @@ export default {
 		},
 		init(v){
 			if (!v) v = this.pm
-			this.select = {
-				range:[0, this.pm.info.len],
-				open:false,
-				old: [0, 0],
-				new: [],
-				start:0,
-				end:100,
-				len: 0,
-				coord: []
-			}
+			this.getSelect()
 			this.option = {
 				darkMode: true,
 				grid: {
@@ -260,6 +283,22 @@ export default {
 					this.datazoom(e)
 				})
 			})
+		},
+		getSelect(){
+			if (this.selected&&this.selected.coord) {
+				this.select = clone(this.selected)
+			} else {
+				this.select = {
+						range:[0, this.pm.info.len],
+						open:false,
+						old: [0, 0],
+						new: [],
+						start:0,
+						end:100,
+						len: 0,
+						coord: []
+					}
+			}
 		},
 		datazoom(e) {
 			if (e.batch) e = e.batch[0]
@@ -333,24 +372,12 @@ export default {
 			}
 		},
 		on(idx){
-			let act = {
-				'1-1': { on: 'copy', able: true },
-				'1-2': { on: 'cut', able: true },
-				'1-3': { on: 'del', able: true },
-				'1-4': { on: 'setStatus', able: true },
-				'1-5': { on: 'setLevel', able: true },
-				2: { on: 'reverse' },
-				3: { on: 'merge' },
-				4: { on: 'ele' },
-				5: { on: 'download' }
-			}
-			
-			if(act[idx].able) {
-				this.select.act = act[idx].on
+			if(this.act[idx].able) {
+				this.select.act = this.act[idx].on
 				if(!this.select.coord || !this.select.coord.length) this.select.coord = this.pm.coord
 				return this.select.open = true
 			}
-			this.$emit('on', { select: this.select, act: act[idx].on })
+			this.$emit('on', { select: this.select, act: this.act[idx].on })
 		},
 		ranged(){
 			let h = this.$createElement,
@@ -442,27 +469,11 @@ export default {
 			}
 	}
 	
-	
-	
+
 	// @media only screen and (max-width: 768px) {
 	// 	.dept {
 	// 		width: calc(100% - 100px);
 	// 	}
 	// }
-	.el-menu-vertical-demo {
-		::v-deep .el-menu-item {
-			display: flex;
-			align-items: center;
-			height: 40px;
-			font-size: 10pt;
-		}
-		
-		::v-deep .el-submenu__title {
-			height: 40px;
-			display: flex;
-			align-items: center;
-			font-size: 10pt;
-		}
-	}
 }
 </style>

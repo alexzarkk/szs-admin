@@ -327,9 +327,10 @@ const
 
 		return cn ? (D > 0 ? '天' : '') + (H > 9 ? H : '0' + H) + '小时' + (M > 9 ? M : '0' + M) + '分' + (S > 9 ? S : '0' + S) + '秒' : (H > 9 ? H : '0' + H) + ':' + (M > 9 ? M : '0' + M) + ':' + (S > 9 ? S : '0' + S)
 	},
-	deepTree = (list) => {
+	deepTree = (l) => {
 		let newList = [],
-			map = {}
+			map = {},
+			list = clone(l)
 
 		list.forEach(e => {
 			map[e._id||e.id] = e

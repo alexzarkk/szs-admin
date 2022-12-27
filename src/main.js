@@ -19,6 +19,7 @@ import "@/icons"
 import "@/static/css/element-variables.scss"
 import "@/static/css/colorui/main.scss"
 import "@/static/css/colorui/icon.scss"
+// import '@/comm/colorui/animation.css'
 
 /* ==================
 		DataV

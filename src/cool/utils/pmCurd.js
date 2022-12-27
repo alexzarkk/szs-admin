@@ -2,6 +2,8 @@ import { clone, revDeepTree, math } from "@/comm/zz"
 import { checkPerm } from "@/cool/permission"
 import { prop, point, viewElement, kmlGrade, kmlNet, pmSt } from "@/comm/dict.js"
 
+import { state } from '@/store/modules/param'
+
 //权限控制
 function veri({thiz,kml,user}) {
 	if(!thiz) thiz = this
@@ -10,10 +12,6 @@ function veri({thiz,kml,user}) {
 	if(!kml) kml = thiz.cKml || thiz.kml
 	
 	// console.log('thiz.veri ------------------',kml);
-	
-	//自绘路线
-	// if(kml.type==2) return true
-	
 	
 	//admin
 	if(user.admin) return true
@@ -45,56 +43,37 @@ function veri({thiz,kml,user}) {
 
 const dict = {
 	level: [
-		{
-			label: "默认轨迹",
-			value: 10
-		},
-		{
-			label: "1级",
-			value: 11
-		},
-		{
-			label: "2级",
-			value: 12
-		},
-		{
-			label: "3级",
-			value: 13
-		}
+		{ label: "默认轨迹", value: 10 },
+		{ label: "1级", value: 11 },
+		{ label: "2级", value: 12 },
+		{ label: "3级", value: 13 }
 	],
-	status: [{
-			label: "山林道",
-			value: 101
-		},
-		{
-			label: "防火道",
-			value: 102
-		},
-		{
-			label: "古道",
-			value: 103
-		},
-		{
-			label: "机耕路",
-			value: 104
-		},
-		{
-			label: "硬化道",
-			value: 105
-		},
-		{
-			label: "连接道",
-			value: 106
-		},
-		{
-			label:"绿道",
-			value: 110
-		},
-		{
-			label:"水道",
-			value: 120
-		}
+	status: [
+		{ label: "山林道", 	value: 101 },
+		{ label: "防火道", 	value: 102 },
+		{ label: "古道", 	value: 103 },
+		{ label: "机耕路", 	value: 104 },
+		{ label: "硬化道",	value: 105 },
+		{ label: "连接道", 	value: 106 },
+		{ label: "绿道", 	value: 110 },
+		{ label: "水道", 	value: 120 }
 	],
+	point: [
+		{ value: 20, label: '兴趣点' },
+		{ value: 21, label: '入口牌' },
+		{ value: 22, label: '主信息牌' },
+		{ value: 23, label: '次信息牌' },
+		{ value: 25, label: '禁止牌' },
+		{ value: 26, label: '警告牌' },
+		{ value: 27, label: '提示牌' },
+		{ value: 28, label: '标距柱' },
+		{ value: 29, label: '指引柱' },
+		{ value: 40, label: '服务设施' },
+		{ value: 50, label: '照片点' },
+		{ value: 200, label: '地名' }
+	],
+	
+	
 	_type: (t)=>{
 		let x = [{ label: "默认轨迹", value: 10 }]
 		for (let s of [...dict.level,...dict.status]) {
@@ -119,35 +98,24 @@ const dict = {
 	
 }
 
-function open({ thiz, act, pm }) {
+function open({ thiz, act, pm, select }) {
 	if(!thiz) thiz = this
 	if(!veri({thiz})) return
+	console.log('pmCurd.open --------->',pm,act,select)
 	
 	let isEdit = act === 'edit',
 		kml = thiz.kml,
-		select = thiz.cur.selectedTrack,
-		coord = select.coord,
+		coord = isEdit?pm.coord:select.coord,
 		tip = false,
 		t1 = pm.t1 || 1,
 		types,
 		title
 		
-console.log('pmCurd.open --------->',pm,act,select)
 
-	const delSection = async()=>{
-		let line = clone(thiz.cur.line)
-		uniSon(line.coord, select.coord)
-	 	await thiz.$service.zts.placemark.update({ _id: line._id,  coord: line.coord ,updateCoord:true})
-		thiz.cur.selectedTrack = {
-					range:[0, 0],
-					open: false,
-					old: [0, 0],
-					new: [],
-					start:0,
-					end:100,
-					len: 0,
-					coord: []
-				}
+
+	const delSection = async()=> {
+	 	await thiz.$service.zts.placemark.update({ _id: pm._id,  coord: uniSon(pm.coord, coord), updateCoord:true})
+		thiz.exec({m:'remove', e:{ids:[pm._id]}})
 	}
 
 	if (isEdit) {
@@ -155,6 +123,7 @@ console.log('pmCurd.open --------->',pm,act,select)
 		if (pm.t1 == 1) types = (kml.type==9&&pm.t2==10)?[{ label: "默认轨迹", value: 10 }]:[...dict.level, ...dict.status]
 		// if (pm.t1 == 1) types = [...dict.level, ...dict.status]
 		if (pm.t1 == 2) types = dict.point()
+		
 	} else {
 		switch (act) {
 			case 'addPoint':
@@ -214,7 +183,6 @@ console.log('pmCurd.open --------->',pm,act,select)
 							instance.confirmButtonLoading = true
 							instance.confirmButtonText = '执行中...'
 							await delSection()
-							thiz.reset()
 							thiz.kmlRefresh(1)
 							thiz.$message.success("操作成功")
 							instance.confirmButtonLoading = false
@@ -227,7 +195,7 @@ console.log('pmCurd.open --------->',pm,act,select)
 							done()
 						}
 					}
-				}).then(action => { });
+				}).then(action => { })
 				return
 		}
 	}
@@ -235,12 +203,10 @@ console.log('pmCurd.open --------->',pm,act,select)
 				prop: "imgs",
 				label: "照片",
 				span: 24,
-				value: isEdit ? (pm.imgs&&pm.imgs.length? pm.imgs.join(','):'') : '',
+				value: pm.imgs||[],
 				component: {
 					name: "cl-upload",
-					props: {
-						multiple: true
-					}
+					props: { limit: 6 }
 				}
 			},
 			
@@ -302,7 +268,7 @@ console.log('pmCurd.open --------->',pm,act,select)
 				prop: "tips",
 				hidden: !tip,
 				component: () => {
-					return thiz.cur.selectedTrack.h
+					return select.h
 				}
 			}
 		]
@@ -464,10 +430,8 @@ console.log('pmCurd.open --------->',pm,act,select)
 						rows: 4
 					}
 				}
-			},
-		
+			}
 		]
-		
 	}
 	
 	let form = thiz.$crud.openForm({
@@ -514,7 +478,8 @@ console.log('pmCurd.open --------->',pm,act,select)
 						coord,
 						kmlId: kml._id
 					}).catch((err) => {
-						thiz.$message.error(err);
+						thiz.$message.error(err)
+						done()
 					})
 					if(act=='cut') {
 						await delSection()
@@ -528,7 +493,9 @@ console.log('pmCurd.open --------->',pm,act,select)
 							// curTime: timeToDate('Y-M-D h:m'),
 							desc: data.desc
 						}
-					if(kml.type==40) {
+						
+					//制图
+					if(kml.type==6) {
 						newObj.grade = data.grade
 						newObj.sn = data.grade
 						newObj.status = data.status
@@ -544,19 +511,16 @@ console.log('pmCurd.open --------->',pm,act,select)
 					await thiz.$service.zts.placemark.update(newObj).then(e=>{
 						thiz.$message.success("保存成功")
 					}).catch((err) => {
-						thiz.$message.error(err);
+						thiz.$message.error(err)
+						done()
 					})
 				}
 				
 				//更新报表
 				if(kml.status>=10) thiz.$service.zts.kml.createChart({ _id: kml._id })
 				
-				thiz.reset()
 				thiz.kmlRefresh(1)
-				
 				thiz.cur.selectedTrack = {}
-				// thiz.$refs.mousetool.clear('markTool')
-				try{ thiz.$refs.mousetool.clearAll() }catch(e){ }
 				close()
 			},
 			close(done) {
@@ -564,8 +528,7 @@ console.log('pmCurd.open --------->',pm,act,select)
 				if (!isEdit && imgs != '') {
 					thiz.$service.space.info.delete({ url: imgs })
 				}
-				try{ thiz.$refs.mousetool.clearAll() }catch(e){ }
-				done();
+				done()
 			}
 		}
 	});
@@ -574,38 +537,27 @@ console.log('pmCurd.open --------->',pm,act,select)
 
 function del({ thiz, pm }) {
 	if(!veri({thiz})) return
-	thiz.$confirm("此操作将永久删除选中数据，是否继续？", "高风险提示", {
+	thiz.$confirm("此操作将永久删除选中数据，是否继续？", pm.name, {
 		type: "warning"
 	}).then((res) => {
 		if (res === "confirm") {
-			let track = revDeepTree(thiz.kml.list),t10=0
-			for (let s of track) {if(s.t1==1&&s.t2==10)t10+=1}
-			if(thiz.kml.type==9&&pm.t2==10&&t10<2) return thiz.$message.error("必须包含一条默认轨迹！")
-			
-			thiz.$service.zts.placemark.delete({ ids: pm._id, delImg: thiz.kml.type == 9 })
-				.then((res) => {
-					thiz.$message.success("删除成功");
-					
-					thiz.reset()
+			thiz.loading = true
+			thiz.$service.zts.placemark.delete({ ids: pm._id, delImg: thiz.kml.type == 9 }).then((res) => {
+					thiz.$message.success("删除成功")
+					thiz.exec({m:'remove', e:{ids:[pm._id]}})
 					
 					thiz.kmlRefresh(1)
-					
 					if(thiz.kml.status>=10) thiz.$service.zts.kml.createChart({ _id: thiz.kml._id })
-					
-					// resolve(res);
-				})
-				.catch((err) => {
+				}).catch((err) => {
 					thiz.$message.error(err);
-					// reject(err);
-				});
+				})
 		}
-	}).catch(() => null);
+	})
 }
 
 function merge(){
 	if(!veri({thiz:this})) return
-	let pm = revDeepTree(this.kml.list),
-		cur = this.cur.line,
+	let cur = this.cur,
 		res = [],
 		targets =[],
 		target;
@@ -618,8 +570,8 @@ function merge(){
 			h('br')
 		]
 		
-	for (let s of pm) {
-		if(s.t1==1 && s._id!=cur._id) targets.push({ value: s._id, label: s.name })
+	for (let s of this.list) {
+		if(s.t1&&s.t1==1 && s._id!=cur._id) targets.push({ value: s._id, label: s.name })
 	}
 	
 	let items = [
@@ -647,7 +599,7 @@ function merge(){
 						change: (val) => {
 							// 注意使用箭头函数
 							console.log(val)
-							for (let s of pm) {
+							for (let s of this.list) {
 								if(s._id==val) {
 									target = s
 									res = [h('i', { style: 'color: black' }, '【'+s.name +'】'+ s.info.len+'m'),
@@ -685,14 +637,16 @@ function merge(){
 				if(this.kml.type==9 && this.kml.status>=10) {
 					await this.$service.zts.kml.createChart({ _id: this.kml._id })
 				}
-				this.reset()
 				this.$message.success("保存成功")
+				
+				this.exec({m:'remove', e:{ids: [cur._id, target._id]}})
+				
 				this.kmlRefresh(1)
 				close()
 			},
 			close(done) {
 				console.log("窗口关闭事件");
-				done();
+				done()
 			}
 		}
 	})
@@ -768,6 +722,7 @@ function kmlChart(kml){
 	return chart
 }
 
+//删除相同
 function uniSon(arr, tar) {
 	let idx = []
 	arr.forEach((s, i) => {
@@ -775,17 +730,17 @@ function uniSon(arr, tar) {
 		for (let t of tar) {
 			if (s[0] == t[0] && s[1] == t[1]) count++
 		}
-		if (count > 0) { //内层循环结束，当count>0,说明此索引为对象是重复的
+		if (count > 0) {
 			idx.push(i)
 		}
 	})
 	let flag = -1
-	for (var i = 0; i < idx.length; i++) { //删除一次，索引位
+	for (var i = 0; i < idx.length; i++) {
 		flag++
 		if (flag == 0) {
 			arr.splice(idx[i], 1)
 		} else {
-			arr.splice(idx[i] - flag, 1) // 每次删除，需要删除的索引位就要减去1
+			arr.splice(idx[i] - flag, 1)
 		}
 	}
 	return arr

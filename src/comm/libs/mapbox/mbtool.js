@@ -171,9 +171,9 @@ setActive = (map, pm, opt={}, loop) => {
 			}
 			setPoint(map, t2)
 			return map.flyTo({center:[cds[0],cds[1]], zoom:16, bearing: pm.curDrect||0})
-		} 
-		
+		}
 		map.zz.curLine = pm
+		
 		if(!loop) {
 			map.fitBounds(turf.box(cds), {
 				padding: {top:25, bottom:25, left: 15, right: 15}
@@ -434,7 +434,7 @@ getElevation = async(coord, partial=false) =>{
 	}
 	return new Promise((resolve, reject) => {
 		if(coord.length) {
-			comm.req({ $url: '/public/zz/elevation', coord: ele }).then((e) => {
+			comm.req({ $fn:'app', $url: '/public/zz/elevation', coord: ele }).then((e) => {
 				if(partial) {
 					for (var i = 0; i < e.length; i++) {
 						coord[idx[i]] = e[i]
@@ -492,7 +492,9 @@ setLine = (map, line, beforeId=1) => {
 							html = htmlLine(t, map.zz.editble)
 						
 						if(t.t2!='2bl1') {
-							setActive(map, t)
+							// setActive(map, t)
+							window.mbAct({act:'lineActived', e:t})
+
 							if(map.zz.editble && !t.noEdit){
 								html +=	"<p>" +
 											href('edit',t,'编辑')+"&nbsp;&nbsp;&nbsp;&nbsp;" +

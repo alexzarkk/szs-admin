@@ -6,16 +6,19 @@
 	import comm from '@/comm/comm'
 	import icon from '@/comm/libs/icon'
 	import { CompassControl, TerrainControl, FullscreenControl, GridControl, RulerControl } from '@/comm/libs/mapbox/ctrl/index.js'
-	import { trans } from '@/comm/geotools.js'
+	import { trans, uniqId } from '@/comm/geotools.js'
 	import { amapKey } from '@/comm/bd'
 	
 	import '@/comm/libs/mapbox/mapbox.css'
+	
+	const mapid = uniqId()
 	
 export default {
 	data() {
 		return {
 			map: null,
 			self: null,
+			mapid,
 			
 			key: {
 				mb: 'pk.eyJ1IjoiYWxleHphcmtrIiwiYSI6ImNrcWdzNXdrcjI3NmEyb3F0cmVzd291amcifQ.tPuMJfthzboYHg3MzbKtKw',
@@ -25,7 +28,7 @@ export default {
 			
 			settings: {
 				style: 'mapbox://styles/alexzarkk/ckqt2gqrc650n17nw67q4glqu',
-				container: 'mbContainer',
+				container: mapid,
 				center: [120.109913, 29.181466],
 				zoom: 15,
 				minZoom: 3,
@@ -51,7 +54,7 @@ export default {
 	},
 	methods: {
 		resize(){
-			let ct = document.getElementById('mbContainer')
+			let ct = document.getElementById(mapid)
 			if(ct) {
 				ct.style.width = this.lay.width-10+'px'
 				ct.style.height = this.lay.height-10+'px'
@@ -196,7 +199,7 @@ export default {
 
 <template>
     <view>
-        <view id="mbContainer" :style="{ height: winH + 'px', width: '100%' }" :prop="mb" :change:prop="_mapbox.updateData"></view>
+        <view :id="mapid" :style="{ height: winH + 'px', width: '100%' }" :prop="mb" :change:prop="_mapbox.updateData"></view>
         
         <view class="cu-modal" :class="video ? 'show' : ''">
             <view class="cu-dialog">

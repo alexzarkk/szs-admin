@@ -1,6 +1,9 @@
 <template>
 	<cl-layout>
-		<div class="system-user" :style="winStyle">
+		<div class="system-user">
+			
+			<cl-form ref="dept-upsert"> </cl-form>
+			
 			<div class="pane">
 				<!-- 轨迹坐标 列表  可折叠 -->
 				<div class="kml" :class="[expand ? '_expand' : '_collapse']">
@@ -53,10 +56,10 @@
 								</el-tooltip>
 
 								<el-tooltip class="item" effect="dark" content="编辑" placement="top">
-									<el-button type="primary" size="mini" icon="el-icon-edit" circle :disabled="!cur.pm.t1 > 0" @click="edit"></el-button>
+									<el-button type="primary" size="mini" icon="el-icon-edit" circle :disabled="!cur.coord" @click="edit"></el-button>
 								</el-tooltip>
 								<el-tooltip class="item" effect="dark" content="删除" placement="top">
-									<el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="!cur.pm.t1 > 0" @click="del"></el-button>
+									<el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="!cur.coord" @click="del"></el-button>
 								</el-tooltip>
 							</block>
 						</block>
@@ -68,10 +71,10 @@
 								<el-button type="info" size="mini" icon="el-icon-upload2" circle @click="upload"></el-button>
 							</el-tooltip>
 							<el-tooltip class="item" effect="dark" content="编辑" placement="top">
-								<el-button type="primary" size="mini" icon="el-icon-edit" circle :disabled="!cur.pm.t1 > 0" @click="edit"></el-button>
+								<el-button type="primary" size="mini" icon="el-icon-edit" circle :disabled="!cur.coord" @click="edit"></el-button>
 							</el-tooltip>
 							<el-tooltip class="item" effect="dark" content="删除" placement="top">
-								<el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="!cur.pm.t1 > 0" @click="del"></el-button>
+								<el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="!cur.coord" @click="del"></el-button>
 							</el-tooltip>
 							<el-tooltip class="item" effect="dark" content="统计信息" placement="top">
 								<el-button type="success" size="mini" icon="el-icon-finished" circle @click="reCount"></el-button>
@@ -79,12 +82,12 @@
 						</block>
 						
 						<el-tooltip class="item" effect="dark" content="清理缓存并刷新" placement="top">
-							<el-button style="padding:2px;" type="primary" size="mini" icon="el-icon-refresh" circle @click="kmlRefresh(0,1)"></el-button>
+							<el-button type="warning" size="mini" icon="el-icon-refresh" circle @click="kmlRefresh(0,1)"></el-button>
 						</el-tooltip>
 					</div>
 					<!-- 树形结构 -->
 					<div class="container">
-						<div class="scroller">
+						<div class="scroller"> 
 							<el-table v-loading="loading"
 								border
 								ref="table"
@@ -93,11 +96,12 @@
 								size="mini"
 								highlight-current-row
 								
-								:data="pm.list"
-								:expand-row-keys="pm.keys"
+								:data="tree"
+								:expand-row-keys="expandKeys"
 								:tree-props="{children: 'children', hasChildren: 'hasChildren'}"
 								@row-click="rowClick"
-								@row-contextmenu="onRowContextMenu">
+								@row-contextmenu="onRowContextMenu"
+								>
 								
 								<el-table-column prop="name"  label="轨迹/坐标" header-align="center" tooltip-effect>
 									<template slot-scope="scope">
@@ -141,8 +145,8 @@
 				<!-- 成员列表 -->
 				<div class="user">
 					<div class="header">
-						<div class="icon padding-left-xs" @click="kmlExpand">
-							<i class=" el-icon-arrow-left" v-if="expand"></i>
+						<div class="icon padding-left-xs" @click="expand = !expand">
+							<i class="el-icon-arrow-left" v-if="expand"></i>
 							<i class="el-icon-arrow-right" v-else></i>
 						</div>
 						<!-- 选择部门 -->
@@ -151,11 +155,11 @@
 								<cl-dept-cascader :value="[kml.departmentId]" :size="'mini'" @input="deptChange" />
 							</span>
 						</el-tooltip>
-						<span class="padding-left-xs">
+						<!-- <span class="padding-left-xs">
 							<el-tooltip effect="light" :content="(tmap.onNear?'关闭':'加载')+'已组网路线（当前范围）'" placement="top">
 								<el-button style="padding:5px;" size="mini" :icon="tmap.onNear?'el-icon-circle-close':'zts-layout'" circle @click="onNear" ></el-button>
 							</el-tooltip>
-						</span>
+						</span> -->
 						<span class="padding-left-xs" v-if="kml.type == 9 && t9.length && kml.status <= 4">
 							<el-tooltip class="item" effect="dark" content="还原默认轨迹" placement="top">
 								<el-button type="primary" size="mini" icon="el-icon-refresh-right" circle @click="backDef"></el-button>
@@ -165,7 +169,7 @@
 							<block v-if="drawing">
 								<el-button size="mini" type="infor" @click="cancelDraw">取消</el-button>
 								<el-button v-if="drawed && drawed.pm.t1==1" size="mini" type="success" @click="continueDraw">继续</el-button>
-								<el-button size="mini" type="primary" :disabled="drawed == null && !lookingEle" v-loading="lookingEle" @click="saveDraw">保存</el-button>
+								<el-button size="mini" type="primary" :disabled="drawed == null && !onEle" v-loading="onEle" @click="saveDraw">保存</el-button>
 							</block>
 							<block v-else>
 								<view class="padding-left-xs">
@@ -208,66 +212,23 @@
 						</span>
 					</div>
 					<div class="container">
-						<cl-crud ref="crud" v-loading="loading">
-							<zz-map-draw v-if="!loading"
-								ref="zmap"
+						<cl-crud ref="crud">
+							<zz-map-draw ref="zmap" v-if="tree.length"
 								:pms="pms"
-								:cur="acted"
-								:lay="mapHeight"
-								
+								:cur="cur"
+								:extraW="expand?414:14"
 								@action="action"
+								@tcAction="tcAction"
 								:grid="false"></zz-map-draw>
-							
-							<view :style="{height: chartHight +'px'}">
-								<el-collapse v-if="acted.info" v-model="activeName" accordion>
-									<el-collapse-item name="1">
-										<template slot="title">
-											<i class="header-icon el-icon-info"></i>
-											【{{ acted.name }}】
-											<text class="padding-left-xs text-grey">长度：</text>
-											<text class="text-orange text-bold">{{ acted.info.len }}m</text>
 								
-											<text class="padding-left-xs text-grey">
-												海拔：
-												<text class="cuIcon-top"></text>
-											</text>
-											<text class="text-orange text-bold">{{ acted.info.top }}m</text>
-											<text class="text-grey"><text class="cuIcon-down"></text></text>
-											<text class="text-orange text-bold">{{ acted.info.bottom }}m</text>
-								
-											<text class="padding-left-xs text-grey">
-												累计：
-												<i class="header-icon el-icon-top"></i>
-											</text>
-											<text class="text-orange text-bold">{{ acted.info.up }}m</text>
-											<text class="text-grey"><i class="header-icon el-icon-bottom"></i></text>
-											<text class="text-orange text-bold">{{ acted.info.down }}m</text>
-											
-											<block v-if="cur.sInfo.len">
-												<text class="padding-left-xs text-dark">
-													(已选取路段)
-												</text>
-											</block>
-										</template>
-										<view :style="{height: (chartHight-40) +'px'}">
-											<zts-track-chart ref="tChart"
-												:pm="acted"
-												:btn="['copy','cut','del', 'setStatus', 'setLevel', 'reverse', 'merge','ele', 'download']"
-												:selected="cur.selectedTrack"
-												@on="tcAction"
-											></zts-track-chart>
-										</view>
-									</el-collapse-item>
-								</el-collapse>
-							</view>
 						</cl-crud>
 						<!-- 线路详情统计/更新 -->
 						<cl-dialog :width="'60%'" :height="lay.height - 42 + 'px'" :props="{ top: '0vh' }" :title="kml.name" :visible.sync="checking">
 							<!-- <checking :kml="kml" :height="lay.height" @checked="checked"></checking> -->
 						</cl-dialog>
 						<!-- 指引柱的详细信息 -->
-						<cl-dialog :width="'100%'" :props="{ top: '0vh', fullscreen: true }" title="指引柱" :visible.sync="cur.directionChart">
-							<block v-if="t29 && cur.directionChart">
+						<cl-dialog :width="'100%'" :props="{ top: '0vh', fullscreen: true }" title="指引柱" :visible.sync="directionChart">
+							<block v-if="t29 && directionChart">
 								<!-- <direction :t29="t29" :refKml="refKml" :directPoi.sync="directPoi" :height="lay.height" :t10="t10" @refresh="kmlRefresh"></direction> -->
 							</block>
 						</cl-dialog>
@@ -282,11 +243,10 @@
 import { mapGetters } from 'vuex';
 // import { deepTree, dateToTime, isArray, revDeepTree, isPc, clone, openWin } from '@/cool/utils';
 
-import { open, merge, check, veryfy, del, veri } from '@/cool/utils/pmCurd';
-import { upload } from '@/cool/utils/uploadKml.js';
-import { calData, isSame } from '@/comm/geotools';
-
-// import { coord2String, layerStyle, polygonToLine, createGeo, getAround, getElevation, pmTree, removeLayer } from '@/components/mapbox/utils/mbtool.js';
+import { open, merge, check, veryfy, del, veri } from '@/cool/utils/pmCurd'
+import { upload } from '@/cool/utils/uploadKml'
+import { calData, isSame } from '@/comm/geotools'
+import { getElevation } from '@/comm/libs/mapbox/mbtool'
 
 // import Checking from '../collect/checking.vue';
 // import Direction from './direction.vue';
@@ -300,135 +260,62 @@ export default {
 	// },
 	data() {
 		return {
-			kml: {},
-			pms: [],
-			acted: {},
 			loading: false,
 			expand: true,
-			pm: {
-				list: [],
-				keys: ['10','2','3']
-			},
-			refKml:null,
-			activeLine:null,
+			expandKeys: ['10','2','3'],
+			refKml: null,
 			
-			cur: {
-				pm: {},
-				sInfo:{},
-				line: { info: {} },
-				selectedTrack: {},
-				chartRender: false,
-				directionChart: false
-			},
+			kml: {},
+			list:[],
+			tree:[],
+			pms: [],
+			cur: {},
 			
 			
-			
-			isMapDataReady: false,
+			directionChart: false,
 			checking: false,
-			// layerStyle: layerStyle,
-			winStyle: '',
-			maptype: '3D',
-			
 			directPoi: {},
 			
-			activeName: '1',
-			trackEdit: false,
-
-			tmap: {
-				render: true,
-				center: [120.15, 30.28],
-				zoom: 10,
-				onLoc: false,
-				aroundLoc: null,
-				onNear: false,
-				controls: [
-					'mapType',
-					{
-						name: 'scale',
-						position: 'bottomright'
-					}
-				]
-			},
-
-			geo: null,
 			
+			// draw
 			drawing: false,
 			drawed: null,
-			kmlDraw: null,
-			lookingEle: false,
+			drawPm: null,
+			onEle: false,
 			
 			t10: null,
 			t29: null,
 			t9: [],
-			
-			mapHeight: [0,0],
-			chartHight: 0
-			
-
 			
 		};
 	},
 	computed: {
 		...mapGetters(['lay', 'userInfo'])
 	},
-	watch: {
-		lay() { this.setLay() },
-		activeName(){ this.setLay() }
-	},
 	activated() {
+		console.log('map.activated');
 		this.kmlRefresh()
 	},
 	deactivated() {
-		this.activeName = '1';
-		this.polyline = [];
-		this.marker = [];
-		this.infowindow.target = null;
-		this.cur.selectedTrack = {};
-		this.cur.sInfo = {};
-		this.cur.chartRender = false;
-		this.kml.cur = { status: 0 };
-		this.t10 = null;
-		this.t29 = null;
-		this.t9 = [];
-
-		this.reset();
+		console.log('map.deactivated')
 	},
 	mounted() {
 		this.kmlRefresh()
 	},
 	methods: {
-		setLay(){
-			let h = 0
-			if(this.acted.info){
-				h = this.lay.height * 0.3
-				if(h>360) h = 360
-				if(h<240) h = 240
-				h = this.activeName? h : 40*2
-			}
-			this.chartHight = h
-			this.mapHeight = [this.lay.height - h, this.lay.width - (this.expand? 416:16)]
-			
-			console.log(h,this.mapHeight);
-			// setTimeout(()=>{ try{ this.$refs.tChart.resize() }catch(e){ } }, 333)
-			try{ this.$refs.tChart.resize() }catch(e){ }
-			try{ this.exec({m:'resize'}) }catch(e){ }
-		},
-		kmlExpand() {
-			this.expand = !this.expand
-			setTimeout(()=>{ this.setLay() }, 333)
-		},
+		exec(e){ this.$refs.zmap.exec(e) },
+		setPms(){ this.pms = this.zz.revDeepTree(this.tree).filter(e=>e.coord!=undefined) },
 		rowClick(e,c){
 			if (c.property && e.children) {
 				this.$refs.table.toggleRowExpansion(e)
 			} else {
-				this.acted = e
-				// setTimeout(()=>{ this.acted = e }, 60)
+				if(e.t1==1 && !e.info) e.info = calData(e.coord, true)
+				this.cur = e
+				// setTimeout(()=>{ this.cur = e }, 60)
 			}
-			setTimeout(()=>{ this.setLay() }, 200)
 			
 			console.log('rowClick',e)
 		},
-		exec(e){ this.$refs.zmap.exec(e) },
 		rowCheck(z){
 			const set = (d) =>{
 				if(d.children) {
@@ -444,43 +331,28 @@ export default {
 			
 			console.log('line ----->', this.pms)
 		},
-		reset() {
-			this.marker = []
-			this.polyline = []
-			this.activeLine = {}
-			// this.refKml = null
-			// this.kml.checked = []
-		},
 
 		async kmlRefresh(init, force=0) {
-			
 			console.log('kmlRefresh ----->', force);
 			
 			let id = uni.getStorageSync('collect_check')
 			if (init||force || !this.kml._id || this.kml._id != id) {
 				this.loading = true
-				let kml = await this.$service.zts.kml.info({ id, noChild: true })
+				
+				let kml = await this.$service.zts.kml.info({ id, noChild: true }),
+					list = await this.$service.zts.placemark.list({ kmlId: id, tree: true, force })
+				
+				this.loading = false
+				
+				for(let s of list) {
+					s.checked = true
+					if(s.kmlId && s.t1==1) { s.info = calData(s.coord, true) }
+				}
 				
 				this.kml = kml
-				this.$service.zts.placemark.list({ kmlId: id, tree: true, force }).then(res => {
-					this.loading = false
-					let keys = [],
-						checked = []
-					
-					if(res.length<100) {
-						for(let s of res) {
-							s.checked = true
-							if(s.kmlId) {
-								if(s.t1==1) s.info = calData(s.coord, true)
-								checked.push(s)
-							}
-							// if(typeof s._id == 'number') keys.push(s._id+'')
-						}
-					}
-					this.$set(this.pm, 'list', this.zz.deepTree(res))
-					this.setPms()
-					// console.log('获取到的标记点的信息placemark-list接口  ============', this.pms);
-				})
+				this.list = list
+				this.reTree()
+				this.setPms()
 				
 				if (kml.departmentId != 330000) {
 					// this.zz.ajax({
@@ -499,18 +371,131 @@ export default {
 				}
 			}
 		},
-		setPms(){
-			this.pms = this.zz.revDeepTree(this.pm.list).filter(e=>e.checked&&e.coord!=undefined)
+		reTree(pm) {
+			if(pm) {
+				let idx = this.list.findIndex(e=>e._id==pm._id)
+				if(idx) Object.assign(this.list[idx],pm)
+			}
+			this.tree = this.zz.deepTree(this.list)
 		},
 		
-		chartRefresh(time) {
-			this.cur.chartRender = false;
-			let thiz = this;
-			setTimeout(function() {
-				thiz.cur.chartRender = true;
-			}, time);
+		onRowContextMenu(d, column, event) {
+			console.log('onRowContextMenu',d);
+			let permission = this.$service.zts.kml.permission,
+				list = [
+					{
+						label: "编辑",
+						"suffix-icon": "el-icon-edit-outline",
+						callback: (item, done) => {
+							this.reset(d)
+							done()
+						}
+					},
+					{
+						label: "删除",
+						"suffix-icon": "el-icon-delete",
+						callback: (item, done) => {
+							this.reset(d)
+							done()
+						}
+					}
+				]
+			
+			if(d.pid){
+				list.unsheft({
+					label: "添加子集",
+					"suffix-icon": "el-icon-plus",
+					callback: (item, done) => {
+						this.layEdit({
+							name: "",
+							pid: d._id,
+							parentName: d.name,
+							label:'添加子集',
+						})
+						done()
+					}
+				})
+			} 
+			
+			this.$refs.table.open(event, { list })
 		},
-
+		layEdit(e){
+			console.log('layEdit',e);
+			if(typeof e === 'string'){
+				e = this.zz.revDeepTree(this.list).find(x=>x._id==e)
+			}
+			let title = e.label || (e._id?'编辑-'+e.name:"新增"),
+				method = e.id?"update":"add",
+				items = [
+					{
+						label: "名称",
+						prop: "name",
+						value: e.name || '',
+						span: 12,
+						component: {
+							name: "el-input",
+							attrs: {
+								placeholder: "请填写名称"
+							}
+						},
+						rules: {
+							required: true,
+							message: "名称不能为空"
+						}
+					},
+					{
+						label: "排序",
+						prop: "orderNum",
+						span: 12,
+						value: e.orderNum || 0,
+						component: {
+							name: "el-input-number",
+							props: {
+								min: 0,
+								max: 1000
+							}
+						}
+					}
+				]
+			
+			this.$refs["dept-upsert"].open({
+				title,
+				width: "720px",
+				props: { "label-width ": "120px" },
+				items,
+				on: {
+					submit: (data, { done, close }) => {
+						let obj = {
+							_id: e._id,
+							pid: e.pid,
+							name: data.name,
+							lock: data.lock,
+							orderNum: data.orderNum,
+							prefix: data.prefix
+						}
+						if(data.status !=undefined) obj.status = data.status
+						
+						if(e.root) { obj.root = true }
+						if(!e.id&&!e.root) {
+							obj.deptId = data.deptId[data.deptId.length-1]
+						}
+						if(e.kmlId) obj.grade = data.grade
+						
+						this.loading = true;
+						this.$service.zts.layout[method](obj).then((res) => {
+							// console.log(method,res);
+							this.$message.success('保存成功');
+							close();
+							this.loading = false;
+							this.refresh();
+						}).catch((err) => {
+							this.$message.error(err);
+							done();
+						});
+					}
+				}
+			});
+		},
 		
 		// 轨迹点击 展示动画
 		
@@ -525,22 +510,25 @@ export default {
 					this.drawEvt(e)
 					break;
 				case 'add':
-					open.call(this,{act: 'addLine', pm: e.pm })
+					open.call(this,{ act: 'addLine', pm: e.pm })
 					break;
 				case 'edit':
-					open.call(this,{act: 'edit', pm: e.pm })
+					open.call(this,{ act: 'edit', pm: e.pm })
 					break;
 				case 'del':
-					del.call(this,{pm: e.pm })
+					del.call(this,{ pm: e.pm })
 					break;
 				case 'draw':
 					this.drawing = true
-					this.kmlDraw = e.pm
+					this.drawPm = e.pm
 					this.exec({m:'doDraw', e})
 					break;
 				case 'direct':
 					this.directPoi = e.pm
-					this.cur.directionChart = true
+					this.directionChart = true
+					break;
+				case 'lineActived':
+					this.cur = e.e
 					break;
 				default:
 					break;
@@ -548,23 +536,8 @@ export default {
 		},
 		
 		//更新坐标位置
-		mkDbclick(e) {
-			if (this.cur.e == 'dragging') {
-				if (veri.call(this, {})) {
-					this.$service.zts.placemark.update({ _id: e.extData._id, coord: [e.lnglat.getLng(), e.lnglat.getLat(), e.extData.coord[2]], updateCoord: true }).then(res => {
-						this.$message.success(`更新成功`)
-						e.extData[this.cur.e] = false
-						this.marker.splice(this.cur.idx, 1, e.extData)
-						this.cur.e = ''
-					});
-				}
-			}
-		},
+		
 
-		marked(e) {
-			// console.log('marked',e)
-			open({ thiz: this, act: 'addPoint', pm: { coord: [e.currentLnglat.getLng(), e.currentLnglat.getLat(), 0] } });
-		},
 		check() {
 			this.checking = true;
 		},
@@ -577,78 +550,56 @@ export default {
 			openWin('/#/pages/zts/collect/verify');
 		},
 		edit() {
-			open({ thiz: this, act: 'edit', pm: this.cur.pm });
+			open({ thiz: this, act: 'edit', pm: this.cur });
 		},
 		del() {
-			return del({ thiz: this, pm: this.cur.pm });
+			return del({ thiz: this, pm: this.cur });
 		},
+		
 		//从chart中返回的事件
-		tcAction({ select, act }) {
+		async tcAction({ select, act }) {
 			console.log('tcAction', select);
-			if (act == 'select') {
-				if (this.activeLine) {
-					let coord
-					// 尾部相等
-					if (isSame(this.activeLine.coord[this.activeLine.coord.length - 1],select.coord[select.coord.length - 1])) {
-						coord = select.coord[0]
-					} else if (isSame(this.activeLine.coord[0],select.coord[0])) {
-						coord = select.coord[select.coord.length - 1]
+			
+			switch (act){
+				case 'reverse':
+					this.updateCoord(this.cur._id, this.cur.coord.reverse())
+					break;
+				case 'merge':
+					merge.call(this)
+					break;
+				case 'ele':
+					if (!veri.call(this, {})) return
+					let ask = await this.$confirm('此操作将会覆盖原有数据，是否继续？', '提示', { type: 'warning' })
+					if(ask) {
+						this.loading = true
+						let coord = await getElevation(this.cur.coord)
+						this.updateCoord(this.cur._id, coord)
 					}
-					setTimeout(()=>{
-						if(coord) this.exec({m:'fly', e: {coord}})
-					}, 1200)
-				}
-				this.activeLine = {id: 'selected', coord: select.coord}
-				this.exec({m:'fit', e:{pm:this.activeLine,opt:{t:30}}})
-				this.cur.sInfo = calData(select.coord)
-				return this.cur.selectedTrack = select
+					break;
+				case 'download':
+					let kml = clone(this.kml.cur)
+					kml.children = [{_id: 'LineString_t1',
+									name: '轨迹',
+									children: [this.cur],
+								}]
+					this.zz.expKml(kml)
+					break;
+				default:
+					open.call(this, { act, pm: this.cur, select })
+					break;
 			}
-			if (act == 'reverse') {
-				let pm = this.cur.line;
-				return this.updateCoord(pm._id, pm.coord.reverse());
-			}
-			if (act == 'merge') {
-				return merge.call(this);
-			}
-			if (act == 'ele') {
-				if (!veri.call(this, {})) return;
-				this.$confirm('此操作将会覆盖原有数据，是否继续？', '提示', {
-					type: 'warning'
-				}).then(res => {
-						if (res === 'confirm') {
-							this.kml.loading = true;
-							getElevation(this.cur.line.coord).then(e => {
-								// console.log('getElevation ............',e);
-								this.$service.zts.placemark.update({ _id: this.cur.line._id, coord: e, updateCoord: true }).then(res => {
-									this.$message.success(`海拔更新成功`);
-									this.kmlRefresh();
-								});
-							});
-						}
-					}).catch(() => null)
-				return;
-			}
-			if (act == 'download') {
-				let kml = clone(this.kml.cur);
-				kml.children = [{_id: 'LineString_t1',
-								name: '轨迹',
-								children: [this.cur.line],
-							}]
-				return this.zz.expKml(kml);
-			}
-			this.cur.selectedTrack = select
-			open({ thiz: this, act, pm: this.cur.pm })
 		},
-		updateCoord(_id, coord) {
+		async updateCoord(_id, coord) {
 			if (veri.call(this, {})) {
-				this.$service.zts.placemark.update({ _id, coord, updateCoord: true }).then(res => {
-					this.$message.success(`更新成功`);
-					this.kml.loading = false;
-					this.reset();
-					this.kmlRefresh();
-					// this.kmlCheck(e)
-				});
-				if (this.kml.cur.status >= 10) this.$service.zts.kml.createChart({ _id: this.kml.cur._id });
+				this.loading = true
+				await this.$service.zts.placemark.update({ _id, coord, updateCoord: true }).then(res => {
+					this.loading = false
+					this.$message.success(`更新成功`)
+					this.exec({m:'remove', e:{ids:[_id]}})
+					this.kmlRefresh(1)
+					// this.reTree({_id, coord})
+				})
+				if (this.kml.status >= 10) this.$service.zts.kml.createChart({ _id: this.kml._id })
 			}
 		},
 		upload() {
@@ -662,8 +613,8 @@ export default {
 							// return console.log({...s, ...data, kmlId: this.kml.cur._id});
 							await this.$service.zts.placemark.add({...s, ...data, kmlId: this.kml._id})
 						}
-						this.reset()
-						this.kmlRefresh()
+						
+						this.kmlRefresh(1)
 						if (this.kml.status >= 10) {
 							this.$service.zts.kml.createChart({ _id: this.kml._id })
 						}
@@ -699,7 +650,7 @@ export default {
 
 								this.kml.cur.status = e;
 								// uni.setStorageSync('collect_check', this.kml.cur._id);
-								this.kmlRefresh();
+								this.kmlRefresh(1)
 								//删除报表
 							});
 					}
@@ -718,8 +669,7 @@ export default {
 				await this.$service.zts.placemark.add(pm);
 			}
 			this.kml.loading = false;
-			this.reset();
-			this.kmlRefresh();
+			this.kmlRefresh(1)
 		},
 		
 		// mapbox ----------------------------------------- /////////////////// >
@@ -731,54 +681,50 @@ export default {
 		continueDraw() {
 			let coord = this.drawed.pm.coord
 			this.exec({m:'doDraw', e:{
-													e:'draw_line_string',
-													name:this.drawed.pm.name,
-													o:{
-														featureId: this.drawed.featureId,
-														from: coord[coord.length - 1]
-													}}})
+										e:'draw_line_string',
+										name:this.drawed.pm.name,
+										o:{ featureId: this.drawed.featureId, from: coord[coord.length-1] } }})
 		},
 		cancelDraw(id) {
-			this.lookingEle = false
+			this.onEle = false
 			this.drawing = false
 			this.drawed = null
-			
-			this.exec({m:'finishDraw', e:{pm:this.kmlDraw}})
-			this.kmlDraw = null
+			this.drawPm = null
+			this.exec({m:'finishDraw', e:{pm:this.drawPm}})
 		},
 		drawEvt(e) {
 			let geo = e.geo.geometry,
 				id = e.geo.id,
-				coord = geo.coordinates;
+				coord = geo.coordinates
 
 			if (e.type == 'draw.create') {
-				if (geo.type == 'Point') this.drawed = {thiz: this, act: 'addPoint', pm: {t1:2, coord } };
-				if (geo.type == 'LineString') this.drawed = {thiz: this, act: 'addLine', pm: {t1:1, coord } };
+				if (geo.type == 'Point') this.drawed = { act: 'addPoint', pm: {t1:2, coord } }
+				if (geo.type == 'LineString') this.drawed = { act: 'addLine', pm: {t1:1, coord } }
 			}
 			if (e.type == 'draw.update') {
 				try {
 					this.drawed.pm.coord = coord
 				} catch (e) {
-					this.drawed = { pm: { ...this.kmlDraw, coord } }
+					this.drawed = { pm: { ...this.drawPm, coord } }
 				}
 			}
 			this.drawed.featureId = id
 		},
 		async saveDraw() {
-			this.lookingEle = true;
-			console.log(this.drawed.pm);
+			this.onEle = true
 			let pm = this.drawed.pm,
-			coord = await getElevation(pm.coord, pm.t1==1)
+				coord = await getElevation(pm.coord, pm.t1==1)
+			this.onEle = false
+			console.log('saveDraw ...', pm,coord)
 			
-			this.lookingEle = false;
-			if (this.kmlDraw) {
-				this.updateCoord(this.kmlDraw._id, coord)
+			if (this.drawPm) {
+				await this.updateCoord(this.drawPm._id, coord)
+				this.cancelDraw()
+				//显示轨迹
 			} else {
-				this.drawed.pm.coord = coord
-				open(this.drawed)
+				pm.coord = coord
+				open.call(this, this.drawed)
 			}
-			try{ this.draw.notify.close() }catch(e){ }
-			this.draw.notify = null
 		},
 
 		
@@ -903,18 +849,5 @@ export default {
 			height: 36px;
 		}
 	}
-	.track-chart {
-		// height: calc(100vh - 1000px);
-		// min-height: 200px;
-		// max-height: 320px;
-		width: 100%;
-		height: 100%;
-	}
-
-	// @media only screen and (max-width: 768px) {
-	// 	.kml {
-	// 		width: calc(100% - 100px);
-	// 	}
-	// }
 }
 </style>
