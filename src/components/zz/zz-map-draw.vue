@@ -193,6 +193,7 @@ export default {
 		setPms(e) {
 			let map = this.map,
 				fn = {1:'setLine', 2: 'setPoint', 3: 'setGon'}
+				
 			for (let s of e.pms) {
 				let id = s._id
 				if(map.getLayer(id)) {
@@ -417,19 +418,12 @@ export default {
 			this.exec({m:'setPms', e:{pms:e}})
 		},
         cur(e, o) {
-			console.log('cur .....................',e,o);
 			this.calLay()
 			setTimeout(()=>{this.exec({m:'fit', e:{pm:e}})}, 200)
         },
-		
 		activeName(){ this.calLay() },
-		extraW(e,o) { 
-			console.log('extraW .....................',e,o);
-			
-			this.calLay() },
-		lay(e,o) { 
-			console.log('lay .....................',e,o);
-			this.calLay() }
+		extraW(e,o) { this.calLay() },
+		lay(e,o) { this.calLay() }
 		
     },
 	created(){ this.calLay() },
@@ -449,7 +443,7 @@ export default {
 			this.mapLay = [this.lay.height - h, this.lay.width, h]
 			try{ this.$refs.tChart.resize() }catch(e){ }
 			try{ this.exec({m:'resize'}) }catch(e){ }
-			console.log(this.lay.height,this.lay.width ,'---', this.mapLay, ' ........this.mapLay',this.cur);
+			// console.log(this.lay.height,this.lay.width ,'---', this.mapLay, ' ........this.mapLay',this.cur);
 		},
         setProp() {
 			if(this.mdone) {

@@ -2,10 +2,10 @@
 	<cl-layout>
 		<div class="system-user">
 			<div class="pane">
-				<!-- 组织架构 -->
+				<!-- 部门区域 -->
 				<div class="dept scroller1" :class="[dept.expand ? '_expand' : '_collapse']">
 					<div class="header">
-						<div>组织架构</div>
+						<div>部门区域</div>
 
 						<ul>
 							<li>
@@ -15,9 +15,9 @@
 							</li>
 
 							<li>
-								<el-tooltip content="拖动排序">
+								<!-- <el-tooltip content="拖动排序">
 									<i class="el-icon-s-operation" @click="dept.isDrag = true"></i>
-								</el-tooltip>
+								</el-tooltip> -->
 							</li>
 
 							<li class="no" v-show="dept.isDrag">
@@ -32,25 +32,27 @@
 					</div>
 
 					<div class="container" @contextmenu.prevent="deptCM">
-						<el-tree
-							node-key="id"
-							highlight-current
-							default-expand-all
-							:data="dept.list"
-							:props="{
-								label: 'name'
-							}"
-							:draggable="dept.isDrag"
-							:allow-drag="deptAllowDrag"
-							:allow-drop="deptAllowDrop"
-							:expand-on-click-node="false"
-							v-loading="dept.loading"
-							@node-click="deptClick"
-						>
-							<span slot-scope="{ data }">
-								<dept-label :item="data" />
-							</span>
-						</el-tree>
+						<div class="scroller">
+							<el-tree
+								node-key="id"
+								highlight-current
+								:default-expanded-keys="[330000]"
+								:data="dept.list"
+								:props="{
+									label: 'name'
+								}"
+								:draggable="dept.isDrag"
+								:allow-drag="deptAllowDrag"
+								:allow-drop="deptAllowDrop"
+								:expand-on-click-node="false"
+								v-loading="dept.loading"
+								@node-click="deptClick"
+							>
+								<span slot-scope="{ data }">
+									<dept-label :item="data" />
+								</span>
+							</el-tree>
+						</div>
 					</div>
 				</div>
 
@@ -62,13 +64,13 @@
 							<i class="el-icon-arrow-right" v-else></i>
 						</div>
 
-						<span>成员列表</span>
+						<!-- <span>成员列表</span> -->
 					</div>
 
 					<div class="container">
 						<cl-crud ref="crud" @load="onCrudLoad" :on-refresh="onRefresh">
 							<el-row type="flex">
-								<cl-refresh-btn></cl-refresh-btn>
+								<cl-refresh-btn ></cl-refresh-btn>
 								<cl-add-btn></cl-add-btn>
 								<cl-multi-delete-btn></cl-multi-delete-btn>
 								<el-button
@@ -80,7 +82,9 @@
 									>转移</el-button
 								>
 								<cl-flex1></cl-flex1>
-								<cl-search-key></cl-search-key>
+								
+								<cl-role-select @input="roleChange"></cl-role-select>
+								<cl-search-key :size="'mini'" @on-search="search"></cl-search-key>
 							</el-row>
 
 							<el-row>
@@ -105,6 +109,12 @@
 											fixed: 'left'
 										},
 										{
+											prop: 'departmentId',
+											label: '部门',
+											align: 'center',
+											dict: $store.getters.deptLabel
+										},
+										{
 											prop: 'headImg',
 											label: '头像',
 											align: 'center',
@@ -119,12 +129,6 @@
 										{
 											prop: 'username',
 											label: '用户名',
-											align: 'center',
-											'min-width': 150
-										},
-										{
-											prop: 'nickName',
-											label: '昵称',
 											align: 'center',
 											'min-width': 150
 										},
@@ -231,17 +235,16 @@
 </template>
 
 <script>
-import { deepTree, isArray, revDeepTree, isPc } from "@/cool/utils";
+import { deepTree, isArray, revDeepTree, isPc } from "@/cool/utils"
 
 export default {
 	componentName: "User",
-
 	data() {
 		return {
 			dept: {
 				isDrag: false,
 				loading: false,
-				expand: isPc(),
+				expand: !this.$store.getters.userInfo.isLeaf,
 				list: []
 			},
 			selects: {
@@ -255,13 +258,16 @@ export default {
 						label: "头像",
 						span: 24,
 						component: {
-							name: "cl-upload"
+							name: "cl-upload",
+							props: {
+								limit: 1
+							}
 						}
 					},
 					{
 						prop: "name",
 						label: "姓名",
-						span: 24,
+						span: 12,
 						component: {
 							name: "el-input",
 							attrs: {
@@ -272,6 +278,31 @@ export default {
 							required: true,
 							message: "姓名不能为空"
 						}
+					},
+					{
+						prop: "deptRole",
+						label: "部门",
+						span: 12,
+						component: {
+							name: "el-select",
+							attrs: {
+								placeholder: "请选择部门"
+							},
+							options: [
+									{ label: "体育局", value: 1 },
+									{ label: "协会", value: 3 },
+									{ label: "设计单位", value: 5 },
+									{ label: "施工单位", value: 7 },
+									{ label: "标牌供应商", value: 9 },
+									{ label: "其它", value: 99 }
+								]
+						},
+						rules: [
+							{
+								required: true,
+								message: "部门不能为空"
+							}
+						]
 					},
 					{
 						prop: "nickName",
@@ -336,7 +367,7 @@ export default {
 							name: "cl-role-select",
 							props: {
 								props: {
-									"multiple-limit": 3
+									"multiple-limit": 5
 								}
 							}
 						},
@@ -401,10 +432,7 @@ export default {
 						prop: "tips",
 						hidden: true,
 						component: (
-							<div>
-								<i class="el-icon-warning"></i>
-								<span style="margin-left: 6px">新增用户默认密码为：123456</span>
-							</div>
+							<div><i class="el-icon-warning"></i><span style="margin-left: 6px">新增用户默认密码为：123456</span></div>
 						)
 					}
 				]
@@ -421,7 +449,6 @@ export default {
 			props: {
 				item: Object
 			},
-
 			computed: {
 				parent() {
 					let parent = this;
@@ -472,8 +499,12 @@ export default {
 
 			render(list);
 		},
-
+		roleChange(e){
+			this.refresh({roleIds:e.filter(e=>e)})
+		},
+		
 		onUpsertOpen(isEdit) {
+			
 			const { toggleItem } = this.$refs["upsert"];
 			toggleItem("password", isEdit);
 			toggleItem("tips", !isEdit);
@@ -481,7 +512,6 @@ export default {
 
 		onUpsertSubmit(_, data, { next }) {
 			let departmentId = this.selects.dept.id;
-
 			if (!departmentId) {
 				departmentId = this.dept.list[0].id;
 			}
@@ -497,8 +527,9 @@ export default {
 			this.dept.loading = true;
 
 			this.$service.system.dept
-				.list()
+				.list({load:true})
 				.then((res) => {
+					 // console.log(res)
 					this.dept.list = deepTree(res);
 				})
 				.done(() => {
@@ -507,56 +538,64 @@ export default {
 		},
 
 		deptCM(e, d) {
-			let list = [
-				{
-					label: "新增",
-					"suffix-icon": "el-icon-plus",
-					callback: (item, done) => {
-						this.deptEdit({
-							name: "",
-							parentName: d.name,
-							parentId: d.id
-						});
-						done();
-					}
-				},
-				{
-					label: "编辑",
-					"suffix-icon": "el-icon-edit",
-					callback: (item, done) => {
-						this.deptEdit(d);
-						done();
-					}
-				}
-			];
+			// let list = [
+			// 	{
+			// 		label: "新增",
+			// 		"suffix-icon": "el-icon-plus",
+			// 		callback: (item, done) => {
+			// 			this.deptEdit({
+			// 				name: "",
+			// 				parentName: d.name,
+			// 				parentId: d.id
+			// 			});
+			// 			done();
+			// 		}
+			// 	},
+			// 	{
+			// 		label: "编辑",
+			// 		"suffix-icon": "el-icon-edit",
+			// 		callback: (item, done) => {
+			// 			this.deptEdit(d);
+			// 			done();
+			// 		}
+			// 	}
+			// ];
 
-			if (!d) {
-				d = this.dept.list[0];
-			}
+			// if (!d) {
+			// 	d = this.dept.list[0];
+			// }
 
-			if (d.parentId) {
-				list.push({
-					label: "删除",
-					"suffix-icon": "el-icon-delete",
-					callback: (item, done) => {
-						this.deptDel(d);
-						done();
-					}
-				});
-			}
-
-			list.push({
-				label: "新增成员",
-				"suffix-icon": "el-icon-user",
-				callback: (item, done) => {
-					this.crud.append();
-					done();
-				}
-			});
-
+			// if (d.parentId) {
+			// 	list.push({
+			// 		label: "删除",
+			// 		"suffix-icon": "el-icon-delete",
+			// 		callback: (item, done) => {
+			// 			this.deptDel(d);
+			// 			done();
+			// 		}
+			// 	});
+			// }
+			// list.push({
+			// 	label: "新增成员",
+			// 	"suffix-icon": "el-icon-user",
+			// 	callback: (item, done) => {
+			// 		this.crud.append();
+			// 		done();
+			// 	}
+			// });
+			
 			this.$refs["context-menu"].open(e, {
-				list
-			});
+				list: [{
+						label: "新增成员",
+						"suffix-icon": "el-icon-user",
+						callback: (item, done) => {
+							this.selects.dept = d
+							this.$refs["upsert"].open()
+							this.onUpsertOpen(false)
+							done();
+						}
+					}]
+			})
 		},
 
 		deptExpand() {
@@ -739,16 +778,17 @@ export default {
 		},
 
 		toMove(e) {
+			console.log(e)
 			let ids = [];
-
+		
 			if (!e) {
 				ids = this.selects.ids;
 			} else {
 				ids = [e._id];
 			}
-
+		
 			let that = this;
-
+		
 			this.$refs["dept-move"].open({
 				props: {
 					title: "部门转移",
@@ -761,13 +801,13 @@ export default {
 						prop: "dept",
 						component: {
 							name: "system-user__dept-move",
-
+		
 							methods: {
 								selectRow(e) {
 									this.$emit("input", e);
 								}
 							},
-
+		
 							render() {
 								return (
 									<div
@@ -800,29 +840,27 @@ export default {
 							this.$message.warning("请选择部门");
 							return done();
 						}
-
+		
 						const { name, id } = data.dept;
-
+		
 						this.$confirm(`是否将用户转移到部门 ${name} 下`, "提示", {
 							type: "warning"
-						})
-							.then(() => {
-								this.$service.system.user
-									.move({
-										departmentId: id,
-										userIds: ids
-									})
-									.then(() => {
-										this.$message.success("转移成功");
-										close();
-										this.refresh();
-									})
-									.catch((err) => {
-										this.$message.error(err);
-										done();
-									});
-							})
-							.catch(() => {});
+						}).then(() => {
+							this.$service.system.user
+								.move({
+									departmentId: id,
+									userIds: ids
+								})
+								.then(() => {
+									this.$message.success("转移成功");
+									close();
+									this.refresh();
+								})
+								.catch((err) => {
+									this.$message.error(err);
+									done();
+								});
+						}).catch(() => {});
 					}
 				}
 			});
@@ -837,11 +875,21 @@ export default {
 		display: flex;
 		height: 100%;
 		position: relative;
+		.container {
+			.scroller {
+				border: 1px solid #dcdfe6;
+				border-radius: 3px;
+				box-sizing: border-box;
+				overflow-x: hidden;
+				height:calc(100% - 10px);
+			}
+			height: calc(100% - 40px);
+		}
 	}
 
 	.dept {
 		height: 100%;
-		width: 300px;
+		width: 220px;
 		background-color: #fff;
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -874,7 +922,7 @@ export default {
 			}
 		}
 
-		::v-deep .el-tree-node__content {
+		 ::v-deep .el-tree-node__content {
 			height: 36px;
 
 			span {
@@ -946,7 +994,6 @@ export default {
 		}
 	}
 
-	.dept,
 	.user {
 		.container {
 			height: calc(100% - 40px);

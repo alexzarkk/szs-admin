@@ -68,11 +68,10 @@
 							'min-width': 300
 						},
 						{
-							prop: 'updateTime',
-							label: '更新时间',
+							prop: 'platform',
+							label: '平台',
 							align: 'center',
-							sortable: true,
-							width: 180
+							dict: platform
 						},
 						{
 							label: '操作',
@@ -169,6 +168,18 @@
 									this.changeType(index);
 								}
 							}
+						}
+					},
+					{
+						label: '平台',
+						prop: 'platform',
+						span: 24,
+						component: {
+							name: 'el-select',
+							props: {
+								multiple: true
+							},
+							options: platform
 						}
 					},
 					{
@@ -273,6 +284,23 @@ export default {
 			} else {
 				return "/";
 			}
+		}
+	},
+	data(){
+		return{
+			iconType:'',
+			platform: [
+							{
+								type: 'primary',
+								label: '通用',
+								value: 2
+							},
+							{
+								type: 'success',
+								label: '浙政钉',
+								value: 4
+							}
+						]
 		}
 	},
 

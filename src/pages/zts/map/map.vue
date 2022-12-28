@@ -1,8 +1,11 @@
 <template>
 	<cl-layout>
 		<div class="system-user">
-			
+			<!-- 线路编辑 -->
 			<cl-form ref="dept-upsert"> </cl-form>
+			<!-- 右键按钮 -->
+			<cl-context-menu ref="context-menu"> </cl-context-menu>
+			
 			
 			<div class="pane">
 				<!-- 轨迹坐标 列表  可折叠 -->
@@ -337,8 +340,9 @@ export default {
 			
 			let id = uni.getStorageSync('collect_check')
 			if (init||force || !this.kml._id || this.kml._id != id) {
-				this.loading = true
 				
+				this.loading = true
+				try{ this.exec({m:'remove',e:{}}) }catch(e){ } 
 				let kml = await this.$service.zts.kml.info({ id, noChild: true }),
 					list = await this.$service.zts.placemark.list({ kmlId: id, tree: true, force })
 				
@@ -401,8 +405,8 @@ export default {
 					}
 				]
 			
-			if(d.pid){
-				list.unsheft({
+			if(d.t1==9){
+				list.unshift({
 					label: "添加子集",
 					"suffix-icon": "el-icon-plus",
 					callback: (item, done) => {
@@ -417,7 +421,7 @@ export default {
 				})
 			} 
 			
-			this.$refs.table.open(event, { list })
+			this.$refs['context-menu'].open(event, { list })
 		},
 		layEdit(e){
 			console.log('layEdit',e);
@@ -764,6 +768,10 @@ export default {
 				overflow-x: hidden;
 				// height: calc(100% - 4px);
 				height: 100%;
+				
+				::v-deep .el-table__header {
+					display: none;
+				}
 			}
 			height: calc(100% - 36px);
 		}
