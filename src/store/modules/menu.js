@@ -4,9 +4,9 @@ import { deepTree, revisePath, isArray } from "@/cool/utils"
 export default {
 	state: {
 		// 视图路由，type=1
-		routes: uni.getStorageSync("viewRoutes") || [],
+		routes: uni.getStorageSync("8C7D00B_viewRoutes") || [],
 		// 总菜单，已上下级合并
-		group: uni.getStorageSync("menuGroup") || [],
+		group: uni.getStorageSync("8C7D00B_menuGroup") || [],
 		// showAMenu 模式下，顶级菜单的序号
 		index: 0,
 		// 左侧菜单
@@ -94,12 +94,12 @@ export default {
 	mutations: {
 		SET_MENU_GROUP(state, list) {
 			state.group = list
-			uni.setStorageSync("menuGroup", list)
+			uni.setStorageSync("8C7D00B_menuGroup", list)
 		},
 
 		SET_VIEW_ROUTES(state, list) {
 			state.routes = list
-			uni.setStorageSync("viewRoutes", list)
+			uni.setStorageSync("8C7D00B_viewRoutes", list)
 		},
 
 		SET_MENU_LIST(state, index) {
@@ -117,11 +117,11 @@ export default {
 
 		SET_PERMIESSION(state, list) {
 			state.permission = list
-			uni.setStorageSync("permission", list)
+			uni.setStorageSync("8C7D00B_permission", list)
 		},
 		SET_DEPT(state, list) {
 			state.dept = deepTree(list)
-			uni.setStorageSync("permission_dept", list)
+			uni.setStorageSync("8C7D00B_permission_dept", list)
 		},
 		
 		COLLAPSE_MENU(state, val = false) {

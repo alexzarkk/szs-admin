@@ -135,13 +135,11 @@
 								</template>
 
 								<template #slot-btn="{ scope }">
-									<block v-if="scope.row.status>0&&scope.row.status<10">
-										<el-button v-if="scope.row.status<6" type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
-										<el-button type="text" size="mini" v-if="scope.row.status<6" @click="toSubmit(scope.row,6)">递交审核</el-button>
-										<el-button type="text" size="mini" v-else @click="toSubmit(scope.row,4)">撤回审核</el-button>
-										<el-button type="text" size="mini" v-if="scope.row.status==6" @click="toAudit(scope.row)" 
-											v-permission="$service.zts.kml.permission.verify">审核</el-button>
-									</block>
+									<el-button v-if="scope.row.status<6" type="text" size="mini" @click="edit(scope.row)">编辑</el-button>
+									<el-button type="text" size="mini" v-if="scope.row.status<6" @click="toSubmit(scope.row,6)">递交审核</el-button>
+									<el-button type="text" size="mini" v-else @click="toSubmit(scope.row,4)">撤回审核</el-button>
+									<el-button type="text" size="mini" v-if="scope.row.status==6" @click="toAudit(scope.row)" 
+										v-permission="$service.zts.kml.permission.verify">审核</el-button>
 									<el-button type="text" size="mini" @click="preview(scope.row)">预览</el-button>
 								</template>
 							</cl-table>

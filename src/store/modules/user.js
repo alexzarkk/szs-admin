@@ -2,6 +2,8 @@ import { md5 } from "@/comm/libs/md5"
 import { checkPerm } from "@/cool/permission"
 import { Message } from 'element-ui'
 
+import param from "./param";
+
 
 export default {
 	state: {
@@ -40,6 +42,9 @@ export default {
 			
 			//admin
 			if(user.admin) return true
+			if(param.state.dict.sysUser[user._id]) return true
+			
+			// if(state)
 			
 			if(e.obj && e.obj.status>=10) {
 				Message.error("数据已经审核存档，如需修改请联系管理员！")
