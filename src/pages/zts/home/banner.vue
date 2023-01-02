@@ -13,8 +13,11 @@
             <el-row type="flex">
                 <cl-refresh-btn />
                 <cl-add-btn></cl-add-btn>
-                <!-- <el-button size="mini" type="primary">新增</el-button> -->
                 <cl-multi-delete-btn />
+                <cl-flex1 />
+                <cl-filter label="部门">
+                    <el-cascader v-model="deptValue" :options="deptList" :props="{ expandTrigger: 'click',label:'name', value:'id',checkStrictly:true }" @change="deptChange"></el-cascader>
+                </cl-filter>
             </el-row>
             <el-row type="flex">
                 <cl-table :columns="columns">
@@ -38,10 +41,12 @@
 <script>
 
 import { paramsService } from './paramsHelp'
-
+import { dept } from '@/comm/dict'
 export default {
     data() {
         return {
+            deptValue: [330000],
+            deptList: [],
             columns: [
                 {
                     type: 'selection',
@@ -81,6 +86,17 @@ export default {
                 {
                     prop: 'pageParams',
                     label: '指定编号',
+                    align: 'center'
+                },
+                {
+                    prop: 'status',
+                    label: '状态',
+                    align: 'center',
+                    dict: this.$store.getters.dict.commSt
+                },
+                {
+                    prop: 'deptId',
+                    label: '所属部门',
                     align: 'center'
                 },
                 {
@@ -203,6 +219,9 @@ export default {
     },
     watch: {},
     mounted() {
+        this.deptList = this.zz.deepTree(dept.list)
+        console.log("初始化部门======", this.deptValue)
+        // console.log("this.deptList========", this.deptList)
     },
     methods: {
         onCrudLoad({ ctx, app }) {
@@ -215,7 +234,11 @@ export default {
                     };
                 })
                 .done();
-            app.refresh({ size: 5 });
+            app.refresh({ size: 10, deptValue: this.deptValue });
+        },
+        // 切换部门
+        deptChange(event) {
+            console.log("切换部门====", event)
         }
     }
 };
