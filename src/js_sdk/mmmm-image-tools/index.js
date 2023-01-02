@@ -58,7 +58,9 @@ export function pathToBase64(path) {
                         }
                         fileReader.onerror = reject
                         fileReader.readAsDataURL(this.response)
-                    }
+                    }else {
+						reject(false)
+					}
                 }
                 xhr.onerror = reject
                 xhr.send()

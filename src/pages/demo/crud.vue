@@ -350,25 +350,20 @@ export default {
 	methods: {
 		async mytest(){
 			
-			let list = await this.zz.req({$url: '/admin/zts/station/batch' })
+			let list = await this.zz.req({$url: '/admin/szs/rec/list' })
 			
 			console.log('lgoinformwx ------------>',list);
 			for (let s of list) {
-				delete s.userInfo
-				delete s.user
-				delete s.avatar
-				s.cover = ''
-				if(s.imgs&&s.imgs.length) {
-					s.cover = s.imgs[0]
-					delete s.imgs
-				}
-				s.content = ''
+				let count = await this.zz.req({$url: '/admin/szs/rec/count', pid:s._id })
 				
-				await this.zz.req({$url: '/admin/zts/station/add', ...s })
+				
+				if(count.total==0) {
+					console.log(count.total, s.name);
+					 await this.zz.req({$url: '/admin/szs/rec/delete', ids:[s._id] })
+				}
 			}
 			
 			
-			await this.zz.req({$url: '/admin/zts/poi/delete', ids: list.map(e=>e._id) })
 		},
 		async updataBlog(){
 			

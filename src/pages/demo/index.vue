@@ -29,13 +29,13 @@
 </template>
 
 <script>
-import BClUpload from "./components/b-cl-upload";
-import BVCopy from "./components/b-v-copy";
-import BClCrud from "./components/b-cl-crud";
-import BClForm from "./components/b-cl-form";
-import BClContextMenu from "./components/b-cl-context-menu";
-import BErrorPage from "./components/b-error-page";
-import BRichText from "./components/b-rich-text";
+import BClUpload from "./components/b-cl-upload"
+import BVCopy from "./components/b-v-copy"
+import BClCrud from "./components/b-cl-crud"
+import BClForm from "./components/b-cl-form"
+import BClContextMenu from "./components/b-cl-context-menu"
+import BErrorPage from "./components/b-error-page"
+import BRichText from "./components/b-rich-text"
 
 export default {
 	components: {

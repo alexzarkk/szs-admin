@@ -20,7 +20,8 @@
 				{ "path": "datav" },
 				{ "path": "articleEdit" },
 				{"path": "/url/index"},
-				{ "path": "crud" }
+				{ "path": "crud" },
+				{ "path": "batch" }
 			]
 		},
 		{

@@ -29,8 +29,7 @@ export default {
 				min_height: 300,
 				autoresize_on_init: true,
 				
-				
-				toolbar: "fullscreen | removeformat | undo redo | formatselect | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent table | image media cloud | link",
+				toolbar: "fullscreen | removeformat | undo redo | formatselect | bold italic forecolor backcolor code | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent table | image media cloud | link",
 				plugins: "fullscreen autoresize lists image imagetools media table wordcount code anchor link",
 				// fullscreen_native: true,
 

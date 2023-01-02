@@ -69,10 +69,7 @@
 		onShow: function () {
 			// console.log("App Show");
 			if (!uni.getStorageSync("8C7D00B_token")) {
-				// let url = this.$route.path
-				// if (!url.startsWith('/pages/demo')) {
-					uni.redirectTo({ url: "/pages/login/index" })
-				// }
+				uni.redirectTo({ url: "/pages/login/index" })
 			}
 
 			// 路由导航

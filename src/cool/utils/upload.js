@@ -2,11 +2,11 @@ import { pathToBase64 } from '@/js_sdk/mmmm-image-tools'
 import { req, rndInt } from '@/comm/zz'
 import { uniqId } from '@/comm/geotools'
 
-export async function uploadFile({ filePath, fileType = 'image/png', compress = true, maxWidth = 750, maxHeight = 1600, cloudPath }) {
+export async function uploadFile({ filePath, fileType = 'image/png', compress = true, maxWidth = 750, maxHeight = 1920, cloudPath }) {
 	
 	/* 用 http 请求上传 */
 	let base64 = [],
-		src = await pathToBase64(filePath),
+		src,
 		fit = async()=>{
 			return new Promise((resolve, reject) => {
 				let reader = new FileReader(),
@@ -16,43 +16,49 @@ export async function uploadFile({ filePath, fileType = 'image/png', compress = 
 					
 				img.src = src
 				img.onload = function () {
-				    // 图片原始尺寸
-				    let originWidth = this.width,
+					// 图片原始尺寸
+					let originWidth = this.width,
 						originHeight = this.height
 					
-				    // 目标尺寸
-				    let targetWidth = originWidth, targetHeight = originHeight;
-				    // 图片尺寸超过限制
-				    if (originWidth > maxWidth || originHeight > maxHeight) {
-				        if (originWidth / originHeight > maxWidth / maxHeight) {
-				            // 更宽，按照宽度限定尺寸
-				            targetWidth = maxWidth;
-				            targetHeight = Math.round(maxWidth * (originHeight / originWidth));
-				        } else {
-				            targetHeight = maxHeight;
-				            targetWidth = Math.round(maxHeight * (originWidth / originHeight));
-				        }
-				    }
-				        
-				    // canvas对图片进行缩放
-				    canvas.width = targetWidth;
-				    canvas.height = targetHeight;
-				    // 清除画布
-				    context.clearRect(0, 0, targetWidth, targetHeight);
-				    // 图片压缩
-				    context.drawImage(img, 0, 0, targetWidth, targetHeight);
+					// 目标尺寸
+					let targetWidth = originWidth, targetHeight = originHeight
+					// 图片尺寸超过限制
+					if (originWidth > maxWidth || originHeight > maxHeight) {
+						if (originWidth / originHeight > maxWidth / maxHeight) {
+							// 更宽，按照宽度限定尺寸
+							targetWidth = maxWidth;
+							targetHeight = Math.round(maxWidth * (originHeight / originWidth))
+						} else {
+							targetHeight = maxHeight;
+							targetWidth = Math.round(maxHeight * (originWidth / originHeight))
+						}
+					}
+						
+					// canvas对图片进行缩放
+					canvas.width = targetWidth
+					canvas.height = targetHeight
+					// 清除画布
+					context.clearRect(0, 0, targetWidth, targetHeight)
+					// 图片压缩
+					context.drawImage(img, 0, 0, targetWidth, targetHeight)
 					
-				    // canvas转为blob并上传
-				    canvas.toBlob((blob)=> {
+					// canvas转为blob并上传
+					canvas.toBlob((blob)=> {
 						reader.readAsDataURL(blob)
 						reader.onloadend = ()=>{
-							// console.log('..................',reader);
+							// console.log('..................',reader)
 							resolve(reader.result)
 						}
-				    })
+					})
 				}
 			})
 		}
+		
+	try {
+		src = filePath.startsWith('data:')? filePath : await pathToBase64(filePath)
+	}catch(e){
+		throw new Error('文件读取失败~', filePath)
+	}
 	
 	if(fileType.startsWith('image') && compress) {
 		src = await fit()
