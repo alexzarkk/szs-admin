@@ -10,6 +10,14 @@
 
 */
 
+import zz from '@/comm/zz'
+import { dept } from '@/comm/dict'
+
+console.log("获取到的部门信息", dept.list)
+let newList = zz.deepTree(dept.list)
+console.log("==============", newList)
+
+
 let list = [
     {
         id: 1,
@@ -18,7 +26,9 @@ let list = [
         isShow: false, // 是否加入轮播图展示
         cover: '', // 轮播图封面
         pagePath: '',
-        pageParams: ''
+        pageParams: '',
+        deptId: 330000,
+        status: 6
     },
     {
         id: 2,
@@ -27,7 +37,9 @@ let list = [
         isShow: false, // 是否加入轮播图展示
         cover: '', // 轮播图封面
         pagePath: '',
-        pageParams: ''
+        pageParams: '',
+        deptId: 330000,
+        status: 6
     },
     {
         id: 3,
@@ -36,7 +48,9 @@ let list = [
         isShow: false, // 是否加入轮播图展示
         cover: '', // 轮播图封面
         pagePath: '',
-        pageParams: ''
+        pageParams: '',
+        deptId: 330000,
+        status: 6
     },
     {
         id: 4,
@@ -45,36 +59,42 @@ let list = [
         isShow: false, // 是否加入轮播图展示
         cover: '', // 轮播图封面
         pagePath: '',
-        pageParams: ''
+        pageParams: '',
+        deptId: 330000,
+        status: 6
     }
 ]
 
+const getList = () => {
+    // 拼接Key，banner_deptId 
+    // banner_330000
+    return new Promise((resolve, reject) => {
+        console.log("getList==========", list)
+        // 
+        // this.$service.
+
+
+
+
+
+        resolve(list)
+    })
+}
+
+
+// 把当前的list 提交到数据库，每次发生 修改的时候都提交一次
+const commitList = () => {
+    console.log("提交的表单=======", list)
+}
+
+
 export const paramsService = {
-    getList: () => {
-        // 拼接Key，banner_deptId 
-        // banner_330000
-        return new Promise((resolve, reject) => {
-            console.log("getList==========", list)
-            // 
-            // this.$service.
 
-
-
-
-
-            resolve(list)
-        })
-    },
-    // 把当前的list 提交到数据库，每次发生 修改的时候都提交一次
-    commitList: () => {
-
-
-    },
 
     page: async (p) => {
         console.log(p);
         let total = 0;
-        let result = await paramsService.getList()
+        let result = await getList()
         let pageList = result.filter((e, i) => {
             // if (p.name) {
             //     return e.name.includes(p.name);
@@ -121,11 +141,15 @@ export const paramsService = {
     },
     add: (d) => {
         console.log("POST[add]", d);
+        let id = list[list.length - 1].id
+        let now = zz.time2Date(null, 'Y-M-D h:m:s')
+        console.log("createTime=========", now)
         list.push({
             ...d,
             id: id++,
-            createTime: dayjs().format("YYYY年MM月DD日")
+            createTime: now
         });
+        commitList()
         return Promise.resolve();
     },
     delete: (d) => {
@@ -137,7 +161,6 @@ export const paramsService = {
         return Promise.resolve();
     },
     update: (d) => {
-
         console.log("POST[update]", d);
         let item = list.find((e) => e.id == d.id);
         Object.assign(item, d);
