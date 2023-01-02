@@ -101,7 +101,7 @@ export default {
 		ids: {
 			deep: true,
 			handler(v) {
-				this.refresh();
+				this.refresh()
 			}
 		}
 	},

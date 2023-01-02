@@ -161,7 +161,7 @@ export default {
 			dept: getLable(),
 			
 			cur: {},
-			kml:null,
+			kml: null,
 			constrOpen: false
 		};
 	},
@@ -172,7 +172,7 @@ export default {
 		ids: {
 			deep: true,
 			handler(v) {
-				this.refresh();
+				this.refresh()
 			}
 		},
 		onGrade(val) {

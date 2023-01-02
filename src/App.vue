@@ -20,29 +20,6 @@
 				}
 			})
 			
-			
-			// uni.onNetworkStatusChange(e => {
-			// 	// #ifdef H5
-			// 	comm.setNet(e.isConnected)
-			// 	// #endif
-				
-			//     if (e.isConnected) {
-			// 		if(!uni.getStorageSync('szs_dict')) {
-			// 			uni.reLaunch({ url: '/pages/index/index' })
-			// 		}
-			//     }
-			// })
-			// uni.clearStorageSync()
-			
-			// let dict = uni.getStorageSync('szs_dict')||{v:1}
-			// this.zz.req({ $url: '/public/zz/dict', v: dict.v }).then(e => {
-			// 	console.log('dict ===============', e)
-			// 	if(e.v>dict.v) {
-			// 		uni.setStorageSync('szs_dict', e)
-			// 	}
-			// })
-			// comm.on([121,30])
-			
 			AMapLoader.load({
 				key: amapKey,
 				version: "2.0",
@@ -76,18 +53,18 @@
 			this.$router.beforeEach((to, from, next) => {
 				const item = this.$store.getters.routes.find((e) =>
 					e.path.includes("?") ? e.path == to.fullPath : e.path == to.fullPath
-				);
+				)
 
 				if (item) {
 					// 添加路由进程
 					this.$store.commit("ADD_PROCESS", {
 						label: item.name,
 						value: item.path.includes("?") ? to.fullPath : to.path
-					});
+					})
 				}
 
-				next();
-			});
+				next()
+			})
 		},
 		onHide: function () {
 			// console.log("App Hide");

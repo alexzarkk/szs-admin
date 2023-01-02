@@ -17,7 +17,7 @@
                             <cl-filter label="状态">
                             	<el-select size="mini" v-model="status" @change="refresh()">
                             		<el-option :value="0" label="全部"></el-option>
-                            		<block v-for="(t, idx) in st" :key="idx">
+                            		<block v-for="(t, idx) in $store.getters.dictObj.commSt" :key="idx">
                             			<el-option :value="t.value" :label="t.label"></el-option>
                             		</block>
                             	</el-select>
@@ -77,7 +77,7 @@
                                     {{ scope.row.createTime.substring(0, 16) }}
                                 </template>
 								<template #column-user="{ scope }">
-									{{ scope.row.userInfo.name }}
+									{{ scope.row.userInfo.name || scope.row.userInfo.nickName }}
 								</template>
 								<template #slot-btn="{ scope }">
 									<block v-if="scope.row.status>0&&scope.row.status<10">
@@ -113,18 +113,12 @@
 export default {
     data() {
         return {
-			dept: this.$store.getters.deptLabel,
-            st: this.$store.getters.dictObj.commSt,  // 字典
             status: '',  // 文章审核状态筛选
             cur: {}  // 当前正在审核的部分
         };
     },
     mounted() { },
     methods: {
-        deptSet(e) {
-            this.dpids = e
-            this.refresh()
-        },
         refresh() {
             this.$refs['crud'].refresh({
                 page: 1,
