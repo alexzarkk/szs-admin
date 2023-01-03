@@ -31,7 +31,7 @@
 					</div>
 					<div class="hot-search__container">
 						<div class="hot-search__chart">
-							<v-chart v-if="option" :option="option" autoresize></v-chart>
+							<l-echart ref="chart" @finished="init"></l-echart>
 						</div>
 					</div>
 				</div>
@@ -46,21 +46,18 @@
 
 <script>
 	
-	//import VChart, { THEME_KEY } from 'vue-echarts';
 	import * as echarts from 'echarts'
-	import { GridComponent, LegendComponent } from 'echarts/components';
-	import { BarChart } from 'echarts/charts';
-	import { CanvasRenderer } from 'echarts/renderers';
+	import { GridComponent, LegendComponent } from 'echarts/components'
+	import { BarChart } from 'echarts/charts'
+	import { CanvasRenderer } from 'echarts/renderers'
+	import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
 	
-	echarts.use([GridComponent, LegendComponent, BarChart, CanvasRenderer]);
+	echarts.use([GridComponent, LegendComponent, BarChart, CanvasRenderer])
 	
 
 export default {
 	components: {
-		VChart,
-	},
-	provide: {
-		[THEME_KEY]: 'auto'
+		LEchart,
 	},
 	data() {
 		return {
@@ -79,7 +76,7 @@ export default {
 		}
 	},
 	mounted(){
-		this.init()
+		// this.init()
 	},
 	methods: {
 		init() {

@@ -22,7 +22,7 @@
 			
 			<div class="hot-search__chart">
 				<block v-if="len">
-					<v-chart :option="option" autoresize></v-chart>
+					<l-echart ref="chart" @finished="init"></l-echart>
 				</block>
 				<block v-else>
 					 <el-divider>无数据</el-divider>
@@ -37,32 +37,24 @@
 <script>
 	
 //import VChart, { THEME_KEY } from 'vue-echarts';
-import { use } from "echarts/core";
+
+import * as echarts from 'echarts'
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from "echarts/charts";
 // import { math } from '@/cool/utils/ztool.js';
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent
-} from "echarts/components";
+import { TitleComponent, TooltipComponent, LegendComponent } from "echarts/components";
 
-
-use([
+echarts.use([
 	CanvasRenderer,
 	PieChart,
 	TitleComponent,
 	TooltipComponent,
 	LegendComponent
-]);
+])
+import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
 
 export default {
-	components: {
-		VChart,
-	},
-	provide: {
-		[THEME_KEY]: 'auto'
-	},
+	components: { LEchart },
 	data() {
 		return {
 			option: null,
@@ -78,12 +70,12 @@ export default {
 		data: {
 			deep: true,
 			handler(v) {
-				if (v.length) this.init();
+				if (v.length) this.init()
 			}
 		}
 	},
 	mounted(){
-		this.init()
+		// this.init()
 	},
 	methods: {
 		init() {

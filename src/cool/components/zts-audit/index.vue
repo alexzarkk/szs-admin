@@ -150,8 +150,17 @@ export default {
                         tt: ue.value,
                         tid: this.cur._id,
                         status: Number(this.examineObj.status)
-                    })
-
+                    }).then(e=>{
+						if(this.cur.name||this.cur.title) {
+							this.$service.zts.log.sms({  // 发送短信
+								userId: this.cur.userId,
+								name: '('+ue.label+')'+this.cur.name,
+								templateId: this.examineObj.status==10?'15288':'14865',
+								content: this.examineObj.status==10? '':this.examineObj.reject
+							})
+						}
+					})
+					
                     this.$message.success("保存成功！")
                     this.$emit('refresh')
                 }

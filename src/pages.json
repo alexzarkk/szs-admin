@@ -53,20 +53,29 @@
 		    ]
 		},
 		{
+			"root": "pages/zts/constr/",
+			"pages": [
+				{ "path": "t20" },
+				{ "path": "t40" },
+				{ "path": "t60" }
+		    ]
+		},
+		{
 			"root": "pages/zts/",
 			"pages": [ 
 				{ "path": "map/map" },
-				
 				{ "path": "article/list" },
 				{ "path": "article/edit" },
 				{ "path": "moment/list" },
 				{ "path": "moment/edit" },
 				{ "path": "blog/list" },
+				{ "path": "rec/list" },
 				{ "path": "home/banner"},
 				{ "path": "home/grid" },
 				{ "path": "home/hotLine" }
 			]
 		}
+		
 	],
 	"easycom": {
 		"autoscan": true,
