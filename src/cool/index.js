@@ -9,7 +9,8 @@ import * as utils from "./utils";
 import "./common";
 import "./components";
 import "./directive/clipboard";
-import "./icons/iconfont.scss";
+// import "./icons/iconfont.scss";
+// import "./icons/cuIcon.scss";
 
 Vue.use(PermissionDirective);
 
