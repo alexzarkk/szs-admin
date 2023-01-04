@@ -4,11 +4,11 @@
 			<div class="pane">
 				<!-- 部门区域 -->
 				<div class="dept" :class="[!expand ? '_expand' : '_collapse']">
-					<cl-dept-tree :deptId="$store.getters.userInfo.dept.id" @loaded="deptLoaded" @check="deptSet"></cl-dept-tree>
+					<cl-dept-tree :init="true" @check="deptSet"></cl-dept-tree>
 				</div>
 				<!-- 规划列表 -->
 				<div class="user">
-					<cList v-if="ids.length" :status="[40]" :expand.sync="expand" :ids="ids"></cList>
+					<list-done v-if="ids.length" :status="[40]" :expand.sync="expand" :ids="ids"></list-done>
 				</div>
 			</div>
 		</div>
@@ -16,27 +16,22 @@
 </template>
 
 <script>
-import cList from './components/cList.vue';
+import listDone from './components/list-done.vue'
 export default {
-	components: { cList },
+	components: { listDone },
 	data() {
 		return {
-			winStyle: '',
 			expand: this.$store.getters.userInfo.isLeaf,
-			ids: [],
-			deptList: []
+			ids: []
 		};
 	},
 	methods: {
 		deptExpand() {
-			this.expand = !this.expand;
+			this.expand = !this.expand
 		},
 		deptSet(e) {
-			this.ids = e;
+			this.ids = e
 		},
-		deptLoaded(e) {
-			this.deptList = e;
-		}
 	}
 };
 </script>

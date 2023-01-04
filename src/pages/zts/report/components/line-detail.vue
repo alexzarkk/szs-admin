@@ -20,9 +20,9 @@
 				</el-table>
 			</div>
 			
-			<div class="hot-search__chart">
+			<div class="hot-search__chart" id="div_chart">
 				
-				<l-echart ref="chart"></l-echart>
+				<l-echart ref="chart" :enableHover="true"  @finished="init"></l-echart>
 				
 				<!-- <block v-if="data.length">
 					<l-echart ref="chart" @finished="init"></l-echart>
@@ -54,30 +54,29 @@ export default {
 	},
 	data() {
 		return {
-			option: null,
-			len: 0,
-			kml: [ {text:'数据采集',value:9} ]
+			option: {},
+			len: 0
 		};
 	},
 	watch: {
 		data: {
 			deep: true,
 			handler(v) {
-				if (v.length) this.init()
+				if (v.length) this.cal()
 			}
 		}
 	},
 	mounted(){
-		this.init()
-		this.$nextTick(() => {
+		this.cal()
+	},
+	methods: {
+		init(){
 			this.$refs.chart.init(echarts, chart => {
 				chart.setOption(this.option)
 			})
-		})
-	},
-	methods: {
-		init() {
-			console.log('line.chart.init .............',this.data);
+		},
+		cal() {
+			// console.log('line.chart.cal .............',this.data);
 			let legend = [],
 				len = 0,
 				data = []
@@ -151,15 +150,6 @@ export default {
 				}
 				
 			this.option = option
-			// 	this.$refs.chart.init(echarts, chart => {
-			// 		chart.setOption(this.option)
-			// 	})
-			
-			// this.$nextTick(() => {
-			// 	this.$refs.chart.init(echarts, chart => {
-			// 		chart.setOption(this.option)
-			// 	})
-			// })
 		}
 	}
 };
@@ -184,7 +174,7 @@ export default {
 		justify-content: space-between;
 		padding: 20px;
 		height: 440px;
-
+		width: 100%;
 	}
 
 	&__table {

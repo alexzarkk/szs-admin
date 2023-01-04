@@ -8,7 +8,7 @@
 				</div>
 				<!-- 规划列表 -->
 				<div class="user">
-					<list-done v-if="ids.length" :status="[50,60]" :expand.sync="expand" :ids="ids"></list-done>
+					<list-review v-if="ids.length" :status="[44]" :expand.sync="expand" :ids="ids" />
 				</div>
 			</div>
 		</div>
@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import listDone from './components/list-done.vue';
+import listReview from './components/list-review.vue'
 export default {
-	components: { listDone },
+	components: { listReview },
 	data() {
 		return {
 			expand: this.$store.getters.userInfo.isLeaf,

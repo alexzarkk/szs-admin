@@ -31,7 +31,7 @@
 					</div>
 					<div class="hot-search__container">
 						<div class="hot-search__chart">
-							<l-echart ref="chart" @finished="init"></l-echart>
+							<l-echart ref="chart" :enableHover="true" @finished="init"></l-echart>
 						</div>
 					</div>
 				</div>
@@ -43,40 +43,43 @@
 
 <script>
 	
-	import * as echarts from 'echarts'
-	import { GridComponent, LegendComponent } from 'echarts/components'
-	import { BarChart } from 'echarts/charts'
-	import { CanvasRenderer } from 'echarts/renderers'
-	import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
-	
-	echarts.use([GridComponent, LegendComponent, BarChart, CanvasRenderer])
+import * as echarts from 'echarts'
+import { GridComponent, LegendComponent } from 'echarts/components'
+import { BarChart } from 'echarts/charts'
+import { CanvasRenderer } from 'echarts/renderers'
+import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
+
+echarts.use([GridComponent, LegendComponent, BarChart, CanvasRenderer])
 
 export default {
-	components: {
-		LEchart
-	},
+	components: { LEchart },
 	props: {
 		data: { type: Array }
 	},
 	data() {
 		return {
-			option: null,
+			option: {},
 		};
 	},
 	watch: {
 		data: {
 			deep: true,
 			handler(v) {
-				if (v.length) this.init();
+				if (v.length) this.cal();
 			}
 		}
 	},
 	mounted(){
-		// this.init()
+		this.cal()
 	},
 	methods: {
-		init() {
-			console.log('poi.chart.init .............',this.data);
+		init(){
+			this.$refs.chart.init(echarts, chart => {
+				chart.setOption(this.option)
+			})
+		},
+		cal() {
+			// console.log('poi.chart.cal .............',this.data);
 			
 			let seriesData = [],
 				yAxisData = []
@@ -134,12 +137,6 @@ export default {
 				animationEasingUpdate: 'linear'
 			};
 			this.option = option
-			setTimeout(()=>{
-				this.$refs.chart.init(echarts, chart => {
-					chart.setOption(this.option)
-				})
-			}, 100)
-			
 		}
 	}
 };
@@ -163,7 +160,7 @@ export default {
 		justify-content: space-between;
 		padding: 20px;
 		height: 440px;
-
+		width: 100%;
 	}
 
 	&__table {

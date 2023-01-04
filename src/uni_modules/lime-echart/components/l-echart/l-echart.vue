@@ -140,7 +140,7 @@ export default {
 			try{
 				document.removeEventListener('mousewheel')
 			}catch(e){
-				console.log('beforeDestroy.err', e);
+				// console.log('beforeDestroy.err', e);
 				//TODO handle the exception
 			}
 		}

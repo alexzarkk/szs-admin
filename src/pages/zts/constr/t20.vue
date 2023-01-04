@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import cList from './components/cList.vue';
+import cList from './components/list20.vue'
 export default {
 	components: { cList },
 	data() {

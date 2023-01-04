@@ -8,7 +8,7 @@
 				</div>
 				<!-- 规划列表 -->
 				<div class="user">
-					<cList v-if="ids.length" :status="[10,20,40,50,60]" :expand.sync="expand" :ids="ids"></cList>
+					<list20 v-if="ids.length" :status="[10,20,40,50,60]" :expand.sync="expand" :ids="ids"></list20>
 				</div>
 			</div>
 		</div>
@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import cList from '../../constr/components/cList.vue';
+import list20 from '../../constr/components/list20.vue'
 export default {
-	components: { cList },
+	components: { list20 },
 	data() {
 		return {
 			winStyle: '',

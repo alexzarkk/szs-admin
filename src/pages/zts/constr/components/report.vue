@@ -73,7 +73,7 @@
 				
 				
 				
-				<view v-show="page=='采集报告'">
+				<view v-if="page=='采集报告'">
 					
 					<el-row :gutter="15">
 						<el-col>
@@ -114,7 +114,7 @@
 					</el-row>
 				</view>
 				
-				<view v-if="page=='巡线报告'">
+				<view v-if="cur.cst>=40" v-show="page=='巡线报告'">
 					<el-collapse v-model="activeName" accordion>
 						<block v-for="(kml, idx) of cur.kml40" :key="idx">
 							<el-collapse-item :title="kml.startTime" :name="idx+''">
@@ -125,7 +125,7 @@
 					</el-collapse>
 				</view>
 				
-				<view v-show="page=='验收报告'">
+				<view v-if="cur.cst>=40" v-show="page=='验收报告'">
 					<table class="my-table">
 						<tr>
 							<td colspan="2" rowspan="2">验收内容</td>
