@@ -34,7 +34,7 @@
                         </el-row>
 
                         <el-row type="flex">
-                            <cl-table :contextMenu="[]" :props="{
+                            <cl-table :props="{
 										'default-sort': {
 											prop: 'createTime',
 											order: 'descending'
@@ -95,7 +95,8 @@
                                 <template #column-createTime="{ scope }">
                                     {{ scope.row.createTime.substring(0, 16) }}
                                 </template>
-                                <template #column-type="{ scope }">
+                                
+								<template #column-type="{ scope }">
                                     <block v-for="(i, idx) of scope.row.type" :key="idx">
                                         <el-tag size="mini" style="margin-left: 4px;" :class="'bg-'+$store.getters.dictObj.article[i].color" effect="plain">
                                             {{ $store.getters.dictObj.article[i].label }}
@@ -163,11 +164,7 @@ export default {
         },
         onCrudLoad({ ctx, app }) {
             ctx.service(this.$service.zts.article).done()
-            app.refresh({
-                pc: 1,
-                page: 1,
-                isoDept: true
-            })
+            app.refresh({ pc: 1, page: 1, isoDept: true })
         },
 		async edit(e) {
 			if(await this.$store.dispatch('hasPerm', {obj: e, perms: [this.$service.zts.kml.permission.superEdit]})) {

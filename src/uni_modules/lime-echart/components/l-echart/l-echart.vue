@@ -140,6 +140,7 @@ export default {
 			try{
 				document.removeEventListener('mousewheel')
 			}catch(e){
+				console.log('beforeDestroy.err', e);
 				//TODO handle the exception
 			}
 		}
@@ -152,8 +153,12 @@ export default {
 			document.addEventListener('mousewheel', (e) => {
 				if(this.chart) {
 					const touch = this.getTouch(e)
-					const handler = this.chart.getZr().handler;
-					dispatch.call(handler, 'mousewheel', touch)
+					try{
+						const handler = this.chart.getZr().handler;
+						dispatch.call(handler, 'mousewheel', touch)
+					}catch(e){
+						//TODO handle the exception
+					}
 				}
 			})
 		}

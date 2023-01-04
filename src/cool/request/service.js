@@ -4,9 +4,13 @@ import { baseUrl } from "@/config/env";
 export class BaseService {
 	constructor() {
 		const crud = {
-			page: "page",
-			list: "list",
+			one: "one",
+			
 			info: "info",
+			page: "page",
+			
+			list: "list",
+			
 			add: "add",
 			delete: "delete",
 			update: "update"
@@ -94,6 +98,14 @@ export class BaseService {
 				});
 		});
 	}
+	one(params) {
+		return this.request({
+			url: "/one",
+			params: {
+				...params
+			}
+		})
+	}
 
 	info(params) {
 		if (params.id) {
@@ -107,6 +119,8 @@ export class BaseService {
 			}
 		});
 	}
+	
+	
 
 	update(params) {
 		if (params.id) {

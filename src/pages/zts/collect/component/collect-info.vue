@@ -9,7 +9,7 @@
 			<el-descriptions-item label="路段编号">{{kml.sn}}</el-descriptions-item>
 			<el-descriptions-item label="途径地">{{kml.ways}}</el-descriptions-item>
 			
-			<el-descriptions-item label="部门"><el-tag>{{kml.dept}}</el-tag></el-descriptions-item>
+			<el-descriptions-item label="部门"><el-tag>{{ $store.getters.dictObj.deps[kml.departmentId].name }}</el-tag></el-descriptions-item>
 			<el-descriptions-item label="采集员">{{kml.collectorname}}</el-descriptions-item>
 			<el-descriptions-item label="手机号">{{kml.collectortel}}</el-descriptions-item>
 			<el-descriptions-item label="备注">{{kml.desc}}</el-descriptions-item>
@@ -31,8 +31,7 @@
 			<el-descriptions-item label="内容">
 				<block v-if="kml.element.length">
 					<block v-for="(k, idx) of kml.element" :key="idx">
-						
-						<el-tag class="margin-left-xs" size="small" type="success">{{ getText('viewElement',k) }}</el-tag>
+						<el-tag class="margin-left-xs" size="small" type="success">{{ getText('trail_element',k) }}</el-tag>
 					</block>
 				</block>
 				<block v-else>
@@ -42,9 +41,9 @@
 		</el-descriptions>
 		
 		<el-descriptions class="margin-top-sm" title="印象评分" :column="2"  border>
-			<block v-for="(k, i) of ip" :key="i">
+			<block v-for="(k, i) of $store.getters.dict.trail.ip" :key="i">
 				<el-descriptions-item :label="k.name">
-					<el-rate disabled :value="kml.score[i]" :colors="colors"></el-rate>
+					<el-rate disabled :value="kml.score[i]" :colors="['#ffaa7f', '#ffa14f', '#ff5500']"></el-rate>
 				</el-descriptions-item>
 			</block>
 		</el-descriptions>
@@ -52,12 +51,10 @@
 </template>
 
 <script>
-import { getText,impression } from "@/cool/utils/dict.js"
 export default {
 	data() {
 		return {
-			ip: impression,
-			colors: ['#ffaa7f', '#ffa14f', '#ff5500']
+			
 		}
 	},
 	props: {
@@ -70,8 +67,8 @@ export default {
 	},
 	methods: {
 		getText(n,v){
-			let t = getText(n,v)
-			return t.label||t.text
+			let t = this.$store.getters.dictObj[n][v]
+			return t? t.label||t.text:'?'
 		}
 	}
 };

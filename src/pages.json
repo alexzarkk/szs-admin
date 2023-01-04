@@ -35,7 +35,6 @@
 			"root": "pages/zts/declare",
 			"pages": [
 				{ "path": "layout/index" },
-				// { "path": "constr/index" },
 				{ "path": "constr/t0" },
 				{ "path": "constr/t1" },
 				{ "path": "constr/t10" },
@@ -67,7 +66,6 @@
 				{ "path": "article/list" },
 				{ "path": "article/edit" },
 				{ "path": "moment/list" },
-				{ "path": "moment/edit" },
 				{ "path": "blog/list" },
 				{ "path": "rec/list" },
 				{ "path": "home/banner"},
@@ -75,7 +73,6 @@
 				{ "path": "home/hotLine" }
 			]
 		}
-		
 	],
 	"easycom": {
 		"autoscan": true,

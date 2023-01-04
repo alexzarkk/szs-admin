@@ -39,9 +39,6 @@
 		</el-col>
 	</el-row>
 	
-	
-	
-	
 </template>
 
 <script>
@@ -53,19 +50,18 @@
 	import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
 	
 	echarts.use([GridComponent, LegendComponent, BarChart, CanvasRenderer])
-	
 
 export default {
 	components: {
-		LEchart,
+		LEchart
+	},
+	props: {
+		data: { type: Array }
 	},
 	data() {
 		return {
 			option: null,
 		};
-	},
-	props: {
-		data: { type: Array }
 	},
 	watch: {
 		data: {
@@ -80,6 +76,8 @@ export default {
 	},
 	methods: {
 		init() {
+			console.log('poi.chart.init .............',this.data);
+			
 			let seriesData = [],
 				yAxisData = []
 			
@@ -135,7 +133,13 @@ export default {
 				animationEasing: 'linear',
 				animationEasingUpdate: 'linear'
 			};
-			this.option = option;
+			this.option = option
+			setTimeout(()=>{
+				this.$refs.chart.init(echarts, chart => {
+					chart.setOption(this.option)
+				})
+			}, 100)
+			
 		}
 	}
 };

@@ -117,7 +117,7 @@
 </template>
 
 <script>
-// import { TestService } from "@/utils/test-service";
+import { TestService } from "@/utils/test-service";
 
 export default {
 	name: "crud-demo",
@@ -611,28 +611,28 @@ export default {
 			});
 		},
 
-		// onCrudLoad({ ctx, app }) {
-		// 	ctx.service(TestService)
-		// 		.permission(() => {
-		// 			return {
-		// 				add: true,
-		// 				update: true,
-		// 				delete: true
-		// 			};
-		// 		})
-		// 		.done();
+		onCrudLoad({ ctx, app }) {
+			ctx.service(TestService)
+				.permission(() => {
+					return {
+						add: true,
+						update: true,
+						delete: true
+					};
+				})
+				.done();
 
-		// 	app.refresh();
-		// },
+			app.refresh();
+		},
 
 		refresh(params) {
 			this.$refs["crud"].refresh(params);
 		},
 
-		// onUpsertCrudLoad({ ctx, app }) {
-		// 	ctx.service(TestService).done();
-		// 	app.refresh();
-		// },
+		onUpsertCrudLoad({ ctx, app }) {
+			ctx.service(TestService).done();
+			app.refresh();
+		},
 
 		addVad(list) {
 			list.push({
