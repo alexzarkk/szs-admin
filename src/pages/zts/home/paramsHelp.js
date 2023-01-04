@@ -12,89 +12,80 @@
 
 import zz from '@/comm/zz'
 import { dept } from '@/comm/dict'
-
-console.log("获取到的部门信息", dept.list)
-let newList = zz.deepTree(dept.list)
-console.log("==============", newList)
-
-
-let list = [
-    {
-        id: 1,
-        title: '轮播图A',
-        remark: '备注',
-        isShow: false, // 是否加入轮播图展示
-        cover: '', // 轮播图封面
-        pagePath: '',
-        pageParams: '',
-        deptId: 330000,
-        status: 6
-    },
-    {
-        id: 2,
-        title: '轮播图A',
-        remark: '备注',
-        isShow: false, // 是否加入轮播图展示
-        cover: '', // 轮播图封面
-        pagePath: '',
-        pageParams: '',
-        deptId: 330000,
-        status: 6
-    },
-    {
-        id: 3,
-        title: '轮播图A',
-        remark: '备注',
-        isShow: false, // 是否加入轮播图展示
-        cover: '', // 轮播图封面
-        pagePath: '',
-        pageParams: '',
-        deptId: 330000,
-        status: 6
-    },
-    {
-        id: 4,
-        title: '轮播图A',
-        remark: '备注',
-        isShow: false, // 是否加入轮播图展示
-        cover: '', // 轮播图封面
-        pagePath: '',
-        pageParams: '',
-        deptId: 330000,
-        status: 6
-    }
-]
-
+let configKey = ''  // 当前配置的key
+let originData = null  // 服务端返回的信息
+import request from "@/service/request";
+let list = []  // 修改的list
 const getList = () => {
-    // 拼接Key，banner_deptId 
-    // banner_330000
     return new Promise((resolve, reject) => {
-        console.log("getList==========", list)
-        // 
-        // this.$service.
+        request({
+            url: '/admin/sys/param/one',
+            method: 'POST',
+            data: {
+                key: configKey
+            }
 
+        }).then(res => {
+            console.log("获取到的配置=======", res)
+            if (res) {
+                originData = res
+            } else {
+                originData = {
+                    key: configKey,
+                    data: []
+                }
+            }
+            // Todo:如果没有获取到配置，则初始化一个配置
+            resolve(originData.data)
+        }).catch(err => {
+            reject(err)
+        })
 
-
-
-
-        resolve(list)
     })
 }
 
 
 // 把当前的list 提交到数据库，每次发生 修改的时候都提交一次
-const commitList = () => {
-    console.log("提交的表单=======", list)
+const commitList = (type = 'update') => {
+    return new Promise((resolve, reject) => {
+        // console.log("提交的表单=======", list, configKey)
+        originData.data = list
+        let req = {
+            url: '/admin/sys/param/update',
+            method: 'POST',
+            data: {
+                ...originData
+            }
+        }
+        if (!originData._id) {
+            req.url = '/admin/sys/param/add'
+        }
+        request(req).then(res => {
+            console.log("update的返回值==========", res)
+            resolve(res.data)
+        }).catch(err => {
+            reject(err)
+        })
+        resolve()
+    })
 }
 
+const formatObj = (obj) => {
+    let keys = Object.keys(obj);
+    for (const k of keys) {
+        if (obj[k] === undefined) {
+            obj[k] = '';
+        }
+    }
+    return obj
+}
 
 export const paramsService = {
-
-
     page: async (p) => {
-        console.log(p);
+        configKey = `${p.type}_${p.deptValue[p.deptValue.length - 1]}`
         let total = 0;
         let result = await getList()
+        list = result
         let pageList = result.filter((e, i) => {
             // if (p.name) {
             //     return e.name.includes(p.name);
@@ -104,7 +95,7 @@ export const paramsService = {
             //     return e.status === p.status;
             // }
 
-            // total++;
+            total++;
 
             if (i >= (p.page - 1) * p.size && i < p.page * p.size) {
                 return true;
@@ -112,8 +103,6 @@ export const paramsService = {
                 return false;
             }
         });
-
-        console.log('pageLis============', pageList);
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 let pageResult = {
@@ -124,46 +113,54 @@ export const paramsService = {
                         total
                     }
                 }
-                console.log("分页返回值========", pageResult)
                 resolve(pageResult);
             }, 500);
         });
     },
     info: (d) => {
-        console.log("GET[info]", d);
         return new Promise((resolve) => {
             setTimeout(() => {
                 let item = list.find((e) => e.id == d.id);
-                item.hook = "1,2,3";
+                // item.hook = "1,2,3";
                 resolve(item);
             }, 1000);
         });
     },
-    add: (d) => {
+    add: async (d) => {
         console.log("POST[add]", d);
-        let id = list[list.length - 1].id
+        let id = 1
+        if (list.length > 0) {
+            let id = list[list.length - 1].id
+        }
         let now = zz.time2Date(null, 'Y-M-D h:m:s')
         console.log("createTime=========", now)
+        d = formatObj(d)
         list.push({
             ...d,
             id: id++,
-            createTime: now
+            createTime: now,
+            status: 6,
+
         });
-        commitList()
+        await commitList('add')
         return Promise.resolve();
     },
-    delete: (d) => {
+    delete:async (d) => {
         console.log("POST[delete]", d);
         (d.ids || []).forEach((id) => {
             const index = list.findIndex((e) => e.id == id);
             list.splice(index, 1);
         });
+        await commitList('update')  // 删除，也算是更新的一种，更新了list
         return Promise.resolve();
     },
-    update: (d) => {
+    update: async (d) => {
         console.log("POST[update]", d);
         let item = list.find((e) => e.id == d.id);
         Object.assign(item, d);
+        item = formatObj(item)
+        console.log('update============object=========', JSON.parse(JSON.stringify(item)));
+        await commitList('update')
         return Promise.resolve();
     }
 }

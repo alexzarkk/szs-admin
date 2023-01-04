@@ -25,6 +25,12 @@
                     <template #column-isShow="{ scope }">
                         {{ scope.row.isShow?'显示':'不显示' }}
                     </template>
+                    <template #column-cover="{ scope }">
+                        <el-image v-if="scope.row.cover" style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover" :preview-src-list="[scope.row.cover]" />
+                    </template>
+                    <template #column-pagePath="{ scope }">
+                        {{getPageName(scope.row.pagePath)}}
+                    </template>
                 </cl-table>
             </el-row>
 
@@ -42,6 +48,34 @@
 
 import { paramsService } from './paramsHelp'
 import { dept } from '@/comm/dict'
+
+const pageOption = [
+    {
+        label: "专题",
+        value: "/pages"
+    },
+    {
+        label: "文章",
+        value: "/pages/planning/article"
+    },
+    {
+        label: "活动",
+        value: 3
+    },
+    {
+        label: "人气线路",
+        value: '/pages/planning/detail'
+    }
+]
+
+
+
+
+
+
+
+
+
 export default {
     data() {
         return {
@@ -114,24 +148,24 @@ export default {
                         "label-width": "15em"
                     },
                     onOpen: (isEdit, data, { done, submit, close }) => {
-                        console.log("cl-upsert 打开钩子", isEdit, data);
-                        this.$refs["upsert"].setProps("props", {
-                            disabled: isEdit
-                        });
+                        // console.log("cl-upsert 打开钩子", isEdit, data);
+                        // this.$refs["upsert"].setProps("props", {
+                        //     disabled: isEdit
+                        // });
                     },
 
                     onClose(done) {
-                        console.log("cl-upsert 关闭钩子");
+                        // console.log("cl-upsert 关闭钩子");
                         done();
                     },
 
                     onInfo(data, { next, done, close }) {
-                        console.log("cl-upsert 详情钩子", data);
+                        // console.log("cl-upsert 详情钩子", data);
                         next(data);
                     },
 
                     onSubmit(isEdit, data, { next, close, done }) {
-                        console.log("cl-upsert 提交钩子", `是否编辑 ${isEdit}`, data);
+                        // console.log("cl-upsert 提交钩子", `是否编辑 ${isEdit}`, data);
                         next(data);
                     },
                 },
@@ -190,20 +224,7 @@ export default {
                         prop: "pagePath",
                         component: {
                             name: "el-select",
-                            options: [
-                                {
-                                    label: "专题",
-                                    value: 1
-                                },
-                                {
-                                    label: "文章",
-                                    value: 2
-                                },
-                                {
-                                    label: "活动",
-                                    value: 3
-                                }
-                            ]
+                            options: pageOption
                         }
                     },
                     {
@@ -220,7 +241,7 @@ export default {
     watch: {},
     mounted() {
         this.deptList = this.zz.deepTree(dept.list)
-        console.log("初始化部门======", this.deptValue)
+        // console.log("初始化部门======", this.deptValue)
         // console.log("this.deptList========", this.deptList)
     },
     methods: {
@@ -234,11 +255,27 @@ export default {
                     };
                 })
                 .done();
-            app.refresh({ size: 10, deptValue: this.deptValue });
+            app.refresh({ size: 10, deptValue: this.deptValue, type: 'banner' });
         },
         // 切换部门
+        refresh() {
+            this.$refs['crud'].refresh({
+                size: 10, deptValue: this.deptValue, type: 'banner'
+            })
+        },
         deptChange(event) {
             console.log("切换部门====", event)
+            this.refresh()
+        },
+        getPageName(url) {
+            let page = pageOption.find(res => {
+                return res.value === url
+            })
+
+            if (page) {
+                return page.label
+            }
+
         }
     }
 };
