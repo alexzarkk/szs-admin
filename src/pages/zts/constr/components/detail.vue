@@ -22,10 +22,7 @@ export default {
 			k12 = kl.kLevel.find(e=>e.v==12)||{},
 			k13 = kl.kLevel.find(e=>e.v==13)||{}
 		
-		// for (let s of [21,22,23,25,26,27,28,29]) {
-		// 	if(!e['t'+s]) e['t'+s] = {}
-		// }
-		let gd = this.zz.toObj(this.zz.dict.kmlGrade)
+		let gd = this.$store.getters.dictObj.kmlGrade
 		
 		let items = [
 					// {
@@ -78,7 +75,7 @@ export default {
 						label: "归属部门",
 						span: 12,
 						component: ({ h }) => {
-							return h('b', { style: 'color: #550000' }, this.zz.dict.dept[e.deptId]);
+							return h('b', { style: 'color: #550000' }, this.$store.getters.dictObj.deps[e.deptId].name);
 						}
 					},
 					{

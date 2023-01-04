@@ -12,8 +12,8 @@
 					<el-radio-button label="数字化"></el-radio-button>
 					<el-radio-button label="运维管理"></el-radio-button>
 					<el-radio-button label="采集报告"></el-radio-button>
-					<el-radio-button label="巡线报告"></el-radio-button>
-					<el-radio-button label="验收报告"></el-radio-button>
+					<el-radio-button v-if="cur.cst>=40" label="巡线报告"></el-radio-button>
+					<el-radio-button v-if="cur.cst>=60" label="验收报告"></el-radio-button>
 				</el-radio-group>
 			</view>
 		</view>
@@ -21,8 +21,8 @@
 			<div class="print-box" id="printBox">
 				<view class="flex justify-between padding-bottom-sm">
 					<text class="text-df">路段名称：{{ cur.name }}</text>
-					<text class="text-df">等级：{{ grade[cur.grade].label }}</text>
-					<text class="text-df">属地：{{ getLable(cur.deptId) }}</text>
+					<text class="text-df">等级：{{ $store.getters.dictObj.kmlGrade[cur.grade].label }}</text>
+					<text class="text-df">属地：{{ $store.getters.dictObj.deps[cur.deptId].name }}</text>
 				</view>
 			
 				<view v-show="page=='基本信息'">
@@ -352,9 +352,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getLable } from '@/config/dict';
-import { checkPerm } from '@/cool/permission';
+import Print from 'vue-print-nb-dom-show'
+import Vue from "vue"
+Vue.use(Print)
 
 import inspect from "./inspect"
 import CollectInfo from "../../collect/component/collect-info"
@@ -369,10 +369,9 @@ export default {
 	},
 	data() {
 		return {
-			grade: this.zz.toObj(this.zz.dict.kmlGrade),
 			lay:{},
 			loading: -1, // 列表加载
-			getLable,
+			
 			page: '基本信息',
 			list: [],
 			logs: [],
@@ -414,28 +413,16 @@ export default {
 	methods: {
 		pdferr(e){
 		},
-		
 		kmlInfo(_id){
 			this.$emit('kmlInfo', {_id})
 		},
 		info(e) {
 			console.log(e);
-		},
-		
-		
-		
-		
+		}
 	}
 };
 </script>
 <style scoped lang="scss">
-// .A4 {
-// 	width: 21cm;
-// 	min-height: 297mm;
-// 	// height: 100vh;
-// 	margin-bottom: 40px;
-// 	border: 1px solid black;
-// }
 .A4 {
   width: 22cm;
   min-height: 297mm;

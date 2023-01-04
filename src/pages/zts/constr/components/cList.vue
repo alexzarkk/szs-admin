@@ -18,18 +18,6 @@
 					</block>
 				</el-select>
 			</cl-filter>
-			<!-- <cl-filter label="状态" v-if="status.length>1">
-				<el-select
-					size="mini"
-					v-model="onStatus"
-					@change="refresh"
-				>
-					<el-option value="" label="全部"></el-option>
-					<el-option value="6" label="待审核"></el-option>
-					<el-option value="10" label="已审核"></el-option>
-					
-				</el-select>
-			</cl-filter> -->
 			<cl-search-key />
 		</el-row>
 
@@ -127,16 +115,14 @@
 			<cl-flex1 />
 			<cl-pagination />
 		</el-row>
-		<cl-dialog :title="(cur.status==20?'开':'完') + '工报告'" :visible.sync="constrOpen" :props="{ top: '0' }" width="900px">
-			<report :cur="cur" @kmlInfo="kmlInfo"></report>
+		<cl-dialog :title="(cur.status==20?'开':'完') + '工报告'" :props="{fullscreen:false, top: '0' }" :visible.sync="constrOpen" width="900px">
+			<report v-if="cur.kml" :cur="cur" @kmlInfo="kmlInfo"></report>
 		</cl-dialog>
 		<detail v-if="kml" :kml="kml" @close="close"></detail>
 	</cl-crud>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getLable } from '@/config/dict'
 import { kmlChart } from '@/cool/utils/pmCurd'
 
 import detail from './detail.vue'
@@ -152,21 +138,19 @@ export default {
 	data() {
 		return {
 			loading: false,
-			st: this.zz.dict.ctrSt,
-			grade: this.zz.dict.kmlGrade,
+			dept: this.$store.getters.deptLabel,
+			st: this.$store.getters.dict.ctrSt,
+			grade: this.$store.getters.dict.kmlGrade,
+			
 			onGrade: 1,
 			onStatus: '',
 			name: '',
 			selected: [],
-			dept: getLable(),
 			
 			cur: {},
 			kml: null,
 			constrOpen: false
-		};
-	},
-	computed: {
-		...mapGetters(['userInfo'])
+		}
 	},
 	watch: {
 		ids: {
@@ -221,10 +205,6 @@ export default {
 			if(!e.kml) {
 				e.kml = await this.$service.zts.kml.info({ id: e.kmlId })
 				e.kml.chart = kmlChart(e.kml.children)
-				e.kml.dept = getLable(e.kml.departmentId)
-				// let line = e.kml.children[0].children[0]
-				// if(!line.coord) line = line.children[0].children[0]
-				// this.line = line
 			}
 			if(!e.kml40) e.kml40 = await this.$service.zts.kml.list({ type: 40, layId: e._id })
 			this.cur = e
@@ -244,7 +224,7 @@ export default {
 		
 		detail(e) { this.kml = e },
 		close(){this.kml = null},
-		help(){ openWin("https://zts.5618.co/repo/constr1.0.pdf") },
+		help(){ this.zz.openWin({url:"https://zts.5618.co/repo/constr1.0.pdf"}) },
 		async audit(e){
 			await this.$service.zts.constr.audit({
 													_id: this.cur._id,
@@ -255,7 +235,6 @@ export default {
 			this.refresh()
 		},
 		async statusBack(e){
-			console.log(e);
 			let ask1
 			await this.$confirm("确定要退回上一状态？", "重要提示", {
 				type: "warning"

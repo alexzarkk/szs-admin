@@ -21,12 +21,15 @@
 			</div>
 			
 			<div class="hot-search__chart">
-				<block v-if="len">
+				
+				<l-echart ref="chart"></l-echart>
+				
+				<!-- <block v-if="data.length">
 					<l-echart ref="chart" @finished="init"></l-echart>
 				</block>
 				<block v-else>
 					 <el-divider>无数据</el-divider>
-				</block>
+				</block> -->
 			</div>
 			
 		</div>
@@ -36,35 +39,25 @@
 
 <script>
 	
-//import VChart, { THEME_KEY } from 'vue-echarts';
-
 import * as echarts from 'echarts'
-import { CanvasRenderer } from "echarts/renderers";
-import { PieChart } from "echarts/charts";
-// import { math } from '@/cool/utils/ztool.js';
-import { TitleComponent, TooltipComponent, LegendComponent } from "echarts/components";
-
-echarts.use([
-	CanvasRenderer,
-	PieChart,
-	TitleComponent,
-	TooltipComponent,
-	LegendComponent
-])
+import { CanvasRenderer } from "echarts/renderers"
+import { PieChart } from "echarts/charts"
+import { TitleComponent, TooltipComponent, LegendComponent } from "echarts/components"
+echarts.use([ CanvasRenderer, PieChart, TitleComponent, TooltipComponent, LegendComponent ])
 import LEchart from '@/uni_modules/lime-echart/components/l-echart/l-echart.vue'
 
 export default {
 	components: { LEchart },
+	props: {
+		data: { type: Array },
+		title: { type: String, default: '' }
+	},
 	data() {
 		return {
 			option: null,
 			len: 0,
 			kml: [ {text:'数据采集',value:9} ]
 		};
-	},
-	props: {
-		data: { type: Array },
-		title: { type: String, default: '' }
 	},
 	watch: {
 		data: {
@@ -75,19 +68,26 @@ export default {
 		}
 	},
 	mounted(){
-		// this.init()
+		this.init()
+		this.$nextTick(() => {
+			this.$refs.chart.init(echarts, chart => {
+				chart.setOption(this.option)
+			})
+		})
 	},
 	methods: {
 		init() {
+			console.log('line.chart.init .............',this.data);
 			let legend = [],
-				len=0,
+				len = 0,
 				data = []
+				
 			for (let s of this.data) {
 				len += s.len*1
 				legend.push(s.name)
 				data.push({value: s.len, name: s.name})
 			}
-			this.len = math(len, 2)
+			this.len = this.zz.math(len, 2)
 			
 			let option = {
 				 tooltip: {
@@ -148,8 +148,18 @@ export default {
 				            data: data
 				        }
 				    ]
-			}
-			this.option = option;
+				}
+				
+			this.option = option
+			// 	this.$refs.chart.init(echarts, chart => {
+			// 		chart.setOption(this.option)
+			// 	})
+			
+			// this.$nextTick(() => {
+			// 	this.$refs.chart.init(echarts, chart => {
+			// 		chart.setOption(this.option)
+			// 	})
+			// })
 		}
 	}
 };

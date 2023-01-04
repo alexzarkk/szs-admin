@@ -1,8 +1,10 @@
-import { clone, revDeepTree, math } from "@/comm/zz"
+import { toArr, clone, revDeepTree, math } from "@/comm/zz"
 import { checkPerm } from "@/cool/permission"
-import { prop, point, viewElement, kmlGrade, kmlNet, pmSt } from "@/comm/dict.js"
+import { calData, isSame } from '@/comm/geotools'
 
-import { state } from '@/store/modules/param'
+import { prop, point, viewElement, kmlGrade, kmlNet, pmSt } from "@/comm/dict.js"
+import param from '@/store/modules/param'
+import getters from "@/store/getters"
 
 //权限控制
 function veri({thiz,kml,user}) {
@@ -653,6 +655,7 @@ function merge(){
 }
 
 function kmlChart(kml){
+	
 	let chart = {
 		line: {num: 0, len: 0, pic: 0},
 		poi: {num: 0, pic: 0},
@@ -664,7 +667,7 @@ function kmlChart(kml){
 	let placemark = revDeepTree(kml)
 	for (let pm of placemark) {
 		if(pm.t1 == 1 && pm.t2 > 9) {
-			let info = pm.info
+			let info = pm.info? pm.info : calData(pm.coord)
 			chart.line.pic += pm.imgs? pm.imgs.length : 0
 			if(pm.t2 && pm.t2>10){
 				if(!chart.t[pm.t2]) chart.t[pm.t2] = {num: 0, len: 0, pic: 0}
@@ -702,7 +705,7 @@ function kmlChart(kml){
 		for (let s of arr) {
 			t.push({
 				v:s,
-				name: prop[s].name,
+				name: param.state.dict.prop[s].text,
 				num: n(s,'t','num'),
 				len: math(n(s,'t','len') / 1000, 2) || '',
 				pic: n(s,'t','pic')
@@ -710,15 +713,27 @@ function kmlChart(kml){
 		}
 		return t
 	}
+	
 	chart.kLevel = line([11,12,13])
 	chart.kType = line([101,102,103,104,105,106,110,120])
-	let poi = clone(point)
+	let poi = clone(param.state.dict.point)
 	for (let s of poi) {
 		s.num = n(s.value,'p','num')
 		s.pic = n(s.value,'p','pic')
 	}
-	chart.poi = poi
 	
+	const pure =(arr)=>{
+		for (var i = 0; i < arr.length; i++) {
+			if(!arr[i].num){
+				arr.splice(i,1)
+				i--
+			}
+		}
+	}
+	chart.poi = poi
+	pure(chart.kLevel)
+	pure(chart.kType)
+	pure(chart.poi)
 	return chart
 }
 
@@ -736,7 +751,7 @@ function uniSon(arr, tar) {
 	})
 	let flag = -1
 	for (var i = 0; i < idx.length; i++) {
-		flag++
+		flag ++
 		if (flag == 0) {
 			arr.splice(idx[i], 1)
 		} else {

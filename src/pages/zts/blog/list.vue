@@ -11,7 +11,7 @@
                     <cl-crud ref="crud" @load="onCrudLoad" boder>
                         <el-row type="flex">
                             <cl-refresh-btn />
-                            <el-button size="mini" type="primary" @click="edit(false)">新增</el-button>
+                            <!-- <el-button size="mini" type="primary" @click="edit(false)">新增</el-button> -->
                             <cl-multi-delete-btn />
                             <cl-flex1 />
                             <cl-filter label="状态">
@@ -26,7 +26,7 @@
                         </el-row>
 
                         <el-row type="flex">
-                            <cl-table :contextMenu="[]" :props="{
+                            <cl-table :props="{
 										'default-sort': {
 											prop: 'createTime',
 											order: 'descending'
