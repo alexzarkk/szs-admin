@@ -8,39 +8,63 @@
 
      -->
     <cl-layout>
-        <!-- @load="onCrudLoad" -->
-        <cl-crud ref="crud" boder @load="onCrudLoad">
-            <el-row type="flex">
-                <cl-refresh-btn />
-                <cl-add-btn></cl-add-btn>
-                <cl-multi-delete-btn />
-                <cl-flex1 />
-                <cl-filter label="部门">
-                    <el-cascader v-model="deptValue" :options="deptList" :props="{ expandTrigger: 'click',label:'name', value:'id',checkStrictly:true }" @change="deptChange"></el-cascader>
-                </cl-filter>
-            </el-row>
-            <el-row type="flex">
-                <cl-table :columns="columns">
-                    <!-- 时间 -->
-                    <template #column-isShow="{ scope }">
-                        {{ scope.row.isShow?'显示':'不显示' }}
-                    </template>
-                    <template #column-cover="{ scope }">
-                        <el-image v-if="scope.row.cover" style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover" :preview-src-list="[scope.row.cover]" />
-                    </template>
-                    <template #column-pagePath="{ scope }">
-                        {{getPageName(scope.row.pagePath)}}
-                    </template>
-                </cl-table>
-            </el-row>
+        <div class="system-user">
+            <div class="pane">
+                <!-- 部门区域 -->
+                <div class="dept" :class="[!expand ? '_expand' : '_collapse']">
+                    <cl-dept-tree @check="deptSet"></cl-dept-tree>
+                </div>
+                <!-- 资源列表 -->
+                <div class="user">
+                    <!-- @load="onCrudLoad" -->
+                    <cl-crud ref="crud" boder @load="onCrudLoad">
+                        <el-row type="flex">
+                            <view class="flex align-center">
+                                <div class="icon padding-lr-xs" @click="expand = !expand">
+                                    <i class="cursor el-icon-arrow-right" v-if="expand"></i>
+                                    <i class="cursor el-icon-arrow-left" v-else></i>
+                                </div>
+                            </view>
+                            <cl-refresh-btn />
+                            <cl-add-btn></cl-add-btn>
+                            <cl-multi-delete-btn />
+                            <cl-flex1 />
+                            <el-col>
+                                <i class="zts-notice"></i>
+                            </el-col>
+                            <!-- <cl-filter label="部门">
+                                <el-cascader v-model="deptValue" :options="deptList" :props="{ expandTrigger: 'click',label:'name', value:'id',checkStrictly:true }" @change="deptChange"></el-cascader>
+                            </cl-filter> -->
+                        </el-row>
+                        <el-row type="flex">
+                            <cl-table :columns="columns">
+                                <!-- 时间 -->
+                                <template #column-isShow="{ scope }">
+                                    {{ scope.row.isShow?'显示':'不显示' }}
+                                </template>
+                                <template #column-cover="{ scope }">
+                                    <el-image v-if="scope.row.cover" style="width: 100px; height: 100px" fit="cover" :src="scope.row.cover" :preview-src-list="[scope.row.cover]" />
+                                    <el-image v-if="scope.row.coverUrl" style="width: 100px; height: 100px" fit="cover" :src="scope.row.coverUrl" :preview-src-list="[scope.row.coverUrl]" />
+                                </template>
+                                <template #column-pagePath="{ scope }">
+                                    {{getPageName(scope.row.pagePath)}}
+                                </template>
+                            </cl-table>
+                        </el-row>
 
-            <el-row type="flex">
-                <cl-flex1 />
-                <cl-pagination />
-            </el-row>
-            <!-- 轮播图编辑表单 -->
-            <cl-upsert ref="upsert" v-bind="upsert.props" :items="upsert.items"></cl-upsert>
-        </cl-crud>
+                        <el-row type="flex">
+                            <cl-flex1 />
+                            <cl-pagination />
+                        </el-row>
+                        <!-- 轮播图编辑表单 -->
+                        <cl-upsert ref="upsert" v-bind="upsert.props" :items="upsert.items"></cl-upsert>
+                    </cl-crud>
+                </div>
+            </div>
+        </div>
+
+        <!-- <zts-audit :tt="'trail'" :cur="cur" @refresh="refresh()"></zts-audit> -->
+
     </cl-layout>
 </template>
 
@@ -79,6 +103,7 @@ const pageOption = [
 export default {
     data() {
         return {
+            expand: false,
             deptValue: [330000],
             deptList: [],
             columns: [
@@ -193,6 +218,7 @@ export default {
                         prop: "isShow",
                         label: "是否加入轮播图展示",
                         span: 24,
+                        value: false,
                         component: {
                             name: "el-switch"
                         }
@@ -241,12 +267,15 @@ export default {
     watch: {},
     mounted() {
         this.deptList = this.zz.deepTree(dept.list)
-        // console.log("初始化部门======", this.deptValue)
-        // console.log("this.deptList========", this.deptList)
     },
     methods: {
-        onCrudLoad({ ctx, app }) {
-            ctx.service(paramsService)
+        deptSet(event) {
+            console.log("选择的部门信息=====", event)
+            this.deptValue = [event[0]]
+            this.refresh()
+        },
+        async onCrudLoad({ ctx, app }) {
+            await ctx.service(paramsService)
                 .permission(() => {
                     return {
                         add: true,
@@ -255,7 +284,8 @@ export default {
                     };
                 })
                 .done();
-            app.refresh({ size: 10, deptValue: this.deptValue, type: 'banner' });
+            // console.log("ctx============",ctx, app)
+            await app.refresh({ size: 10, deptValue: this.deptValue, type: 'banner' });
         },
         // 切换部门
         refresh() {
@@ -282,5 +312,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.system-user {
+    .pane {
+        display: flex;
+        height: 100%;
+        position: relative;
+    }
+
+    .dept {
+        height: 100%;
+        width: 200px;
+        border: 1px solid #e9ecf1;
+        background-color: #fff;
+        overflow-y: auto;
+        overflow-x: hidden;
+        transition: width 0.3s;
+        margin-right: 8px;
+
+        &._collapse {
+            margin-right: 0;
+            width: 0;
+        }
+    }
+
+    .user {
+        width: calc(100% - 310px);
+        flex: 1;
+    }
+}
 </style>
 

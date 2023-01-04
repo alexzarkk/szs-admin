@@ -28,6 +28,10 @@ import "@/static/css/colorui/icon.scss"
 import dataV from '@jiaminghi/data-view'
 // 引入全局css
 import './assets/scss/style.scss'
+
+import './cool/icons/cuIcon.scss'
+import './cool/icons/iconfont.scss'
+
 // 按需引入vue-awesome图标
 import Icon from 'vue-awesome/components/Icon'
 import 'vue-awesome/icons/chart-bar.js'
@@ -77,7 +81,7 @@ App.mpType = "app"
 Vue.config.productionTip = false
 Vue.prototype.zz = zz
 
-const loader = Loading.service({text: "加载配置中"})
+const loader = Loading.service({ text: "加载配置中" })
 store.dispatch("appLoad").done(() => {
 	loader.close()
 	const app = new Vue({
