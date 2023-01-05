@@ -4,12 +4,10 @@ import { calData, isSame } from '@/comm/geotools'
 
 import { prop, point, viewElement, kmlGrade, kmlNet, pmSt } from "@/comm/dict.js"
 import param from '@/store/modules/param'
-import getters from "@/store/getters"
 
 //权限控制
 function veri({thiz,kml,user}) {
 	if(!thiz) thiz = this
-	
 	if(!user) user = thiz.userInfo
 	if(!kml) kml = thiz.cKml || thiz.kml
 	
@@ -103,11 +101,71 @@ const dict = {
 function open({ thiz, act, pm, select }) {
 	if(!thiz) thiz = this
 	if(!veri({thiz})) return
+	
+	// 完工巡线
+	if(thiz.kml.type==40) {
+		let form = thiz.$crud.openForm({
+			title: '添加检查点',
+			width: "400px",
+			items:  [
+				{
+					prop: 'name',
+					label: '名称',
+					span: 24,
+					value: pm.name||'',
+					component: {
+						name: 'el-input'
+					},
+					rules: {
+						required: true,
+						message: '名称不能为空'
+					}
+				},
+				{
+					prop: 'desc',
+					label: '备注说明',
+					value: pm.desc||'',
+					span: 24,
+					component: {
+						name: 'el-input',
+						props: {
+							type: 'textarea',
+							rows: 4
+						}
+					}
+				}
+			],
+			on: {
+				load(data, { close, done, submit }) {
+					// console.log("窗口打开事件");
+				},
+				submit: async (data, { close, done }) => {
+					let o = { ...data, kmlId: thiz.kml._id, coord: pm.coord, t1: pm.t1, t2: 90, imgs:[], status: 1 }
+					if(pm._id) o._id = pm._id
+					
+					await thiz.$service.zts.placemark[pm._id?'update':'add'](o).then(e=>{
+						thiz.$message.success("保存成功")
+					}).catch((err) => {
+						thiz.$message.error(err)
+						done()
+					})
+					thiz.kmlRefresh(1)
+					close()
+				},
+				close(done) {
+					done()
+				}
+			}
+		})
+		return
+	}
+	
+	
 	console.log('pmCurd.open --------->',pm,act,select)
 	
 	let isEdit = act === 'edit',
 		kml = thiz.kml,
-		coord = isEdit?pm.coord:select.coord,
+		coord = isEdit? pm.coord : select.coord,
 		tip = false,
 		t1 = pm.t1 || 1,
 		types,
@@ -537,7 +595,8 @@ function open({ thiz, act, pm, select }) {
 }
 
 
-function del({ thiz, pm }) {
+function del({ pm }) {
+	let thiz = this
 	if(!veri({thiz})) return
 	thiz.$confirm("此操作将永久删除选中数据，是否继续？", pm.name, {
 		type: "warning"

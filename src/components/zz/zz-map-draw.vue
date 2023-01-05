@@ -215,7 +215,6 @@ export default {
 			clearTimeout(m.zz.running)
 			mbtool.removeObj(m, 'active_running')
 			
-			
 			let geo
 			if (e.pm) {
 				geo = {
@@ -257,8 +256,6 @@ export default {
 				this.map.setLayoutProperty(e.pm._id, 'visibility', 'visible')
 			}
 		},
-		
-		
 		
 		runx(e){ mbtool.run(this.map,e) },
 		getAround(e){ mbtool.getAround(this.map,null,e) },

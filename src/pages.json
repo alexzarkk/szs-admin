@@ -59,7 +59,8 @@
 				{ "path": "t44" },
 				{ "path": "t46" },
 				{ "path": "t50" },
-				{ "path": "t60" }
+				{ "path": "t60" },
+				{ "path": "verify" }
 		    ]
 		},
 		{

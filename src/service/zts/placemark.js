@@ -20,4 +20,15 @@ export default class extends BaseService {
 			data
 		});
 	}
+	
+	
+	@Permission("backDef")
+	backDef(data) {
+		return this.request({
+			url: "/backDef",
+			method: "POST",
+			data
+		});
+	}
+	
 }

@@ -6,88 +6,11 @@
 			<!-- 右键按钮 -->
 			<cl-context-menu ref="context-menu"> </cl-context-menu>
 			
-			
 			<div class="pane">
 				<!-- 轨迹坐标 列表  可折叠 -->
 				<div class="kml" :class="[expand ? '_expand' : '_collapse']">
-					<div class="header solid flex align-center justify-between">
-						<!-- 采集 -->
-						<block v-if="kml.type == 9">
-							<block v-if="kml.status == -1">
-								<el-tooltip class="item" effect="dark" content="恢复" placement="top">
-									<el-button type="success" size="mini" icon="el-icon-refresh-right" circle @click="setStatus(2)"></el-button>
-								</el-tooltip>
-								<el-tooltip class="item" effect="dark" content="下载轨迹(防止误操作,下载以作备份)" placement="top">
-									<el-button type="info" size="mini" icon="el-icon-download" circle @click="download"></el-button>
-								</el-tooltip>
-							</block>
-							<block v-else>
-								<block v-if="kml.status < 6">
-									<el-tooltip class="item" effect="dark" content="复核" placement="top">
-										<el-button type="success" size="mini" icon="el-icon-check" circle @click="check"></el-button>
-									</el-tooltip>
-								</block>
-								<block v-if="kml.status == 6">
-									<el-tooltip class="item" effect="dark" content="审核" placement="top">
-										<el-button v-permission="$service.zts.kml.permission.verify" icon="el-icon-s-check" size="mini" circle type="success" @click="veryfy"></el-button>
-									</el-tooltip>
-								</block>
-								<block v-if="kml.status >= 10">
-									<el-tooltip class="item" effect="dark" content="详情统计/更新" placement="top">
-										<el-button type="success" size="mini" icon="el-icon-finished" circle @click="reCount"></el-button>
-									</el-tooltip>
-								</block>
-
-								<block v-if="kml.status >= 10">
-									<el-tooltip v-permission="$service.zts.kml.permission.veriBack" class="item" effect="dark" content="退审" placement="top">
-										<el-button type="warning" size="mini" icon="el-icon-refresh-left" circle @click="setStatus(kml.status==10?4:10)"></el-button>
-									</el-tooltip>
-									
-									<!-- <el-tooltip class="item" effect="dark" content="上传轨迹" placement="top">
-										<el-button type="info" size="mini" icon="el-icon-upload2" circle @click="upload"></el-button>
-									</el-tooltip> -->
-								</block>
-							
-								<block v-else>
-									<el-tooltip class="item" effect="dark" content="上传轨迹" placement="top">
-										<el-button type="info" size="mini" icon="el-icon-upload2" circle @click="upload"></el-button>
-									</el-tooltip>
-								</block>
-
-								<el-tooltip class="item" effect="dark" content="下载轨迹(防止误操作,下载以作备份)" placement="top">
-									<el-button type="info" size="mini" icon="el-icon-download" circle @click="download"></el-button>
-								</el-tooltip>
-
-								<el-tooltip class="item" effect="dark" content="编辑" placement="top">
-									<el-button type="primary" size="mini" icon="el-icon-edit" circle :disabled="!cur.coord" @click="edit"></el-button>
-								</el-tooltip>
-								<el-tooltip class="item" effect="dark" content="删除" placement="top">
-									<el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="!cur.coord" @click="del"></el-button>
-								</el-tooltip>
-							</block>
-						</block>
-						<block v-else>
-							<el-tooltip class="item" effect="dark" content="下载轨迹" placement="top">
-								<el-button type="info" size="mini" icon="el-icon-download" circle @click="download"></el-button>
-							</el-tooltip>
-							<el-tooltip class="item" effect="dark" content="上传轨迹" placement="top">
-								<el-button type="info" size="mini" icon="el-icon-upload2" circle @click="upload"></el-button>
-							</el-tooltip>
-							<el-tooltip class="item" effect="dark" content="编辑" placement="top">
-								<el-button type="primary" size="mini" icon="el-icon-edit" circle :disabled="!cur.coord" @click="edit"></el-button>
-							</el-tooltip>
-							<el-tooltip class="item" effect="dark" content="删除" placement="top">
-								<el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="!cur.coord" @click="del"></el-button>
-							</el-tooltip>
-							<el-tooltip class="item" effect="dark" content="统计信息" placement="top">
-								<el-button type="success" size="mini" icon="el-icon-finished" circle @click="reCount"></el-button>
-							</el-tooltip>
-						</block>
-						
-						<el-tooltip class="item" effect="dark" content="清理缓存并刷新" placement="top">
-							<el-button type="warning" size="mini" icon="el-icon-refresh" circle @click="kmlRefresh(0,1)"></el-button>
-						</el-tooltip>
-					</div>
+					
+					<kml-menu :kml="kml" :cur="cur" @refresh="kmlRefresh"/>
 					<!-- 树形结构 -->
 					<div class="container">
 						<div class="scroller"> 
@@ -134,12 +57,6 @@
 									</template>
 								</el-table-column>
 								
-								<!-- <el-table-column label="编辑" width="50" align="center">
-									<template slot-scope="scope">
-										<el-button type="danger" size="mini" @click="del(scope.row)">删除</el-button>
-									</template>
-								</el-table-column> -->
-								
 							</el-table>
 						</div>
 					</div>
@@ -163,11 +80,7 @@
 								<el-button style="padding:5px;" size="mini" :icon="tmap.onNear?'el-icon-circle-close':'zts-layout'" circle @click="onNear" ></el-button>
 							</el-tooltip>
 						</span> -->
-						<span class="padding-left-xs" v-if="kml.type == 9 && t9.length && kml.status <= 4">
-							<el-tooltip class="item" effect="dark" content="还原默认轨迹" placement="top">
-								<el-button type="primary" size="mini" icon="el-icon-refresh-right" circle @click="backDef"></el-button>
-							</el-tooltip>
-						</span>
+						
 						<span class="padding-lr-xs">
 							<block v-if="drawing">
 								<el-button size="mini" type="infor" @click="cancelDraw">取消</el-button>
@@ -225,16 +138,6 @@
 								:grid="false"></zz-map-draw>
 								
 						</cl-crud>
-						<!-- 线路详情统计/更新 -->
-						<cl-dialog :width="'60%'" :height="lay.height - 42 + 'px'" :props="{ top: '0vh' }" :title="kml.name" :visible.sync="checking">
-							<!-- <checking :kml="kml" :height="lay.height" @checked="checked"></checking> -->
-						</cl-dialog>
-						<!-- 指引柱的详细信息 -->
-						<cl-dialog :width="'100%'" :props="{ top: '0vh', fullscreen: true }" title="指引柱" :visible.sync="directionChart">
-							<block v-if="t29 && directionChart">
-								<!-- <direction :t29="t29" :refKml="refKml" :directPoi.sync="directPoi" :height="lay.height" :t10="t10" @refresh="kmlRefresh"></direction> -->
-							</block>
-						</cl-dialog>
 					</div>
 				</div>
 			</div>
@@ -243,24 +146,18 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-// import { deepTree, dateToTime, isArray, revDeepTree, isPc, clone, openWin } from '@/cool/utils';
-
-import { open, merge, check, veryfy, del, veri } from '@/cool/utils/pmCurd'
-import { upload } from '@/cool/utils/uploadKml'
+import { mapGetters } from 'vuex'
+import { open, merge, del, veri } from '@/cool/utils/pmCurd'
 import { calData, isSame } from '@/comm/geotools'
 import { getElevation } from '@/comm/libs/mapbox/mbtool'
 
+import kmlMenu from './components/kml-menu.vue'
 // import Checking from '../collect/checking.vue';
 // import Direction from './direction.vue';
-
 // import { setMask, setLineString } from '@/cool/utils/ztool.js'
 
 export default {
-	// components: {
-	// 	Direction,
-	// 	Checking
-	// },
+	components: { kmlMenu },
 	data() {
 		return {
 			loading: false,
@@ -275,26 +172,18 @@ export default {
 			cur: {},
 			
 			
-			directionChart: false,
-			checking: false,
 			directPoi: {},
-			
 			
 			// draw
 			drawing: false,
 			drawed: null,
 			drawPm: null,
 			onEle: false,
-			
-			t10: null,
-			t29: null,
-			t9: [],
+			t9: null
 			
 		};
 	},
-	computed: {
-		...mapGetters(['lay', 'userInfo'])
-	},
+	computed: { ...mapGetters(['lay', 'userInfo']) },
 	activated() {
 		console.log('map.activated');
 		this.kmlRefresh()
@@ -335,20 +224,32 @@ export default {
 			console.log('line ----->', this.pms)
 		},
 
-		async kmlRefresh(init, force=0) {
-			console.log('kmlRefresh ----->', force);
+		async kmlRefresh(init=0) {
 			
 			let id = uni.getStorageSync('collect_check')
-			if (init||force || !this.kml._id || this.kml._id != id) {
+			if (init || !this.kml._id || this.kml._id != id) {
 				
 				this.loading = true
 				try{ this.exec({m:'remove',e:{}}) }catch(e){ } 
 				let kml = await this.$service.zts.kml.info({ id, noChild: true }),
-					list = await this.$service.zts.placemark.list({ kmlId: id, tree: true, force })
+					list = await this.$service.zts.placemark.list({ kmlId: id, tree: true, force: init==2 })
 				
 				this.loading = false
 				
+				
+				console.log('kmlRefresh ----->',kml);
 				for(let s of list) {
+					
+					//完工巡线 锁定修改 
+					if(kml.type == 40) {
+						s.lock = (!s.status || s.status>=1)
+					}
+					
+					//采集的默认轨迹
+					if(kml.type == 9) {
+						s.lock = s.t2==9
+					}
+					
 					s.checked = true
 					if(s.kmlId && s.t1==1) { s.info = calData(s.coord, true) }
 				}
@@ -539,26 +440,6 @@ export default {
 			}
 		},
 		
-		//更新坐标位置
-		
-
-		check() {
-			this.checking = true;
-		},
-		checked(e) {
-			// console.log('checked',e);
-			this.kml.cur = e
-			this.checking = false
-		},
-		veryfy() {
-			openWin('/#/pages/zts/collect/verify');
-		},
-		edit() {
-			open({ thiz: this, act: 'edit', pm: this.cur });
-		},
-		del() {
-			return del({ thiz: this, pm: this.cur });
-		},
 		
 		//从chart中返回的事件
 		async tcAction({ select, act }) {
@@ -605,75 +486,6 @@ export default {
 				})
 				if (this.kml.status >= 10) this.$service.zts.kml.createChart({ _id: this.kml._id })
 			}
-		},
-		upload() {
-			if (veri.call(this, {})) {
-				upload.call(this, {
-					kml: null,
-					e: { coord: false },
-					kt: this.kml.type,
-					fn: async (pms,data) => {
-						for (let s of pms) {
-							// return console.log({...s, ...data, kmlId: this.kml.cur._id});
-							await this.$service.zts.placemark.add({...s, ...data, kmlId: this.kml._id})
-						}
-						
-						this.kmlRefresh(1)
-						if (this.kml.status >= 10) {
-							this.$service.zts.kml.createChart({ _id: this.kml._id })
-						}
-					}
-				})
-				
-			}
-		},
-		download() {
-			let kml = clone(this.kml.cur);
-			kml.children = clone(this.kml.list);
-			this.zz.expKml(kml);
-		},
-		async reCount() {
-			// this.kml.loading = true;
-			// this.chart = await this.$service.zts.chart.get({ id: this.kml.cur._id })
-			// this.kml.loading = false;
-			this.check();
-		},
-		setStatus(e) {
-			if (veri.call(this, {})) {
-				this.$confirm('确定' + (e == 2 ? '撤销删除' : '退回审核') + '？', '提示', {
-					type: 'warning'
-				}).then(res => {
-					if (res === 'confirm') {
-						this.$service.zts.kml
-							.update({
-								status: e,
-								_id: this.kml.cur._id
-							})
-							.then(e => {
-								if (e == 4) this.$service.zts.chart.delete({ ids: [this.kml.cur._id] });
-
-								this.kml.cur.status = e;
-								// uni.setStorageSync('collect_check', this.kml.cur._id);
-								this.kmlRefresh(1)
-								//删除报表
-							});
-					}
-				});
-			}
-		},
-		async backDef() {
-			this.kml.loading = true;
-			for (let s of this.t9) {
-				let pm = clone(s);
-				pm.t2 = 10;
-				pm.coord = pm.coord.map(e => {
-					return [e[0], e[1], e[2]];
-				});
-				delete pm._id;
-				await this.$service.zts.placemark.add(pm);
-			}
-			this.kml.loading = false;
-			this.kmlRefresh(1)
 		},
 		
 		// mapbox ----------------------------------------- /////////////////// >
@@ -723,20 +535,18 @@ export default {
 			
 			if (this.drawPm) {
 				await this.updateCoord(this.drawPm._id, coord)
-				this.cancelDraw()
 				//显示轨迹
 			} else {
 				pm.coord = coord
 				open.call(this, this.drawed)
 			}
+			this.cancelDraw()
 		},
 
 		
 		mbEvt(e) {
 			
 		},
-		
-	
 		
 		
 		deptChange(event) {

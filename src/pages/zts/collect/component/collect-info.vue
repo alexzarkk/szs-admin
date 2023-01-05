@@ -42,7 +42,7 @@
 		
 		<el-descriptions class="margin-top-sm" title="印象评分" :column="2"  border>
 			<block v-for="(k, i) of $store.getters.dict.trail.ip" :key="i">
-				<el-descriptions-item :label="k.name">
+				<el-descriptions-item :label="k.label">
 					<el-rate disabled :value="kml.score[i]" :colors="['#ffaa7f', '#ffa14f', '#ff5500']"></el-rate>
 				</el-descriptions-item>
 			</block>

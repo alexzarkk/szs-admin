@@ -3,7 +3,7 @@ import { kml2Geo } from "@/cool/utils/kml2Geo"
 
 export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"}) {
 	// console.log(kt)
-	console.log(this.userInfo,this.$store.getters.dict);
+	// console.log(this.userInfo,this.$store.getters.dict);
 	let dict = this.$store.getters.dict
 	let items = fn?[] : form?form:[{
 								prop: 'name',
@@ -239,10 +239,7 @@ export async function upload({ kml, e, kt, fn, tip, form}, opt={width: "660px"})
 						//如果是申报路线
 						if(data.type==3||data.type==4) data.stauts = 6
 						
-						const kmlId = await this.$service.zts.kml.add({
-							...data,
-							// user: this.userInfo.name,
-						})
+						const kmlId = await this.$service.zts.kml.add({ ...data })
 						
 						for(let pm of [...pm1,...pm2]) {
 							await this.$service.zts.placemark.add({

@@ -495,7 +495,7 @@ setLine = (map, line, beforeId=1) => {
 							// setActive(map, t)
 							window.mbAct({act:'lineActived', e:t})
 
-							if(map.zz.editble && !t.noEdit){
+							if(map.zz.editble && !t.lock){
 								html +=	"<p>" +
 											href('edit',t,'编辑')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
 											href('draw',t,'绘制')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
@@ -618,7 +618,7 @@ setPoint = (map, point, beforeId)=> {
 						}
 						html += `<p><font size=1 color=gray>照片引用于“两步路”APP（侵权 删）</font></p>`
 					}else{
-						if(map.zz.editble && !t.noEdit) {
+						if(map.zz.editble && !t.lock) {
 							html +=	href('edit',t,'编辑')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
 									href('draw',t,'移动')+"&nbsp;&nbsp;&nbsp;&nbsp;" +
 									href('del',t,'删除')
