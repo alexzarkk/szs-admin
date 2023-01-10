@@ -15,11 +15,7 @@ function veri({thiz,kml,user}) {
 	
 	//admin
 	if(user.admin) return true
-	//环浙主线
-	if(kml.type==1||kml.type>20) {
-		thiz.$message.error("没有权限！")
-		return false
-	}
+	
 	//审核员
 	if(checkPerm(thiz.$service.zts.kml.permission.verify)) return true
 	
@@ -140,7 +136,7 @@ function open({ thiz, act, pm, select }) {
 					// console.log("窗口打开事件");
 				},
 				submit: async (data, { close, done }) => {
-					let o = { ...data, kmlId: thiz.kml._id, coord: pm.coord, t1: pm.t1, t2: 90, imgs:[], status: 1 }
+					let o = { ...data, kmlId: thiz.kml._id, coord: pm.coord, t1: pm.t1, t2: 90, imgs:[], status: -1 }
 					if(pm._id) o._id = pm._id
 					
 					await thiz.$service.zts.placemark[pm._id?'update':'add'](o).then(e=>{

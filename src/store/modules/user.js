@@ -63,8 +63,7 @@ export default {
 				}
 			}
 			
-			
-			if(e.obj && obj.status==-1) {
+			if(e.obj && e.obj.status==-1) {
 				Message.error("此数据已作废，如需修改请联系管理员！")
 				return false
 			}

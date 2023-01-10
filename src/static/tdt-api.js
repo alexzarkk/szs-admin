@@ -113,7 +113,7 @@ window.T = window.T || {};
 					T.tk
 			},
 			i: function() {
-				console.log('T.i', T.Domain)
+				// console.log('T.i', T.Domain)
 				// return 'http://ditu.zjzwfw.gov.cn/services/wmts/emap/default/oss?token=1ac0e4e9-6578-451c-a418-c66766937db2'
 				// return 'https://ditu.zjzwfw.gov.cn/services/wmts/emap_lab/default/oss?layer=emap_lab&style=default&tilematrixset=default028mm&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpgpng&TileMatrix={z}&TileCol={x}&TileRow={y}&token=5f08d106-fd9b-4834-834f-82ccca08e4a5'
 				return T.Protocol.value + "t" + T.q.W(0, 7) + ".tianditu." + T.Domain +

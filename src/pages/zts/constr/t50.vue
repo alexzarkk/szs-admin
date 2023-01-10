@@ -8,7 +8,7 @@
 				</div>
 				<!-- 规划列表 -->
 				<div class="user">
-					<list-review v-if="ids.length" :status="[44]" :expand.sync="expand" :ids="ids" />
+					<list-kml v-if="ids.length" :status="[10]" :expand.sync="expand" :ids="ids" />
 				</div>
 			</div>
 		</div>
@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import listReview from './components/list-review.vue'
+import listKml from './components/list-kml.vue'
 export default {
-	components: { listReview },
+	components: { listKml },
 	data() {
 		return {
 			expand: this.$store.getters.userInfo.isLeaf,

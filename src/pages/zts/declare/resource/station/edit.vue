@@ -9,7 +9,7 @@
 					</el-form-item>
 					<block v-if="userInfo.deptChild.length>1">
 						<el-form-item label="属地" prop="deptId">
-							<cl-dept-cascader :value="form.deptId" @input="setRegion"/>
+							<cl-dept-cascader :value="[form.deptId]" @input="setRegion"/>
 						</el-form-item>
 					</block>
 					<el-row>

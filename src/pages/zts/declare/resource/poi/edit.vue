@@ -15,7 +15,7 @@
 					<el-row>
 						<el-form-item label="属地" prop="region">
 							<block v-if="userInfo.deptChild.length>1">
-								<cl-dept-cascader v-if="timTimer" :value="form.deptId" @input="setRegion"/>
+								<cl-dept-cascader v-if="timTimer" :value="[form.deptId]" @input="setRegion"/>
 							</block>
 							<el-checkbox-group v-model="form.region" @change="regionChange">
 								<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">

@@ -15,7 +15,7 @@
 					<el-row>
 						<el-form-item label="属地" prop="region">
 							<block v-if="userInfo.deptChild.length>1">
-								<cl-dept-cascader v-if="timTimer" :value="form.deptId" @input="setRegion"/>
+								<cl-dept-cascader v-if="timTimer" :value="[form.deptId]" @input="setRegion"/>
 							</block>
 							<el-checkbox-group v-model="form.region" @change="regionChange">
 								<el-checkbox name="region" v-for="(item, index) in region" :key="index" :label="item._id">
@@ -396,6 +396,7 @@
 						this.addKml(this.form.kmlId)
 					}
 				}
+				console.log(this.form);
 				this.getRegions(this.form.deptId)
 				this.haveCondition()
 				this.autoUpdate()
@@ -509,6 +510,8 @@
 						let c = this.form.condition
 						if((c[0]+c[1]+c[2]+c[3])!=100) return this.$message.error("请设置路况！")
 					}
+					
+					if(this.form.status==1) this.form.status = 2
 					this.loading = true
 					await this.save()
 					this.loading = false

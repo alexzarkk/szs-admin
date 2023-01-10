@@ -9,15 +9,7 @@
 			</view>
 			<cl-refresh-btn />
 			<cl-multi-delete-btn>作废</cl-multi-delete-btn>
-			<el-button type="warning" :disabled="selected.length!=2" size="mini" @click="merge" v-permission="$service.zts.kml.permission.merge">合并</el-button>
-			<el-button
-				size="mini"
-				type="success"
-				:disabled="selected.length != 1"
-				@click="toMove()"
-				v-permission="$service.zts.kml.permission.move"
-				>转移</el-button
-			>
+			<!-- <el-button type="warning" size="mini" :disabled="selected.length!=2" @click="merge" v-permission="$service.zts.kml.permission.merge">合并</el-button> -->
 			
 			<cl-flex1 />
 			<cl-filter label="等级">
@@ -128,6 +120,8 @@
 			
 			<template #slot-btn="{ scope }">
 				<el-button type="text" size="mini" @click="detail(scope.row)">详情</el-button>
+				<el-button type="text" size="mini" @click="share(scope.row)">分享</el-button>
+				<el-button v-if="scope.row.status!=6" type="text" size="mini" @click="report(scope.row)">审核报告</el-button>
 			</template>
 			
 			</cl-table>
@@ -138,10 +132,8 @@
 			<cl-pagination />
 		</el-row>
 		
-		<cl-dept-move v-if="moveDept" :ids="selected.map(e=>{return e._id})" @moved="moved"> </cl-dept-move>
-		
 		<el-dialog title="扫码预览" center :visible.sync="preview" :width="'240px'">
-		    <zz-qrcode :url="shareUrl"></zz-qrcode>
+		    <zz-qrcode v-if="preview" :url="shareUrl"></zz-qrcode>
 		</el-dialog>
 		
 	</cl-crud>
@@ -189,7 +181,7 @@ export default {
 					type: 40,
 					dpids: this.ids,
 					page: 1,
-					// status: this.onStatus || this.status,
+					status: this.onStatus || this.status,
 					grade: this.onGrade,
 					name: this.name,
 					children: false,
@@ -200,27 +192,26 @@ export default {
 			app.refresh({
 				isoDept: true,
 				children: false,
-				// status: this.onStatus || this.status,
+				status: this.onStatus || this.status,
 				grade: this.onGrade,
 				ui: true,
 				type: 40
 			});
 		},
+		onSelect(e){ this.selected = e },
 		deptExpand(e){
 			this.$emit('update:expand',!this.expand)
 		},
-		check(e) {
-			uni.setStorageSync('collect_check', e._id)
-			this.$router.push('/pages/zts/map/map')
+		report(e) {
+			uni.setStorageSync('constr_kml', e._id)
+			this.zz.openWin({url: '#/pages/zts/constr/verify'})
 		},
 		detail(e){
 			uni.setStorageSync('collect_check', e._id)
 			this.$router.push('/pages/zts/map/map')
 		},
 		
-		onSelect(e){
-			this.selected = e
-		},
+		
 		merge(){
 			let x = this.selected, uid = this.userInfo._id
 			if(x[0].status != x[1].status) return this.$message.error('状态错误（数据状态必须相同）！');
@@ -248,22 +239,7 @@ export default {
 			this.preview = true
 			this.shareUrl = 'path=/pages/comm/kml&_id=' + e._id
 		},
-		toMove(e) {
-			this.moveDept = true
-		},
-		async moved(id){
-			if(id) {
-				await this.$service.zts.kml.move({
-					departmentId: id,
-					ids: this.selected.map(e=>{return e._id})
-				})
-				this.selected = []
-				this.$message.success("转移成功")
-				this.refresh()
-			}
-			
-			this.moveDept = false
-		}
+		
 	}
 };
 </script>

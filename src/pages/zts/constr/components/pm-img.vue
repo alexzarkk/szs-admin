@@ -6,16 +6,15 @@
 			<block v-for="(p, j) of pm.imgs" :key="j">
 				<el-image style="width: 120px; height: 120px;margin-left: 2px;" :src="p" :preview-src-list="pm.imgs"></el-image>
 			</block>
-			<view v-if="pm.svg" class="flex flex-direction align-center">
-				<img style="width: 260rpx; height: 260rpx;" mode="aspectFill" :src="pm.svg"></img>
-				<text>扫码查看视频</text>
+			<view v-if="pm.video" class="flex flex-direction align-center">
+				<zz-qrcode :baseUrl="''" :url="pm.video.url" :size="110" :bgImg="''" :preview="false" :margin="0" :paddin="0.32"></zz-qrcode>
+				<text class="text-sm">扫码查看视频</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-//var QRCode = require("qrcode-svg");
 
 export default {
 	props: {

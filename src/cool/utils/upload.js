@@ -4,6 +4,25 @@ import { uniqId } from '@/comm/geotools'
 
 export async function uploadFile({ filePath, fileType = 'image/png', compress = true, maxWidth = 750, maxHeight = 1920, cloudPath }) {
 	
+	if(fileType.startsWith('video')){
+		return new Promise((resolve, reject) => {
+			uniCloud.uploadFile({
+				filePath,
+				cloudPath,
+				onUploadProgress(progressEvent) {
+					// let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+				},
+				success(e) {
+					resolve(e.fileID)
+				},
+				fail(err) {
+					console.error(filePath, "视频上传失败===", err)
+					reject(false)
+				}
+			})
+		})
+	}
+	
 	/* 用 http 请求上传 */
 	let base64 = [],
 		src,

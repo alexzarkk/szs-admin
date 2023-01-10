@@ -1,5 +1,4 @@
 <script module="_mapbox" lang="renderjs">
-	import { mapGetters } from 'vuex';
 	import mapboxgl from '!mapbox-gl/dist/mapbox-gl'
 	import mbtool from '@/comm/libs/mapbox/mbtool.js'
 	import comm from '@/comm/comm'
@@ -11,6 +10,8 @@
 	import '@/comm/libs/mapbox/mapbox.css'
 	
 	const mapid = uniqId()
+	
+	console.log(mapid);
 	
 export default {
 	data() {
@@ -37,34 +38,25 @@ export default {
 			}
 		}
 	},
-	...mapGetters(['lay']),
-	watch: {
-		lay: {
-			deep: true,
-			handler(v) {
-				// this.resize()
-			}
-		}
-	},
 	async mounted() {
 		mapboxgl.accessToken = this.key.mb
-		window.mbAct = this.mbAct
+		// window.mbAct = this.mbAct
 		this.newMb()
 	},
 	methods: {
 		resize(){
 			let ct = document.getElementById(mapid)
-			if(ct) {
-				ct.style.width = this.lay.width-10+'px'
-				ct.style.height = this.lay.height-10+'px'
+			// if(ct) {
+				// ct.style.width = this.lay.width-10+'px'
+				// ct.style.height = this.lay.height-10+'px'
 				this.map.resize()
-			}
+			// }
 		},
 		newMb(){
 			let map = new mapboxgl.Map(this.settings)
 			
 			map.addControl(new CompassControl(), 'bottom-left')
-			map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
+			// map.addControl(new mapboxgl.FullscreenControl(), 'top-right')
 			
 			map.zz = {sid:'default',pm:{},nav:{r:{}},_2p:[]}
 			// map.zz.sid = 'default'
@@ -75,15 +67,17 @@ export default {
 		},
 		init(self,si,ct,isf) {
 			this.self = self
-			let map = this.map,
-				ctrl = new TerrainControl(isf, map.zz.sid, si.platform)
+			let map = this.map
+				// ctrl = new TerrainControl(isf, map.zz.sid, si.platform)
 				
-			map.addControl(ctrl, 'top-left')
+			// map.addControl(ctrl, 'top-left')
 			
-			if(si.grid) {
-				map.ztsGrid = true
-				map.addControl(new GridControl(), 'top-left')
-			}
+			
+			map.ztsGrid = true
+			// if(si.grid) {
+			
+			// 	// map.addControl(new GridControl(), 'top-left')
+			// }
 			
 			 
 			map.resize()
@@ -134,11 +128,11 @@ export default {
 			}
 			
 			map.on('load', (e) => {
-				map.addControl(new RulerControl(), 'top-right')
-				ctrl.done()
+				// map.addControl(new RulerControl(), 'top-right')
+				// ctrl.done()
 				map.init = true
 				self.callMethod('mapDone', true)
-				comm.setStorage('mbStyle', map.getStyle())
+				// comm.setStorage('mbStyle', map.getStyle())
 				
 				// this.geolocate.trigger()
 			})
@@ -157,7 +151,7 @@ export default {
 			if (!map) return
 			if (!map.init) return this.init(self, option, center, isf)
 			
-			console.log('zz-map.inited...',mapid)
+			console.log('zz-map-simple.inited...',mapid)
 			// console.log('updateData:=======================', center,point,line);
 			// console.log('updateData.old:====',ov);
 			
@@ -212,9 +206,8 @@ export default {
     </view>
 </template>
 <script>
-import { mapGetters } from 'vuex';
 export default {
-    name: 'zzMap',
+    name: 'zzMapSimple',
     data() {
         return {
 			mdone: false,
@@ -286,7 +279,6 @@ export default {
             default: 400
         }
     },
-	computed: { ...mapGetters(['lay']) },
     watch: {
         line(e, o) {
 			if(o&&JSON.stringify(o)!=JSON.stringify(e)) this.setProp()
@@ -317,6 +309,7 @@ export default {
     },
 	
     mounted() {
+		console.log('map.mounted', Date.now())
 		this.sysInfo = uni.getStorageSync('szsSys')
 		// this.isFullscreen = this.winH == this.sysInfo.windowHeight
 		if(!this.center.length) {

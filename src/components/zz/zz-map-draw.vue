@@ -156,6 +156,8 @@ export default {
 			}
 			
 			map.addControl(this.mdraw)
+			
+			console.log('zz-map-draw.inited...', mapid)
 		},
 		
 		async updateData({exec=null, option={}, center=null, pms=null, line=[], point=[], gon=[]}, ov, self) {

@@ -5,7 +5,9 @@
 			<tdt-marker :position="pm.coord"></tdt-marker>
 			<tdt-polyline :path="line.coord" :weight="2" :color="'#00ff00'" :opacity="0.8" :extData="line"></tdt-polyline>
 		</tdt-map>
-		<text>{{addr}}</text>
+		
+		<!-- <zz-map-simple :line="[line]" :point="[pm]"></zz-map-simple> -->
+		<text class="text-sm">{{addr}}</text>
 	</div>
 </template>
 
@@ -53,6 +55,6 @@ export default {
 	justify-content: center;
 	align-items: center;
 	width: 280px;
-	height: 20px;
+	height: 24px;
 }
 </style>

@@ -97,13 +97,10 @@
 					<el-button v-if="scope.row.status<20" type="text" size="mini" @click="cfgSign(scope.row)">标牌配置</el-button>
 				</template>
 				<template #slot-cst="{ scope }">
-					<el-button v-if="scope.row.status>=20" type="text" size="mini" @click="constrInfo(scope.row)">完工巡线报告</el-button>
+					<el-button v-if="scope.row.status>=20" type="text" size="mini" @click="constrInfo(scope.row)">完工报告</el-button>
 				</template>
 				<template #slot-detail="{ scope }">
 					<el-button type="text" size="mini" @click="detail(scope.row,false)">详情</el-button>
-				</template>
-				<template #slot-examine="{ scope }">
-					<!-- <el-button type="text" size="mini" v-if="scope.row.status<10" v-permission="$service.zts.kml.permission.verify" @click="toAudit(scope.row)">审核</el-button> -->
 				</template>
 				<template #slot-statusBack="{ scope }">
 					<el-button type="text" size="mini" v-if="scope.row.status>10" v-permission="$service.zts.kml.permission.verify" @click="statusBack(scope.row)">回退</el-button>
@@ -199,6 +196,7 @@ export default {
 			uni.setStorageSync('constr_report', {lay:this.cur, logs: this.constr.logs, kml:e})
 			openWin("/#/pages/zts/constr/report",null,880,1000)
 		},
+		
 		async constrInfo(e){
 			this.loading = true
 			if(!e.logs) e.logs = await this.$service.zts.layLog.list({ constrId: e._id })
@@ -206,7 +204,16 @@ export default {
 				e.kml = await this.$service.zts.kml.info({ id: e.kmlId })
 				e.kml.chart = kmlChart(e.kml.children)
 			}
-			if(!e.kml40) e.kml40 = await this.$service.zts.kml.list({ type: 40, layId: e._id })
+			if(!e.kml40) {
+				let { list } = await this.$service.zts.kml.page({ type: 40, status: [4,10], layId: e._id })
+				e.kml40 = list[0]
+				if(e.kml40) {
+					let log = await this.$service.zts.log.page({ui:1, size:1, kmlId: e.kml40._id})
+					if(log.list.length) {
+						e.kml40.t = {...log.list[0], ...log.list[0].verResult}
+					}
+				}
+			} 
 			this.cur = e
 			this.loading = false
 			this.constrOpen = true

@@ -12,6 +12,7 @@ const
 	toArr = (o) => {
 		let a = []
 		for (let k in o) {
+			o[k]._k = k
 			a.push(o[k])
 		}
 		return a

@@ -154,8 +154,8 @@ export default {
 						if(this.cur.name||this.cur.title) {
 							this.$service.zts.log.sms({  // 发送短信
 								userId: this.cur.userId,
-								name: '('+ue.label+')'+this.cur.name,
-								templateId: this.examineObj.status==10?'15288':'14865',
+								name: '('+ue.label+')'+ (this.cur.name||this.cur.title),
+								templateId: this.examineObj.status==10? '15288':'14865',
 								content: this.examineObj.status==10? '':this.examineObj.reject
 							})
 						}

@@ -17,7 +17,7 @@
 								</div>
 							</view>
 							<cl-refresh-btn />
-							<el-button size="mini" type="primary" @click="edit({})">新增</el-button>
+							<el-button size="mini" type="primary" @click="edit(false)">新增</el-button>
 							<cl-multi-delete-btn />
 							<cl-flex1 />
 							

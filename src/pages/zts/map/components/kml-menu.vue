@@ -228,7 +228,7 @@ export default {
 			if(this.kml.type==40) {
 				uni.setStorageSync('constr_kml', this.kml._id)
 			}
-			this.zz.openWin({url: 'pc/#/pages/zts/constr/verify'})
+			this.zz.openWin({url: '#/pages/zts/constr/verify'})
 		},
 		edit() {
 			open({ thiz: this, act: 'edit', pm: this.cur })

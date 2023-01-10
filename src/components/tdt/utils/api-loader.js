@@ -39,8 +39,8 @@ export default class ApiLoader {
 			script.type = "text/javascript";
 			script.async = true;
 			script.defer = true;
-			script.src = `https://api.tianditu.gov.cn/api?v=${this._config.v}&tk=${this._config.tk}`;
-			// script.src = './static/tdt-api.js';
+			// script.src = `https://api.tianditu.gov.cn/api?v=${this._config.v}&tk=${this._config.tk}`;
+			script.src = './static/tdt-api.js';
 			this._document.body.appendChild(script);
 			script.onload = () => {
 				window.geoCoder = new T.Geocoder()
